@@ -1,0 +1,41 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme static {
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Fraunces', serif;
+
+  --color-jhoanna-50: #e8eaf9;
+  --color-jhoanna-100: #d0d6f4;
+  --color-jhoanna-200: #a1aee9;
+  --color-jhoanna-300: #738ade;
+  --color-jhoanna-400: #4565c1;
+  --color-jhoanna-500: #2e4588;
+  --color-jhoanna-600: #192853;
+  --color-jhoanna-700: #132044;
+  --color-jhoanna-800: #0d1836;
+  --color-jhoanna-900: #060d22;
+  --color-jhoanna-950: #030716;
+
+  --color-maloi-50: #fffcf4;
+  --color-maloi-100: #fff9e8;
+  --color-maloi-200: #fff6dc;
+  --color-maloi-300: #fff0c1;
+  --color-maloi-400: #ffeba1;
+  --color-maloi-500: #ffe577;
+  --color-maloi-600: #ffe14f;
+  --color-maloi-700: #bba300;
+  --color-maloi-800: #7b6a00;
+  --color-maloi-900: #3e3400;
+  --color-maloi-950: #231d00;
+
+  --animate-shake: shake 0.45s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
