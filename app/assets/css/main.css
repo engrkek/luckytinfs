@@ -4,7 +4,8 @@
 @theme static {
   --font-sans: 'Inter', sans-serif;
   --font-display: 'Fraunces', serif;
-  --font-roboto: 'Roboto', sans-serif;
+  --font-hand: 'Cedarville Cursive', cursive;
+  --font-script: 'Nice Gourmet Script Trial', cursive;
 
   --color-jhoanna-50: #e8eaf9;
   --color-jhoanna-100: #d0d6f4;
@@ -39,4 +40,31 @@
   40% { transform: translateX(6px); }
   60% { transform: translateX(-4px); }
   80% { transform: translateX(4px); }
+}
+
+@utility bg-gingham-yellow {
+  --gingham-size: 1.25rem;
+  background-color: var(--color-maloi-50);
+  background-image:
+    linear-gradient(90deg, color-mix(in srgb, var(--color-maloi-400) 45%, transparent) 50%, transparent 50%),
+    linear-gradient(color-mix(in srgb, var(--color-maloi-400) 45%, transparent) 50%, transparent 50%);
+  background-size: var(--gingham-size) var(--gingham-size);
+}
+
+@utility bg-gingham-blue {
+  --gingham-size: 1.25rem;
+  background-color: var(--color-jhoanna-50);
+  background-image:
+    linear-gradient(90deg, color-mix(in srgb, var(--color-jhoanna-400) 40%, transparent) 50%, transparent 50%),
+    linear-gradient(color-mix(in srgb, var(--color-jhoanna-400) 40%, transparent) 50%, transparent 50%);
+  background-size: var(--gingham-size) var(--gingham-size);
+}
+
+@utility bg-gingham-yellow-blue {
+  --gingham-size: 1.25rem;
+  background-color: var(--color-maloi-100);
+  background-image:
+    linear-gradient(90deg, color-mix(in srgb, var(--color-jhoanna-300) 42%, transparent) 50%, transparent 50%),
+    linear-gradient(color-mix(in srgb, var(--color-maloi-500) 42%, transparent) 50%, transparent 50%);
+  background-size: var(--gingham-size) var(--gingham-size);
 }

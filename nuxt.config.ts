@@ -27,8 +27,22 @@ export default defineNuxtConfig({
 
   fonts: {
     families: [
-      { name: 'Fraunces', weights: ['300'] },
+      { name: 'Cedarville Cursive' },
       { name: 'Inter', weights: ['400 700'] },
     ],
+  },
+
+  icon: {
+    customCollections: [
+      {
+        prefix: 'custom',
+        dir: './app/assets/icons',
+      },
+    ],
+    clientBundle: {
+      scan: true,
+      includeCustomCollections: true,
+    },
+    provider: 'iconify',
   },
 })
