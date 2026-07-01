@@ -1,18 +1,32 @@
+import { SITE_ACCESS_KEY } from '~/composables/useSiteAccess'
+
 export default defineNuxtRouteMiddleware((to) => {
-  if (to.path === '/enter')
-    return
-
-  // localStorage is only available on the client
-  if (import.meta.server)
-    return
-
   const { connected, enabled } = useSiteAccess()
 
-  if (!enabled.value || connected.value)
+  if (import.meta.client && !connected.value) {
+    try {
+      if (localStorage.getItem(SITE_ACCESS_KEY) === 'true')
+        connected.value = true
+    }
+    catch {}
+  }
+
+  if (!enabled.value)
     return
 
-  return navigateTo({
-    path: '/enter',
-    query: { redirect: to.fullPath },
-  })
+  if (to.path === '/enter') {
+    if (connected.value) {
+      const redirect = to.query.redirect
+      const target = typeof redirect === 'string' && redirect.startsWith('/') ? redirect : '/'
+      return navigateTo(target)
+    }
+    return
+  }
+
+  if (!connected.value) {
+    return navigateTo({
+      path: '/enter',
+      query: { redirect: to.fullPath },
+    })
+  }
 })

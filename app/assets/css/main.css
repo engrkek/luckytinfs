@@ -4,6 +4,7 @@
 @theme static {
   --font-sans: 'Inter', sans-serif;
   --font-display: 'Fraunces', serif;
+  --font-roboto: 'Roboto', sans-serif;
 
   --color-jhoanna-50: #e8eaf9;
   --color-jhoanna-100: #d0d6f4;

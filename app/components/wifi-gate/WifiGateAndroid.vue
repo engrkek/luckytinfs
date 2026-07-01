@@ -25,7 +25,7 @@ function onCancel() {
 </script>
 
 <template>
-  <div class="select-none flex min-h-dvh flex-col bg-default px-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pt-[env(safe-area-inset-top)] font-[Roboto,sans-serif] text-highlighted">
+  <div class="select-none flex min-h-dvh flex-col bg-default px-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pt-[env(safe-area-inset-top)] font-roboto text-highlighted">
     <div class="flex items-center justify-between px-4 pt-2.5 text-[13px] font-semibold" aria-hidden="true">
       <span>2:45</span>
       <div class="flex items-center gap-1.5 text-xs">

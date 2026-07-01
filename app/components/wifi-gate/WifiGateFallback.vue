@@ -17,7 +17,7 @@ function onSubmit() {
 </script>
 
 <template>
-  <div class="select-none grid min-h-dvh place-items-center bg-primary-50 dark:bg-secondary-900 p-6">
+  <div class="select-none w-full min-h-dvh flex justify-center items-center bg-primary-50 dark:bg-secondary-900 p-6">
     <UCard
       class="w-full max-w-sm text-center ring-0"
       :class="error && 'animate-shake'"

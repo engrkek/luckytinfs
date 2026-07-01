@@ -2,7 +2,11 @@ export const SITE_ACCESS_KEY = 'luckytinfs-wifi-connected'
 
 export function useSiteAccess() {
   const config = useRuntimeConfig()
-  const connected = useLocalStorage(SITE_ACCESS_KEY, false)
+  const connected = useCookie(SITE_ACCESS_KEY, {
+    default: () => false,
+    maxAge: 60 * 60 * 24 * 30,
+    sameSite: 'lax',
+  })
 
   const enabled = computed(() => Boolean(config.public.sitePassword))
 

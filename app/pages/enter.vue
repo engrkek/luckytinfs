@@ -21,14 +21,6 @@ useHead({
   meta: [
     { name: 'robots', content: 'noindex, nofollow' },
   ],
-  link: [
-    { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap' },
-  ],
-})
-
-onMounted(() => {
-  if (!enabled.value || connected.value)
-    router.replace(redirectTo.value)
 })
 
 async function onSubmit(password: string) {
