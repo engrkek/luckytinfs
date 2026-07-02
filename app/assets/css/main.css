@@ -7,6 +7,8 @@
   --font-hand: 'Cedarville Cursive', cursive;
   --font-script: 'Nice Gourmet Script Trial', cursive;
 
+  --font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+
   --color-jhoanna-50: #e8eaf9;
   --color-jhoanna-100: #d0d6f4;
   --color-jhoanna-200: #a1aee9;
@@ -34,14 +36,6 @@
   --animate-shake: shake 0.45s ease;
 }
 
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-6px); }
-  40% { transform: translateX(6px); }
-  60% { transform: translateX(-4px); }
-  80% { transform: translateX(4px); }
-}
-
 @utility bg-gingham-yellow {
   --gingham-size: 1.25rem;
   background-color: var(--color-maloi-50);
@@ -67,4 +61,12 @@
     linear-gradient(90deg, color-mix(in srgb, var(--color-jhoanna-300) 42%, transparent) 50%, transparent 50%),
     linear-gradient(color-mix(in srgb, var(--color-maloi-500) 42%, transparent) 50%, transparent 50%);
   background-size: var(--gingham-size) var(--gingham-size);
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
 }

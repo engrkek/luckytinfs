@@ -3,10 +3,12 @@ defineProps<{
   image: {
     src: string
     alt: string
+    class?: any
   }
   caption?: string
   index: number
   size?: any
+
 }>()
 </script>
 
@@ -22,7 +24,7 @@ defineProps<{
       :src="image.src"
       :alt="image.alt"
       class="object-cover"
-      :class="size ? size : 'size-32'"
+      :class="[size ? size : 'size-32', image.class]"
     />
     <span v-if="caption" class="w-32 text-xs text-black font-hand text-center mt-2">
       {{ caption }}
