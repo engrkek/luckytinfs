@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps<{
+withDefaults(defineProps<{
   image: {
     src: string
     alt: string
@@ -7,26 +7,29 @@ defineProps<{
   }
   caption?: string
   index: number
-  size?: any
-
-}>()
+  padding?: string
+}>(), {
+  padding: 'p-3',
+})
 </script>
 
 <template>
   <div
-    class="bg-white p-2 flex flex-col drop-shadow-2xl transition-transform duration-300 ease-in-out hover:scale-105 hover:rotate-0 hover:z-10"
+    class="bg-white flex flex-col drop-shadow-2xl transition-transform duration-300 ease-in-out hover:scale-105 hover:rotate-0 hover:z-10"
     :class="[
       index % 2 === 0 ? '-rotate-5' : 'rotate-5',
       index % 2 === 0 ? 'hover:-translate-x-4' : 'hover:translate-x-4',
+      padding,
     ]"
   >
     <NuxtImg
       :src="image.src"
       :alt="image.alt"
+      draggable="false"
       class="object-cover"
-      :class="[size ? size : 'size-32', image.class]"
+      :class="image.class"
     />
-    <span v-if="caption" class="w-32 text-xs text-black font-hand text-center mt-2">
+    <span v-if="caption" class="text-xs text-black font-hand text-center mt-2">
       {{ caption }}
     </span>
   </div>
