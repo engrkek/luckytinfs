@@ -10,6 +10,11 @@ useHead({
     { rel: 'icon', href: '/logo.svg' },
   ],
 })
+
+useSeoMeta({
+  title: '%s // Luckytin Fan Support',
+  description: 'A dedicated fan support team for BINI Maloi & BINI Jhoanna',
+})
 </script>
 
 <template>

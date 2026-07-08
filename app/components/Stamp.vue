@@ -10,7 +10,7 @@ const props = withDefaults(defineProps<{
 
 <template>
   <div class="stamp" :class="props.class">
-    <NuxtImg :src :alt draggable="false" class="size-full object-cover" />
+    <NuxtImg :src :alt draggable="false" class="w-full h-full object-cover object-center" />
   </div>
 </template>
 
