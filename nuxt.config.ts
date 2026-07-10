@@ -4,7 +4,12 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/ui',
     '@nuxt/image',
+    '@nuxthub/core',
+    '@onmax/nuxt-better-auth',
+    '@pinia/nuxt',
+    '@pinia/colada-nuxt',
     '@vueuse/nuxt',
+    'motion-v/nuxt',
   ],
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
@@ -16,7 +21,24 @@ export default defineNuxtConfig({
     },
   },
 
+  routeRules: {
+    '/office/**': { auth: { user: { role: ['admin', 'moderator'] } } },
+  },
+
   compatibilityDate: '2025-07-15',
+
+  hub: {
+    db: {
+      dialect: 'sqlite',
+      casing: 'snake_case',
+    },
+    blob: true,
+    kv: true,
+  },
+
+  auth: {
+    hubSecondaryStorage: true,
+  },
 
   eslint: {
     config: {
