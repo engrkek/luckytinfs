@@ -36,6 +36,14 @@ export default defineNuxtConfig({
     kv: true,
   },
 
+  vite: {
+    optimizeDeps: {
+      include: [
+        'better-auth/client/plugins',
+      ],
+    },
+  },
+
   auth: {
     hubSecondaryStorage: true,
   },
