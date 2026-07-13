@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<{
   padding: calc(var(--r) + 2px);
   background: var(--bg);
   mask:
-    radial-gradient(50% 50%,#0000 66%,#000 67%) round
+    radial-gradient(at 50% 50%,#0000 66%,#000 67%) round
     var(--r) var(--r)/calc(2*var(--r)) calc(2*var(--r)),
     conic-gradient(#000 0 0) content-box;
 }

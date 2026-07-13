@@ -26,7 +26,7 @@ const props = withDefaults(defineProps<{
         :class="image.class"
       />
     </div>
-    <span v-if="caption" class="text-xl text-black font-hand text-center mt-2">
+    <span v-if="caption" class="text lg:text-xl text-black font-hand font-bold text-center mt-2">
       {{ caption }}
     </span>
   </div>
