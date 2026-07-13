@@ -16,7 +16,6 @@ export const expense = sqliteTable('expense', {
   amount: integer().notNull(), // in cents
   method: text().notNull(), // e.g. cash, channel
   channelId: text().references(() => channel.id), // where funds come from
-  fee: integer(), // cahsout or transfer fee, in cents
   paymentUrl: text(), // proof of payment
   receiptUrl: text(), // invoice
   notes: text(), // not sure if shown publicly
