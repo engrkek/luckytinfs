@@ -22,7 +22,7 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/office/**': { auth: { user: { role: ['admin', 'moderator'] } } },
+    '/office/**': { auth: { user: { role: ['admin', 'moderator'] } }, appLayout: 'dashboard' },
   },
 
   compatibilityDate: '2025-07-15',

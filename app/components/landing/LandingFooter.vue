@@ -2,9 +2,10 @@
 const columns = [{
   label: 'Navigation',
   children: [
-    { label: 'About', to: '#about' },
-    { label: 'Fan Projects', to: '#fan-projects' },
-    { label: 'Reports', to: '#reports' },
+    { label: 'About', to: '/#about' },
+    { label: 'Fan Projects', to: '/#fan-projects' },
+    { label: 'Reports', to: '/#reports' },
+    { label: 'Login', to: '/login' },
   ],
 }]
 </script>

@@ -9,20 +9,20 @@ const props = withDefaults(defineProps<{
 </script>
 
 <template>
-  <div class="stamp" :class="props.class">
+  <div class="stamp overflow-hidden" :class="props.class">
     <NuxtImg :src :alt draggable="false" class="w-full h-full object-cover object-center" />
   </div>
 </template>
 
 <style lang="css" scoped>
 .stamp {
-  --r: 8px;
-  --bg: white;
+  --r: 10px;
+  width: 100%;
   aspect-ratio: 1.5;
-  padding: calc(var(--r) + 2px);
-  background: var(--bg);
+  padding: var(--r);
+  background: #fff;
   mask:
-    radial-gradient(at 50% 50%,#0000 66%,#000 67%) round
+    radial-gradient(at 50% 50%,#0000 50%,#000 50%) round
     var(--r) var(--r)/calc(2*var(--r)) calc(2*var(--r)),
     conic-gradient(#000 0 0) content-box;
 }

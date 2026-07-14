@@ -12,7 +12,7 @@ useHead({
 })
 
 useSeoMeta({
-  title: '%s // Luckytin Fan Support',
+  titleTemplate: '%s // Luckytin Fan Support',
   description: 'A dedicated fan support team for BINI Maloi & BINI Jhoanna',
 })
 </script>
