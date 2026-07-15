@@ -44,44 +44,5 @@
       "binding": "KV",
       "id": "c8534e2dc6d64214b4f0e92220429d84"
     }
-  ],
-  "env": {
-    "preview": {
-      "name": "luckytinfs-preview",
-      "assets": {
-        "binding": "ASSETS",
-        "directory": ".output/public/"
-      },
-      "routes": [
-        {
-          "pattern": "preview.luckytinfs.com",
-          "custom_domain": true
-        }
-      ],
-      "vars": {
-        "NUXT_PUBLIC_SITE_URL": "https://preview.luckytinfs.com"
-      },
-      "d1_databases": [
-        {
-          "binding": "DB",
-          "database_name": "luckytinfs-preview",
-          "database_id": "4ac35da2-644f-44b7-81d1-953665da91c3",
-          "migrations_table": "_hub_migrations",
-          "migrations_dir": "./server/db/migrations/sqlite/"
-        }
-      ],
-      "r2_buckets": [
-        {
-          "bucket_name": "luckytinfs-preview",
-          "binding": "BLOB"
-        }
-      ],
-      "kv_namespaces": [
-        {
-          "binding": "KV",
-          "id": "53d65673bca74fbfaa40cfd295589158"
-        }
-      ]
-    }
-  }
+  ]
 }
