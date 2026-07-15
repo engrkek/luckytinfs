@@ -14,6 +14,10 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
 
+  colorMode: {
+    preference: 'light',
+  },
+
   runtimeConfig: {
     public: {
       networkName: 'LuckyTinFS_Guest',
