@@ -5,7 +5,7 @@ const columns = [{
     { label: 'About', to: '/#about' },
     { label: 'Fan Projects', to: '/#fan-projects' },
     { label: 'Reports', to: '/#reports' },
-    { label: 'Login', to: '/login' },
+    { label: 'Office', to: '/office' },
   ],
 }]
 </script>
