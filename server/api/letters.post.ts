@@ -1,8 +1,6 @@
 import { letter } from '@nuxthub/db/schema'
 import { z } from 'zod'
 
-// ponytail: option ids validated as capped strings for now — tighten to enums
-// once the editor's asset constants exist (shared/ dir), so assets stay files not DB rows
 const optionId = z.string().min(1).max(50)
 
 const bodySchema = z.object({
