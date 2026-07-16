@@ -22,7 +22,7 @@ const freebies = [
 
       <div>
         <div class="relative max-w-md w-full mx-auto mt-8 xl:mt-0 bg-linear-to-br from-white to-primary-50 text-default -rotate-3 drop-shadow-xl px-6 py-8">
-          <div class="absolute top-0 left-1/2 -translate-1/2 w-50 h-10 bg-gingham-blue opacity-80 drop-shadow" />
+          <div class="absolute top-0 left-1/2 -translate-1/2 w-50 h-10 bg-gingham-yellow opacity-90 drop-shadow" />
 
           <h3 class="text-2xl font-display tracking-tighter text-balance">
             Signals World Tour / <i>Cebu Freebies</i>
