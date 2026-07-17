@@ -63,6 +63,9 @@ export default defineNuxtConfig({
     families: [
       { name: 'Cedarville Cursive' },
       { name: 'Inter', weights: ['400 700'] },
+      { name: 'Fraunces', weights: ['400 700'] },
+      { name: 'Playpen Sans', weights: ['400 700'] },
+      { name: 'Courier Prime', weights: ['400 700'] },
     ],
   },
 

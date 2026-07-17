@@ -8,7 +8,7 @@ export const letter = sqliteTable('letter', {
   senderName: text().default('Anonymous').notNull(),
   senderEmail: text(), // optional, contact only, never displayed
   body: text().notNull(),
-  design: text({ mode: 'json' }).notNull(), // { background, font, envelope, seal, music, stickers: [{ id, x, y, rotation, scale }] } — options are asset files, not DB rows
+  design: text({ mode: 'json' }).notNull(), // { background, font, envelope, seal, music?: Spotify URL, stickers: [{ id, x, y, rotation, scale }] }
   visibility: text().notNull(), // public, private — set at submit, immutable (same reasoning as donation.display)
   status: text().default('pending').notNull(), // pending, approved, rejected
   adminNotes: text(), // internal only
