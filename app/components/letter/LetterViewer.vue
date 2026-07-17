@@ -3,13 +3,15 @@ import type { PublicLetter } from '#shared/letters/public'
 import { parseYouTubeLink } from '#shared/letters/youtube'
 
 /**
- * Open sequence:
- * sealed → opening (flap + seal) → extracting (letter slides out of pocket)
- * → typing → reading
+ * Open: sealed → opening (flap) → extracting (letter slides out of pocket)
+ * → typing (envelope drops behind the full letter) → reading
+ * Reseal: reading → tucking (letter fades back onto the extracted paper)
+ * → inserting (paper slides into pocket) → closing (flap shuts) → sealed
  *
  * Soundtrack autoplays only after the open gesture (not while sealed).
  */
 type Phase = 'sealed' | 'opening' | 'extracting' | 'typing' | 'reading'
+  | 'tucking' | 'inserting' | 'closing'
 
 const props = defineProps<{
   letter: PublicLetter
@@ -21,10 +23,12 @@ const emit = defineEmits<{
   close: []
   next: []
   prev: []
+  /** Reseal ceremony finished — envelope is sealed again */
+  resealed: []
 }>()
 
 const phase = ref<Phase>('sealed')
-const { pref: globalSound, enable: enableGlobalSound, disable: disableGlobalSound } = useLetterSound()
+const { pref: globalSound, enable: enableGlobalSound } = useLetterSound()
 const sound = ref<'pending' | 'on' | 'off'>('pending')
 
 function prefersReducedMotion() {
@@ -131,17 +135,41 @@ function openLetter() {
   }, 620)
 }
 
+/** Reverse ceremony: letter slides back in, flap closes */
 function reseal() {
+  if (phase.value !== 'reading')
+    return
   clearTimers()
-  phase.value = 'sealed'
-  resetTyping()
+  // 1) Full letter fades back onto the extracted paper behind it
+  phase.value = 'tucking'
+  later(() => {
+    // 2) Paper slides down into the pocket
+    phase.value = 'inserting'
+    later(() => {
+      // 3) Flap closes, seal returns
+      phase.value = 'closing'
+      later(() => {
+        phase.value = 'sealed'
+        resetTyping()
+        emit('resealed')
+      }, 650)
+    }, 750)
+  }, 520)
   // Keep sound preference; pause is left to the player UI
 }
+
+const RESEAL_PHASES: Phase[] = ['tucking', 'inserting', 'closing']
 
 function skipCeremony() {
   if (phase.value === 'sealed' || phase.value === 'reading')
     return
   clearTimers()
+  if (RESEAL_PHASES.includes(phase.value)) {
+    phase.value = 'sealed'
+    resetTyping()
+    emit('resealed')
+    return
+  }
   skipTyping()
   phase.value = 'reading'
   if (hasMusic.value && globalSound.value !== 'off') {
@@ -150,45 +178,29 @@ function skipCeremony() {
   }
 }
 
-function playWithSound() {
-  sound.value = 'on'
-  enableGlobalSound()
-}
-
-function continueQuiet() {
-  sound.value = 'off'
-  disableGlobalSound()
-}
-
+/**
+ * Flap is open during the hand-off phases only. Once the letter is out
+ * (typing/reading) the envelope closes up behind it — no flap towering
+ * over the letter — and reopens while resealing.
+ */
 const envelopeOpen = computed(() =>
   phase.value === 'opening'
   || phase.value === 'extracting'
-  || phase.value === 'typing'
-  || phase.value === 'reading',
+  || phase.value === 'tucking'
+  || phase.value === 'inserting',
 )
 
-/** Letter is physically exiting / has exited the pocket */
+/**
+ * Paper is out of the pocket. During typing/reading the extract is released
+ * so the pocket paper settles back inside, hidden behind the full letter —
+ * the envelope visually "moves behind".
+ */
 const envelopeExtract = computed(() =>
-  phase.value === 'extracting'
-  || phase.value === 'typing'
-  || phase.value === 'reading',
-)
-
-const showEnvelope = computed(() =>
-  phase.value === 'sealed'
-  || phase.value === 'opening'
-  || phase.value === 'extracting',
+  phase.value === 'extracting' || phase.value === 'tucking',
 )
 
 const showFullLetter = computed(() =>
-  phase.value === 'typing' || phase.value === 'reading',
-)
-
-/** Compact letter visible inside/emerging from envelope */
-const showPocketLetter = computed(() =>
-  phase.value === 'sealed'
-  || phase.value === 'opening'
-  || phase.value === 'extracting',
+  phase.value === 'typing' || phase.value === 'reading' || phase.value === 'tucking',
 )
 
 const isCeremony = computed(() =>
@@ -230,47 +242,12 @@ onBeforeUnmount(clearTimers)
 
 <template>
   <div class="letter-viewer relative mx-auto w-full max-w-md">
-    <!-- Soundtrack bar: always visible when present; autoplay only after open -->
-    <div
+    <!-- Minimal soundtrack bar, docked at the bottom of the screen -->
+    <LetterYouTubePlayer
       v-if="hasMusic"
-      class="mb-6 space-y-2"
-    >
-      <LetterYouTubePlayer
-        :music="letter.design.music"
-        :autoplay="musicAutoplay"
-      />
-      <div class="flex items-center justify-between gap-2">
-        <p
-          v-if="phase === 'sealed' && sound !== 'off'"
-          class="font-type text-[0.55rem] uppercase tracking-[0.16em] text-white/30"
-        >
-          Plays when you open the letter
-        </p>
-        <p
-          v-else-if="phase === 'sealed' && sound === 'off'"
-          class="font-type text-[0.55rem] uppercase tracking-[0.16em] text-white/30"
-        >
-          Sound is off
-        </p>
-        <span v-else />
-        <button
-          v-if="sound === 'on'"
-          type="button"
-          class="font-type text-[0.55rem] uppercase tracking-[0.16em] text-white/35 hover:text-white/60"
-          @click="continueQuiet"
-        >
-          Mute
-        </button>
-        <button
-          v-else
-          type="button"
-          class="font-type text-[0.55rem] uppercase tracking-[0.16em] text-white/45 hover:text-white/70"
-          @click="playWithSound"
-        >
-          ♫ Sound on
-        </button>
-      </div>
-    </div>
+      :music="letter.design.music"
+      :autoplay="musicAutoplay"
+    />
 
     <!-- Unified open scene: envelope + letter in one continuous stage -->
     <div
@@ -278,45 +255,39 @@ onBeforeUnmount(clearTimers)
       :class="sceneClass"
       @click="isCeremony && phase !== 'opening' && skipCeremony()"
     >
-      <!-- Envelope layer -->
-      <Transition name="letter-env">
-        <div
-          v-if="showEnvelope"
-          class="letter-open-scene__envelope"
+      <!-- Envelope layer — always mounted; drops behind the letter once open -->
+      <div class="letter-open-scene__envelope">
+        <LetterEnvelope
+          :recipient="letter.recipient"
+          :sender-name="letter.senderName"
+          :design="letter.design"
+          :open="envelopeOpen"
+          :extract="envelopeExtract"
+          :index="index"
+          @open="openLetter"
         >
-          <LetterEnvelope
-            :recipient="letter.recipient"
-            :sender-name="letter.senderName"
-            :design="letter.design"
-            :open="envelopeOpen"
-            :extract="envelopeExtract"
-            :index="index"
-            @open="openLetter"
+          <!-- Pocket letter (slides with envelope interior) -->
+          <div
+            class="letter-envelope-card h-full overflow-hidden bg-[#f7f2e8]"
           >
-            <!-- Pocket letter (slides with envelope interior) -->
-            <div
-              v-if="showPocketLetter"
-              class="letter-envelope-card h-full overflow-hidden bg-[#f7f2e8]"
-            >
-              <LetterPaper
-                :recipient="letter.recipient"
-                :sender-name="letter.senderName"
-                :body="letter.body"
-                :design="letter.design"
-                compact
-                :sticker-progress="0"
-              />
-            </div>
-          </LetterEnvelope>
+            <LetterPaper
+              :recipient="letter.recipient"
+              :sender-name="letter.senderName"
+              :body="letter.body"
+              :design="letter.design"
+              compact
+              :sticker-progress="0"
+            />
+          </div>
+        </LetterEnvelope>
 
-          <p
-            v-if="phase === 'sealed'"
-            class="mt-6 text-center font-type text-[0.65rem] uppercase tracking-[0.32em] text-white/40"
-          >
-            Tap the seal
-          </p>
-        </div>
-      </Transition>
+        <p
+          v-if="phase === 'sealed'"
+          class="mt-6 text-center font-type text-[0.65rem] uppercase tracking-[0.32em] text-white/40"
+        >
+          Tap the seal
+        </p>
+      </div>
 
       <!-- Full letter takes over after extract -->
       <Transition name="letter-full">

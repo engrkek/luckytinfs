@@ -501,18 +501,6 @@
   );
 }
 
-/* Mailbox page: title sits right above the viewer — fade it out while the
-   open ceremony rises into its space */
-.letter-mailbox-header {
-  transition: opacity 0.3s ease;
-}
-
-.letter-mailbox-stage:has(.letter-open-scene--opening) .letter-mailbox-header,
-.letter-mailbox-stage:has(.letter-open-scene--extracting) .letter-mailbox-header,
-.letter-mailbox-stage:has(.letter-open-scene--typing) .letter-mailbox-header {
-  opacity: 0;
-}
-
 /* —— Open ceremony: rise from envelope + unfold —— */
 .letter-rise-stage {
   position: relative;
@@ -739,6 +727,21 @@
 .letter-open-scene--typing,
 .letter-open-scene--reading {
   min-height: 0;
+  padding-top: 0.5rem;
+}
+
+/* Reverse (reseal) phases mirror the open ones */
+.letter-open-scene--tucking {
+  min-height: 26rem;
+  padding-top: 0.5rem;
+}
+
+.letter-open-scene--inserting {
+  min-height: 20rem;
+}
+
+.letter-open-scene--closing {
+  min-height: 18rem;
 }
 
 .letter-open-scene__envelope {
@@ -753,9 +756,49 @@
   transform: translateY(12px) scale(0.97);
 }
 
+/* Once the letter is out, the envelope tucks in behind it (still visible
+   at the edges) instead of leaving the scene */
+.letter-open-scene--typing .letter-open-scene__envelope,
+.letter-open-scene--reading .letter-open-scene__envelope,
+.letter-open-scene--tucking .letter-open-scene__envelope {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+
+/* Keep the shell unclipped while the pocket paper settles back inside
+   behind the letter (extract is released at this point) */
+.letter-open-scene--typing .letter-envelope__shell,
+.letter-open-scene--reading .letter-envelope__shell {
+  overflow: visible;
+}
+
+.letter-open-scene--typing .letter-open-scene__envelope,
+.letter-open-scene--reading .letter-open-scene__envelope {
+  transform: translateY(-6px) scale(1.04) rotate(-3.5deg);
+  opacity: 0.95;
+}
+
+/* Paper rests tucked in the pocket (not dropped below the shell) while
+   the envelope sits closed behind the letter */
+.letter-open-scene--typing .letter-envelope__interior,
+.letter-open-scene--reading .letter-envelope__interior {
+  top: 10%;
+}
+
 .letter-open-scene__full {
   position: relative;
   z-index: 2;
+  transition:
+    opacity 0.45s ease,
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Reseal step 1: letter lifts back toward the envelope and fades */
+.letter-open-scene--tucking .letter-open-scene__full {
+  opacity: 0;
+  transform: translateY(-24px) scale(0.97);
 }
 
 /* Envelope enter / leave */
@@ -787,8 +830,9 @@
     transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .letter-full-enter-from {
+  /* Letter arrives from the envelope above, not from below */
   opacity: 0;
-  transform: translateY(40px) scale(0.94);
+  transform: translateY(-24px) scale(0.97);
 }
 .letter-full-leave-active {
   transition: opacity 0.3s ease;

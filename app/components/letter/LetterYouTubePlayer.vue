@@ -2,8 +2,8 @@
 import { parseYouTubeLink } from '#shared/letters/youtube'
 
 /**
- * Audio-only soundtrack player.
- * Uses the YouTube IFrame API under the hood (no video UI) with a custom play bar.
+ * Minimal audio-only soundtrack bar, fixed to the bottom of the screen:
+ * play/pause · progress line · mute. YouTube IFrame API under the hood.
  */
 
 const props = withDefaults(defineProps<{
@@ -23,8 +23,27 @@ const resource = computed(() => parseYouTubeLink(props.music ?? undefined))
 const hostEl = ref<HTMLElement | null>(null)
 const playing = ref(false)
 const ready = ref(false)
-const title = ref<string | null>(null)
+const muted = ref(false)
+const progress = ref(0)
 const error = ref<string | null>(null)
+const title = ref<string | null>(null)
+const artist = ref<string | null>(null)
+
+async function fetchTitle(openUrl: string) {
+  try {
+    // oEmbed is public and CORS-friendly for youtube.com
+    const data = await $fetch<{ title?: string, author_name?: string }>(
+      `https://www.youtube.com/oembed`,
+      { query: { url: openUrl, format: 'json' } },
+    )
+    title.value = data?.title ?? null
+    artist.value = data?.author_name ?? null
+  }
+  catch {
+    title.value = null
+    artist.value = null
+  }
+}
 
 interface YTPlayer {
   playVideo: () => void
@@ -32,6 +51,10 @@ interface YTPlayer {
   stopVideo: () => void
   destroy: () => void
   getPlayerState: () => number
+  getCurrentTime: () => number
+  getDuration: () => number
+  mute: () => void
+  unMute: () => void
 }
 
 interface YTPlayerEvent {
@@ -91,21 +114,6 @@ function loadYouTubeApi(): Promise<void> {
   return window.__ytApiReady
 }
 
-async function fetchTitle(openUrl: string) {
-  try {
-    // oEmbed is public and CORS-friendly for youtube.com
-    const data = await $fetch<{ title?: string }>(
-      `https://www.youtube.com/oembed`,
-      { query: { url: openUrl, format: 'json' } },
-    )
-    if (data?.title)
-      title.value = data.title
-  }
-  catch {
-    title.value = null
-  }
-}
-
 function destroyPlayer() {
   try {
     player?.destroy()
@@ -116,6 +124,7 @@ function destroyPlayer() {
   player = null
   ready.value = false
   playing.value = false
+  progress.value = 0
 }
 
 async function mountPlayer() {
@@ -172,6 +181,8 @@ async function mountPlayer() {
             return
           playing.value = e.data === YT.PlayerState.PLAYING
             || e.data === YT.PlayerState.BUFFERING
+          if (e.data === YT.PlayerState.ENDED)
+            progress.value = 1
         },
         onError: () => {
           error.value = 'Couldn’t load this track'
@@ -194,6 +205,31 @@ function togglePlay() {
     player.playVideo()
 }
 
+function toggleMute() {
+  if (!player || !ready.value)
+    return
+  if (muted.value)
+    player.unMute()
+  else
+    player.mute()
+  muted.value = !muted.value
+}
+
+/* Progress line: poll while playing */
+let poll: number | undefined
+
+watch(playing, (p) => {
+  window.clearInterval(poll)
+  if (!p)
+    return
+  poll = window.setInterval(() => {
+    if (!player)
+      return
+    const duration = player.getDuration() || 0
+    progress.value = duration ? player.getCurrentTime() / duration : 0
+  }, 500)
+})
+
 watch(
   () => [resource.value?.id, props.autoplay] as const,
   async ([id], prev) => {
@@ -213,6 +249,7 @@ watch(
   () => resource.value?.openUrl,
   (url) => {
     title.value = null
+    artist.value = null
     if (url)
       fetchTitle(url)
   },
@@ -225,15 +262,13 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  window.clearInterval(poll)
   destroyPlayer()
 })
 </script>
 
 <template>
-  <div
-    v-if="resource"
-    class="letter-audio w-full"
-  >
+  <div v-if="resource">
     <!-- Visually hidden YouTube host (audio only) -->
     <div
       ref="hostEl"
@@ -241,102 +276,57 @@ onBeforeUnmount(() => {
       aria-hidden="true"
     />
 
-    <div
-      class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-3 py-3 backdrop-blur-sm"
-    >
-      <button
-        type="button"
-        class="grid size-11 shrink-0 place-items-center rounded-full bg-white text-neutral-900 transition-transform active:scale-95 disabled:opacity-40"
-        :disabled="!ready && !error"
-        :aria-label="playing ? 'Pause soundtrack' : 'Play soundtrack'"
-        @click="togglePlay"
-      >
-        <UIcon
-          :name="playing ? 'i-lucide-pause' : 'i-lucide-play'"
-          class="size-5"
-          :class="!playing && 'ml-0.5'"
-        />
-      </button>
-
-      <div class="min-w-0 flex-1">
-        <p class="font-type text-[0.55rem] uppercase tracking-[0.18em] text-white/40">
-          Soundtrack
-        </p>
-        <p class="mt-0.5 truncate font-display text-sm text-white/90">
-          {{ error || title || 'YouTube audio' }}
-        </p>
-        <!-- Equalizer bars -->
-        <div
-          class="letter-audio-eq mt-1.5 flex h-3 items-end gap-0.5"
-          :class="playing ? 'is-playing' : ''"
-          aria-hidden="true"
+    <!-- Minimal dock: play/pause · progress line · mute -->
+    <div class="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0c0e12]/85 backdrop-blur-md pb-[env(safe-area-inset-bottom)]">
+      <div class="mx-auto flex max-w-lg items-center gap-4 px-5 py-2.5">
+        <button
+          type="button"
+          class="grid size-9 shrink-0 place-items-center rounded-full bg-white text-neutral-900 transition-transform active:scale-95 disabled:opacity-40"
+          :disabled="!ready || !!error"
+          :aria-label="playing ? 'Pause soundtrack' : 'Play soundtrack'"
+          @click="togglePlay"
         >
-          <span
-            v-for="n in 5"
-            :key="n"
-            class="letter-audio-eq__bar"
+          <UIcon
+            :name="playing ? 'i-lucide-pause' : 'i-lucide-play'"
+            class="size-4"
+            :class="!playing && 'ml-0.5'"
           />
-        </div>
-      </div>
+        </button>
 
-      <a
-        :href="resource.openUrl"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="shrink-0 font-type text-[0.55rem] uppercase tracking-[0.12em] text-white/35 hover:text-white/70 transition-colors"
-        title="Open on YouTube"
-      >
-        YT ↗
-      </a>
+        <div class="min-w-0 flex-1">
+          <p class="mb-1.5 truncate text-xs text-white/70">
+            {{ error || title || 'YouTube audio' }}<span
+              v-if="!error && artist"
+              class="text-white/40"
+            > — {{ artist }}</span>
+          </p>
+          <div
+            class="h-0.5 overflow-hidden rounded-full bg-white/15"
+            role="progressbar"
+            :aria-valuenow="Math.round(progress * 100)"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            <div
+              class="h-full rounded-full bg-white/80 transition-[width] duration-500 ease-linear"
+              :style="{ width: `${progress * 100}%` }"
+            />
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="grid size-9 shrink-0 place-items-center rounded-full text-white/60 transition-colors hover:text-white disabled:opacity-40"
+          :disabled="!ready || !!error"
+          :aria-label="muted ? 'Unmute soundtrack' : 'Mute soundtrack'"
+          @click="toggleMute"
+        >
+          <UIcon
+            :name="muted ? 'i-lucide-volume-x' : 'i-lucide-volume-2'"
+            class="size-4.5"
+          />
+        </button>
+      </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.letter-audio-eq__bar {
-  display: block;
-  width: 3px;
-  height: 4px;
-  border-radius: 1px;
-  background: color-mix(in srgb, #fff 35%, transparent);
-  transition: height 0.15s ease;
-}
-
-.letter-audio-eq.is-playing .letter-audio-eq__bar {
-  background: color-mix(in srgb, #f87171 80%, #fff);
-  animation: letter-audio-eq 0.85s ease-in-out infinite;
-}
-
-.letter-audio-eq.is-playing .letter-audio-eq__bar:nth-child(1) {
-  animation-delay: 0s;
-}
-.letter-audio-eq.is-playing .letter-audio-eq__bar:nth-child(2) {
-  animation-delay: 0.12s;
-}
-.letter-audio-eq.is-playing .letter-audio-eq__bar:nth-child(3) {
-  animation-delay: 0.05s;
-}
-.letter-audio-eq.is-playing .letter-audio-eq__bar:nth-child(4) {
-  animation-delay: 0.18s;
-}
-.letter-audio-eq.is-playing .letter-audio-eq__bar:nth-child(5) {
-  animation-delay: 0.08s;
-}
-
-@keyframes letter-audio-eq {
-  0%,
-  100% {
-    height: 4px;
-  }
-  50% {
-    height: 12px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .letter-audio-eq.is-playing .letter-audio-eq__bar {
-    animation: none;
-    height: 8px;
-  }
-}
-</style>

@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import type { LetterStoryTool } from '~/composables/useLetterEditor'
 import { LETTER_RECIPIENTS } from '#shared/letters/assets'
+import { isLetterRecipient } from '#shared/letters/public'
 
 const editor = useLetterEditor()
+
+const initialTo = String(useRoute().query.to || '')
+if (isLetterRecipient(initialTo))
+  editor.recipient.value = initialTo
 const {
   recipient,
   senderName,
