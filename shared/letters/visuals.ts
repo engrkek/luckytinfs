@@ -96,6 +96,13 @@ export const RECIPIENT_THEME: Record<LetterRecipient, {
   },
 }
 
+/** Postbox paint per recipient — yellow / blue / teal */
+export const MAILBOX_PAINT: Record<LetterRecipient, { body: string, deep: string, soft: string }> = {
+  maloi: { body: '#ecc94b', deep: '#8f741c', soft: '#fdf3cf' },
+  jhoanna: { body: 'var(--color-jhoanna-600)', deep: 'var(--color-jhoanna-900)', soft: 'var(--color-jhoanna-100)' },
+  bini: { body: '#0f9488', deep: '#0f4f4a', soft: '#d3f5f0' },
+}
+
 export function paperOf(id: string): PaperStyle {
   return PAPER_STYLES[id] ?? PAPER_STYLES['bg-18']!
 }

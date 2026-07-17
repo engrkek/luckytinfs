@@ -480,6 +480,27 @@
   z-index: 0;
 }
 
+/* Warm paper variant — bright landing, dark ink */
+@property --glow {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffdf8a;
+}
+
+.letter-stage--paper {
+  background: #f6f0e2;
+  color: #33291a;
+  transition: --glow 500ms ease;
+}
+
+.letter-stage--paper::before {
+  background: radial-gradient(
+    ellipse 70% 50% at 50% 30%,
+    color-mix(in srgb, var(--glow, #ffdf8a) 40%, transparent),
+    transparent 70%
+  );
+}
+
 /* —— Open ceremony: rise from envelope + unfold —— */
 .letter-rise-stage {
   position: relative;
