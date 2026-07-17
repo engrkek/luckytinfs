@@ -14,6 +14,9 @@ export default defineNuxtRouteMiddleware((to) => {
   if (!enabled.value)
     return
 
+  if (to.path === '/letters' || to.path.startsWith('/letters/') || to.path === '/mailbox' || to.path.startsWith('/mailbox/'))
+    return
+
   if (to.path === '/enter') {
     if (connected.value) {
       const redirect = to.query.redirect
