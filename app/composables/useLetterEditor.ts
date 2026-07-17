@@ -4,7 +4,7 @@ import {
   LETTER_LIMITS,
   LETTER_STICKERS,
 } from '#shared/letters/assets'
-import { normalizeSpotifyMusic } from '#shared/letters/spotify'
+import { normalizeYouTubeMusic } from '#shared/letters/youtube'
 
 export type LetterStoryTool = 'paper' | 'font' | 'envelope' | 'seal' | 'sticker' | 'music' | null
 
@@ -29,6 +29,11 @@ export function useLetterEditor() {
   const editingText = ref(false)
   const sendOpen = ref(false)
 
+  /** Full-screen seal ceremony after confirm */
+  const sealing = ref(false)
+  /** Ceremony finished visually */
+  const sealCeremonyDone = ref(false)
+
   const canSubmit = computed(() =>
     recipient.value !== null
     && body.value.trim().length > 0
@@ -52,7 +57,6 @@ export function useLetterEditor() {
       return
 
     const stickerId = id || LETTER_STICKERS[0]!.id
-    // Slight scatter so stacked adds don't perfectly overlap
     const n = design.stickers.length
     const x = 50 + ((n % 5) - 2) * 8
     const y = 42 + ((n % 4) - 1.5) * 10
@@ -108,7 +112,7 @@ export function useLetterEditor() {
         envelope: design.envelope,
         seal: design.seal,
         ...((): { music?: string } => {
-          const music = normalizeSpotifyMusic(design.music)
+          const music = normalizeYouTubeMusic(design.music)
           return music ? { music } : {}
         })(),
         stickers: design.stickers.map(s => ({ ...s })),
@@ -121,12 +125,22 @@ export function useLetterEditor() {
   const submitError = ref<string | null>(null)
   const submittedId = ref<string | null>(null)
 
+  /**
+   * Close sheet → play seal ceremony → POST in parallel.
+   * Success screen waits for both ceremony + API.
+   */
   async function submit() {
-    if (!canSubmit.value || submitting.value)
+    if (!canSubmit.value || submitting.value || sealing.value)
       return
 
     submitting.value = true
     submitError.value = null
+    sendOpen.value = false
+    sealCeremonyDone.value = false
+    sealing.value = true
+    closeTool()
+    editingText.value = false
+    selectedSticker.value = null
 
     try {
       const created = await $fetch<{ id: string }>('/api/letters', {
@@ -134,16 +148,31 @@ export function useLetterEditor() {
         body: buildPayload(),
       })
       submittedId.value = created.id
-      sendOpen.value = false
     }
     catch (e: unknown) {
       const err = e as { data?: { message?: string }, message?: string }
       submitError.value = err.data?.message || err.message || 'Could not send letter. Try again.'
+      sealing.value = false
+      sealCeremonyDone.value = false
+      sendOpen.value = true
     }
     finally {
       submitting.value = false
     }
   }
+
+  function onCeremonyComplete() {
+    sealCeremonyDone.value = true
+    // Only leave ceremony if API already succeeded
+    if (submittedId.value)
+      sealing.value = false
+  }
+
+  // If API finishes after ceremony, drop sealing flag
+  watch([submittedId, sealCeremonyDone], ([id, done]) => {
+    if (id && done)
+      sealing.value = false
+  })
 
   function reset() {
     recipient.value = null
@@ -161,6 +190,8 @@ export function useLetterEditor() {
     selectedSticker.value = null
     editingText.value = false
     sendOpen.value = false
+    sealing.value = false
+    sealCeremonyDone.value = false
     submitError.value = null
     submittedId.value = null
   }
@@ -176,6 +207,8 @@ export function useLetterEditor() {
     selectedSticker,
     editingText,
     sendOpen,
+    sealing,
+    sealCeremonyDone,
     canSubmit,
     toggleTool,
     closeTool,
@@ -183,6 +216,7 @@ export function useLetterEditor() {
     removeSticker,
     updateSticker,
     submit,
+    onCeremonyComplete,
     submitting,
     submitError,
     submittedId,

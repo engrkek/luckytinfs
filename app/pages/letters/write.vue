@@ -6,7 +6,7 @@ useSeoMeta({
 
 useHead({
   meta: [
-    { key: 'theme-color', name: 'theme-color', content: '#121820' },
+    { key: 'theme-color', name: 'theme-color', content: '#0c0e12' },
   ],
 })
 </script>

@@ -26,14 +26,14 @@ Stay soft. Stay loud. Stay you.
 With all my yellow hearts,
 — m.`,
     design: {
-      background: 'paper-floral',
+      background: 'bg-16',
       font: 'hand',
       envelope: 'envelope-cream',
-      seal: 'seal-heart',
+      seal: 'seal-7',
       stickers: [
-        { id: 'sticker-heart', x: 82, y: 12, rotation: -12, scale: 1.2 },
-        { id: 'sticker-sparkle', x: 12, y: 78, rotation: 18, scale: 1 },
-        { id: 'sticker-flower', x: 88, y: 72, rotation: 8, scale: 0.9 },
+        { id: 'sticker-27', x: 82, y: 14, rotation: -12, scale: 1.1 },
+        { id: 'sticker-31', x: 14, y: 78, rotation: 18, scale: 0.95 },
+        { id: 'sticker-23', x: 86, y: 72, rotation: 8, scale: 0.85 },
       ],
     },
     featuredOn: new Date().toISOString(),
@@ -52,13 +52,13 @@ This letter is a paper thank-you for every speech that made me braver.
 Blue skies always,
 a bloom`,
     design: {
-      background: 'paper-lined',
+      background: 'bg-17',
       font: 'script',
       envelope: 'envelope-sky',
-      seal: 'seal-star',
+      seal: 'seal-8',
       stickers: [
-        { id: 'sticker-star', x: 78, y: 18, rotation: 15, scale: 1.1 },
-        { id: 'sticker-plane', x: 14, y: 70, rotation: -20, scale: 1 },
+        { id: 'sticker-25', x: 78, y: 16, rotation: 12, scale: 1 },
+        { id: 'sticker-26', x: 16, y: 74, rotation: -16, scale: 0.95 },
       ],
     },
     featuredOn: new Date().toISOString(),
@@ -74,21 +74,21 @@ Eight hearts, one signal.
 
 From living rooms to arenas, you taught a whole generation that joy can be serious work — and that work can still sparkle.
 
-This mailbox travels with you. So do we.
+These letters travel with you. So do we.
 
 See you on the road,
 the blooms & lumities of the world`,
     design: {
-      background: 'paper-travel',
+      background: 'bg-19',
       font: 'type',
       envelope: 'envelope-blush',
-      seal: 'seal-flower',
-      // Pantropiko — demo soundtrack while reading
-      music: 'https://open.spotify.com/track/6Csrqur3IfnVp0EtHskjMw',
+      seal: 'seal-9',
+      // BINI — Pantropiko (official audio / video on YouTube)
+      music: 'https://www.youtube.com/watch?v=L4KvD79RwbM',
       stickers: [
-        { id: 'sticker-stamp', x: 80, y: 10, rotation: -8, scale: 1 },
-        { id: 'sticker-sparkle', x: 20, y: 85, rotation: 0, scale: 1.15 },
-        { id: 'sticker-heart', x: 70, y: 80, rotation: 22, scale: 0.85 },
+        { id: 'sticker-22', x: 82, y: 12, rotation: -8, scale: 1 },
+        { id: 'sticker-32', x: 18, y: 82, rotation: 0, scale: 1.05 },
+        { id: 'sticker-24', x: 72, y: 78, rotation: 18, scale: 0.9 },
       ],
     },
     featuredOn: new Date().toISOString(),
@@ -106,12 +106,12 @@ your laughter is my favorite encore.
 
 💛`,
     design: {
-      background: 'paper-cream',
+      background: 'bg-18',
       font: 'hand',
       envelope: 'envelope-white',
-      seal: 'seal-wax-gold',
+      seal: 'seal-5',
       stickers: [
-        { id: 'sticker-heart', x: 50, y: 88, rotation: 0, scale: 1.3 },
+        { id: 'sticker-29', x: 50, y: 88, rotation: 0, scale: 1.15 },
       ],
     },
     featuredOn: new Date().toISOString(),

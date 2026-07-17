@@ -1,11 +1,28 @@
 import type { LetterRecipient } from './types'
+import { letterImageUrl } from './assets'
 
-export const PAPER_STYLES: Record<string, { class: string, ink: string }> = {
-  'paper-cream': { class: 'letter-paper--cream', ink: '#2a241c' },
-  'paper-lined': { class: 'letter-paper--lined', ink: '#1f2a33' },
-  'paper-kraft': { class: 'letter-paper--kraft', ink: '#2c2118' },
-  'paper-floral': { class: 'letter-paper--floral', ink: '#3a2a32' },
-  'paper-travel': { class: 'letter-paper--travel', ink: '#243040' },
+export interface PaperStyle {
+  /** Optional legacy CSS class (unused for image papers) */
+  class: string
+  ink: string
+  /** Public image URL for paper texture */
+  src?: string
+  /**
+   * Soft white wash over the texture so ink stays readable (0–1).
+   * Busier patterns need more wash.
+   */
+  wash?: number
+}
+
+export const PAPER_STYLES: Record<string, PaperStyle> = {
+  'bg-14': { class: 'letter-paper--image', ink: '#1a2430', src: letterImageUrl('backgrounds', 14), wash: 0.58 },
+  'bg-15': { class: 'letter-paper--image', ink: '#1f2a38', src: letterImageUrl('backgrounds', 15), wash: 0.42 },
+  'bg-16': { class: 'letter-paper--image', ink: '#2a2428', src: letterImageUrl('backgrounds', 16), wash: 0.28 },
+  'bg-17': { class: 'letter-paper--image', ink: '#1f2a38', src: letterImageUrl('backgrounds', 17), wash: 0.28 },
+  'bg-18': { class: 'letter-paper--image', ink: '#243028', src: letterImageUrl('backgrounds', 18), wash: 0.18 },
+  'bg-19': { class: 'letter-paper--image', ink: '#1e2c32', src: letterImageUrl('backgrounds', 19), wash: 0.32 },
+  'bg-20': { class: 'letter-paper--image', ink: '#1a2e32', src: letterImageUrl('backgrounds', 20), wash: 0.22 },
+  'bg-21': { class: 'letter-paper--image', ink: '#1a2a30', src: letterImageUrl('backgrounds', 21), wash: 0.48 },
 }
 
 export const FONT_STYLES: Record<string, string> = {
@@ -15,29 +32,30 @@ export const FONT_STYLES: Record<string, string> = {
   sans: 'font-sans tracking-normal',
 }
 
+/** Solid color envelopes — same paper grain overlay, only hue changes */
 export const ENVELOPE_STYLES: Record<string, { face: string, flap: string, edge: string }> = {
   'envelope-white': { face: '#f7f3ec', flap: '#efe8dc', edge: '#d9d0c2' },
   'envelope-cream': { face: '#f3e6c8', flap: '#e8d6a8', edge: '#d2bc8a' },
   'envelope-blush': { face: '#f6d9d6', flap: '#efc4c0', edge: '#d9a8a3' },
   'envelope-sky': { face: '#d5e4f4', flap: '#c0d5ec', edge: '#9fb8d4' },
+  'envelope-lilac': { face: '#e8dff2', flap: '#d9cce8', edge: '#bba8d0' },
+  'envelope-mint': { face: '#d9ebe3', flap: '#c5dfd4', edge: '#9fc0b2' },
   'envelope-kraft': { face: '#c9a66b', flap: '#b89355', edge: '#9a7640' },
+  'envelope-slate': { face: '#d0d6de', flap: '#bec6d0', edge: '#9aa5b2' },
 }
 
-export const SEAL_STYLES: Record<string, { color: string, glow: string, mark: string }> = {
-  'seal-heart': { color: '#b33a4a', glow: '#e06a78', mark: '♥' },
-  'seal-star': { color: '#3d5a9a', glow: '#6d8fd4', mark: '★' },
-  'seal-flower': { color: '#7a4d8c', glow: '#b07bc4', mark: '✿' },
-  'seal-wax-red': { color: '#8b1e2d', glow: '#c43b4d', mark: '◉' },
-  'seal-wax-gold': { color: '#a67c2a', glow: '#e0b44a', mark: '✦' },
+export function sealSrc(id: string): string | null {
+  const m = /^seal-(\d+)$/.exec(id)
+  if (!m)
+    return null
+  return letterImageUrl('seals', m[1]!)
 }
 
-export const STICKER_GLYPHS: Record<string, string> = {
-  'sticker-heart': '♥',
-  'sticker-star': '★',
-  'sticker-flower': '✿',
-  'sticker-stamp': '✉',
-  'sticker-plane': '✈',
-  'sticker-sparkle': '✦',
+export function stickerSrc(id: string): string | null {
+  const m = /^sticker-(\d+)$/.exec(id)
+  if (!m)
+    return null
+  return letterImageUrl('stickers', m[1]!)
 }
 
 export const RECIPIENT_THEME: Record<LetterRecipient, {
@@ -78,8 +96,8 @@ export const RECIPIENT_THEME: Record<LetterRecipient, {
   },
 }
 
-export function paperOf(id: string) {
-  return PAPER_STYLES[id] ?? PAPER_STYLES['paper-cream']!
+export function paperOf(id: string): PaperStyle {
+  return PAPER_STYLES[id] ?? PAPER_STYLES['bg-18']!
 }
 
 export function fontOf(id: string) {
@@ -88,12 +106,4 @@ export function fontOf(id: string) {
 
 export function envelopeOf(id: string) {
   return ENVELOPE_STYLES[id] ?? ENVELOPE_STYLES['envelope-cream']!
-}
-
-export function sealOf(id: string) {
-  return SEAL_STYLES[id] ?? SEAL_STYLES['seal-heart']!
-}
-
-export function stickerGlyph(id: string) {
-  return STICKER_GLYPHS[id] ?? '✦'
 }

@@ -2,7 +2,7 @@
   --font-letter-display: 'Fraunces', serif;
 }
 
-/* —— Paper backgrounds —— */
+/* —— Paper backgrounds (image textures from /images/letters/backgrounds) —— */
 .letter-paper {
   position: relative;
   isolation: isolate;
@@ -11,94 +11,32 @@
     0 4px 12px -4px color-mix(in srgb, #1a1520 25%, transparent);
 }
 
-.letter-paper::before {
+.letter-paper--image {
+  --paper-wash: 0.3;
+  background-color: #f7f4ee;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Soft wash so handwriting stays readable on busy patterns */
+.letter-paper--image::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  opacity: 0.35;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
-}
-
-.letter-paper--cream {
-  background: radial-gradient(120% 80% at 10% 0%, #fffdf7 0%, transparent 55%),
-    linear-gradient(165deg, #fbf6ea 0%, #f3e8d2 48%, #ebe0c8 100%);
-}
-
-.letter-paper--lined {
-  background-color: #f7f4ee;
-  background-image: linear-gradient(
-      transparent 0,
-      transparent calc(1.65rem - 1px),
-      color-mix(in srgb, #7a9bb8 35%, transparent) calc(1.65rem - 1px),
-      color-mix(in srgb, #7a9bb8 35%, transparent) 1.65rem
-    ),
+  background:
     linear-gradient(
-      90deg,
-      color-mix(in srgb, #d96a6a 55%, transparent) 0,
-      color-mix(in srgb, #d96a6a 55%, transparent) 1.5px,
-      transparent 1.5px
-    );
-  background-size: 100% 1.65rem, 100% 100%;
-  background-position: 0 2.25rem, 2rem 0;
-  background-repeat: repeat, no-repeat;
+      color-mix(in srgb, #fffdf8 calc(var(--paper-wash) * 100%), transparent),
+      color-mix(in srgb, #fff8f0 calc(var(--paper-wash) * 100%), transparent)
+    ),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E");
+  opacity: 1;
+  mix-blend-mode: normal;
 }
 
-.letter-paper--kraft {
-  background: radial-gradient(
-      ellipse at 80% 20%,
-      color-mix(in srgb, #fff 18%, transparent),
-      transparent 50%
-    ),
-    linear-gradient(160deg, #d4b07a 0%, #c49a5c 40%, #b4894a 100%);
-}
-
-.letter-paper--floral {
-  background-color: #faf3f0;
-  background-image: radial-gradient(
-      circle at 12% 18%,
-      color-mix(in srgb, #e8a0b8 28%, transparent) 0 12%,
-      transparent 13%
-    ),
-    radial-gradient(
-      circle at 88% 12%,
-      color-mix(in srgb, #c9b8e0 30%, transparent) 0 10%,
-      transparent 11%
-    ),
-    radial-gradient(
-      circle at 78% 82%,
-      color-mix(in srgb, #f0c4a0 25%, transparent) 0 14%,
-      transparent 15%
-    ),
-    radial-gradient(
-      circle at 18% 78%,
-      color-mix(in srgb, #a8d4c0 22%, transparent) 0 11%,
-      transparent 12%
-    ),
-    linear-gradient(168deg, #fdf8f5 0%, #f5ebe6 100%);
-}
-
-.letter-paper--travel {
-  background-color: #eef2f6;
-  background-image: linear-gradient(
-      color-mix(in srgb, #8aa0b8 18%, transparent) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      color-mix(in srgb, #8aa0b8 18%, transparent) 1px,
-      transparent 1px
-    ),
-    radial-gradient(
-      circle at 70% 30%,
-      color-mix(in srgb, #d4a574 15%, transparent),
-      transparent 40%
-    ),
-    linear-gradient(165deg, #f4f7fa 0%, #e4ebf2 100%);
-  background-size: 28px 28px, 28px 28px, 100% 100%, 100% 100%;
-}
+/* Legacy CSS seal fallback (image seals use .letter-seal-img) */
 
 /* —— Wax seal —— */
 .letter-seal {
@@ -165,182 +103,488 @@
   pointer-events: none;
 }
 
-/* —— Postmark —— */
-.letter-postmark {
-  display: inline-flex;
+/* —— Mailed rubber stamp —— */
+.letter-mailed-stamp {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  z-index: 5;
+  color: color-mix(in srgb, currentColor 70%, #3a4550);
+  opacity: 0.78;
+  pointer-events: none;
+  user-select: none;
+  transform: rotate(14deg);
+}
+
+.letter-mailed-stamp__ring {
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 4.5rem;
-  height: 4.5rem;
-  border: 2px solid color-mix(in srgb, currentColor 55%, transparent);
+  gap: 0.14rem;
+  width: 3.75rem;
+  height: 3.75rem;
+  border: 2px solid color-mix(in srgb, currentColor 65%, transparent);
   border-radius: 50%;
-  color: color-mix(in srgb, #3a4550 70%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 28%, transparent);
   font-family: var(--font-type), ui-monospace, monospace;
-  font-size: 0.55rem;
-  letter-spacing: 0.08em;
   text-transform: uppercase;
-  line-height: 1.15;
   text-align: center;
-  transform: rotate(-12deg);
-  opacity: 0.72;
-  user-select: none;
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 25%, transparent);
+  line-height: 1.05;
 }
 
-.letter-postmark strong {
+.letter-mailed-stamp__ring strong {
   font-size: 0.62rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
 }
 
-/* —— Envelope —— */
+.letter-mailed-stamp__ring span {
+  font-size: 0.45rem;
+  letter-spacing: 0.06em;
+  opacity: 0.85;
+}
+
+/*
+ * Envelope — structure adapted from
+ * https://codepen.io/ahoidahl/pen/mydZXQJ
+ * (triangular flap rotateX, V-pocket, interior slides up)
+ */
 .letter-envelope {
   --env-face: #f3e6c8;
   --env-flap: #e8d6a8;
   --env-edge: #d2bc8a;
+  --env-tilt: 0deg;
   position: relative;
-  aspect-ratio: 1.5 / 1;
   width: 100%;
-  max-width: 22rem;
-  perspective: 900px;
+  max-width: 28rem;
+  perspective: 1200px;
   cursor: pointer;
   touch-action: manipulation;
+  transform: rotate(var(--env-tilt));
+  transition: transform 0.45s ease;
 }
 
-.letter-envelope__body {
-  position: absolute;
-  inset: 0;
-  border-radius: 0.2rem 0.2rem 0.35rem 0.35rem;
+.letter-envelope--static {
+  cursor: default;
+}
+
+.letter-envelope.is-open {
+  transform: rotate(0deg);
+}
+
+/* Tall shell (CodePen uses padding-top: 110%) */
+.letter-envelope__shell {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  overflow: hidden;
   background: linear-gradient(
-      180deg,
-      color-mix(in srgb, #fff 18%, transparent),
-      transparent 28%
-    ),
-    linear-gradient(
-      145deg,
-      var(--env-face),
-      color-mix(in srgb, var(--env-edge) 40%, var(--env-face))
-    );
-  box-shadow: 0 1px 0 color-mix(in srgb, #fff 40%, transparent) inset,
-    0 18px 36px -16px color-mix(in srgb, #120e18 55%, transparent),
-    0 4px 10px -4px color-mix(in srgb, #120e18 30%, transparent);
+    0deg,
+    var(--env-face) 0%,
+    var(--env-face) 55%,
+    transparent 55%,
+    transparent 100%
+  );
+  border-radius: 0.15rem 0.15rem 0.35rem 0.35rem;
+  box-shadow: 0 18px 40px -18px color-mix(in srgb, #120e18 55%, transparent),
+    0 4px 12px -4px color-mix(in srgb, #120e18 30%, transparent);
+  transform-style: preserve-3d;
+}
+
+/* Interior card — hidden below, slides up when open */
+.letter-envelope__interior {
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  top: 100%;
+  height: 92%;
+  z-index: 2;
+  overflow: hidden;
+  border-radius: 0.15rem;
+  transition: top 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 0.12s;
+  pointer-events: none;
+  box-shadow: 0 8px 24px -10px color-mix(in srgb, #120e18 40%, transparent);
+}
+
+.letter-envelope.is-open .letter-envelope__interior {
+  top: 4%;
+  transition-delay: 0.05s;
+}
+
+.letter-envelope__interior-fill {
+  height: 100%;
+  background: linear-gradient(165deg, #fbf6ea 0%, #f0e6d4 100%);
+}
+
+.letter-envelope__interior > * {
+  height: 100%;
   overflow: hidden;
 }
 
-/* diamond flap */
+/* Top triangular flap */
 .letter-envelope__flap {
   position: absolute;
-  inset: 0 0 auto;
-  height: 58%;
+  top: 45%;
+  left: 0;
+  width: 100%;
+  height: 33%;
+  z-index: 20;
   transform-origin: top center;
-  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  z-index: 3;
+  transition: transform 0.45s ease-in-out, z-index 0s linear 0.2s;
+  transition-delay: 0.18s;
+  filter: drop-shadow(0 6px 4px color-mix(in srgb, #120e18 14%, transparent));
   pointer-events: none;
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-style: preserve-3d;
+}
+
+.letter-envelope__flap-face {
+  position: absolute;
+  inset: 0;
+  transform-origin: top center;
   background: linear-gradient(
-    180deg,
-    color-mix(in srgb, #fff 22%, var(--env-flap)),
-    var(--env-flap)
-  );
-  filter: drop-shadow(0 6px 8px color-mix(in srgb, #120e18 18%, transparent));
+      180deg,
+      color-mix(in srgb, #fff 28%, var(--env-flap)),
+      var(--env-flap) 55%,
+      color-mix(in srgb, var(--env-edge) 35%, var(--env-flap))
+    ),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E");
+  background-blend-mode: normal, multiply;
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
 }
 
 .letter-envelope.is-open .letter-envelope__flap {
-  transform: rotateX(168deg);
+  transform: rotateX(-180deg);
   z-index: 1;
+  transition-delay: 0s;
 }
 
+/* Bottom V-pocket (in front of interior) */
 .letter-envelope__pocket {
   position: absolute;
-  inset: 0;
-  z-index: 2;
-  background: linear-gradient(
-      to top left,
-      transparent 49.5%,
-      var(--env-edge) 49.5% 50.5%,
-      transparent 50.5%
-    ),
-    linear-gradient(
-      to top right,
-      transparent 49.5%,
-      var(--env-edge) 49.5% 50.5%,
-      transparent 50.5%
-    ),
-    linear-gradient(
-      180deg,
-      transparent 42%,
-      color-mix(in srgb, var(--env-face) 92%, #000) 100%
-    );
-  opacity: 0.55;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 55%;
+  z-index: 8;
   pointer-events: none;
+  filter: drop-shadow(0 -4px 4px color-mix(in srgb, #120e18 10%, transparent));
 }
 
+.letter-envelope__pocket-face {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--env-face) 88%, #fff),
+    var(--env-face) 40%,
+    color-mix(in srgb, var(--env-edge) 28%, var(--env-face))
+  );
+  clip-path: polygon(50% 50%, 100% 0, 100% 100%, 0 100%, 0 0);
+}
+
+.letter-envelope__pocket-left,
+.letter-envelope__pocket-right {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  background: color-mix(in srgb, var(--env-face) 92%, #fff);
+  opacity: 0.85;
+}
+
+.letter-envelope__pocket-left {
+  left: 0;
+  clip-path: polygon(100% 50%, 0 0, 0 100%);
+  background: color-mix(in srgb, var(--env-face) 80%, #000);
+  opacity: 0.22;
+}
+
+.letter-envelope__pocket-right {
+  right: 0;
+  clip-path: polygon(0 50%, 100% 0, 100% 100%);
+  background: color-mix(in srgb, var(--env-face) 80%, #000);
+  opacity: 0.18;
+}
+
+/* Paper grain over pocket */
+.letter-envelope__pocket-face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.28;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  pointer-events: none;
+  clip-path: polygon(50% 50%, 100% 0, 100% 100%, 0 100%, 0 0);
+}
+
+/* Address on lower pocket */
 .letter-envelope__label {
   position: absolute;
-  inset: auto 12% 18% 12%;
-  z-index: 4;
+  left: 12%;
+  right: 12%;
+  bottom: 11%;
+  z-index: 10;
   text-align: center;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 
 .letter-envelope.is-open .letter-envelope__label {
   opacity: 0;
 }
 
+/* Seal at flap/pocket join */
 .letter-envelope__seal-wrap {
   position: absolute;
   left: 50%;
-  top: 48%;
-  z-index: 5;
+  top: 52%;
+  z-index: 22;
   transform: translate(-50%, -50%);
-  transition: opacity 0.4s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.letter-envelope.is-open .letter-envelope__seal-wrap {
+.letter-envelope:not(.is-open):not(.letter-envelope--static) .letter-envelope__seal {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  cursor: pointer;
+}
+
+.letter-envelope:not(.is-open):not(.letter-envelope--static):hover .letter-envelope__seal,
+.letter-envelope:not(.is-open):not(.letter-envelope--static):focus-visible .letter-envelope__seal {
+  transform: scale(1.08);
+}
+
+.letter-envelope:not(.is-open):not(.letter-envelope--static):active .letter-envelope__seal {
+  transform: scale(0.96);
+}
+
+.letter-envelope.is-open .letter-envelope__seal-wrap:not(.letter-envelope__seal-wrap--stamp) {
   opacity: 0;
-  transform: translate(-50%, -50%) scale(0.6) rotate(18deg);
+  transform: translate(-50%, -50%) scale(0.55) rotate(16deg);
   pointer-events: none;
+  transition-delay: 0s;
 }
 
-/* —— Mailbox ambient —— */
-.mailbox-desk {
-  --desk-deep: #1a2230;
-  --desk-mid: #243044;
-  --desk-warm: #3a2e28;
+/* Wax stamp drop */
+.letter-envelope__seal-wrap--stamp {
+  opacity: 1 !important;
+  animation: letter-seal-stamp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  pointer-events: none;
+  z-index: 24;
+}
+
+@keyframes letter-seal-stamp {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -120%) scale(1.65) rotate(-12deg);
+    filter: blur(1px);
+  }
+  55% {
+    opacity: 1;
+    transform: translate(-50%, -46%) scale(1.08) rotate(4deg);
+    filter: none;
+  }
+  75% {
+    transform: translate(-50%, -52%) scale(0.94) rotate(-2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    filter: none;
+  }
+}
+
+/* —— Send ceremony —— */
+.letter-send-ceremony {
+  position: relative;
+  width: 100%;
+  max-width: 28rem;
+  margin-inline: auto;
+  min-height: 20rem;
+  perspective: 1100px;
+}
+
+.letter-send-ceremony__letter {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: 0;
+  z-index: 3;
+  transform-origin: 50% 100%;
+  transition:
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.4s ease;
+  will-change: transform, opacity;
+}
+
+.letter-send-ceremony__letter--fold {
+  transform: translateY(8%) rotateX(68deg) scale(0.92);
+  opacity: 0.95;
+}
+
+.letter-send-ceremony__letter--slide {
+  transform: translateY(42%) rotateX(78deg) scale(0.72);
+  opacity: 0.55;
+  z-index: 2;
+}
+
+.letter-send-ceremony__letter--gone {
+  transform: translateY(58%) rotateX(82deg) scale(0.55);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.letter-send-ceremony__envelope {
+  position: relative;
+  z-index: 4;
+  margin-top: 4.5rem;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.letter-send-ceremony__envelope--receive {
+  transform: translateY(-6px);
+}
+
+.letter-send-ceremony__hint {
+  margin-top: 1.25rem;
+  text-align: center;
+  font-family: var(--font-type), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.35);
+}
+
+/* —— Quiet stage (write / read) —— */
+.letter-stage {
   min-height: 100dvh;
-  background: radial-gradient(
-      ellipse 90% 60% at 50% 0%,
-      color-mix(in srgb, #5a6a88 28%, transparent),
-      transparent 55%
-    ),
-    radial-gradient(
-      ellipse 70% 50% at 80% 100%,
-      color-mix(in srgb, #c4a35a 12%, transparent),
-      transparent 50%
-    ),
-    radial-gradient(
-      ellipse 50% 40% at 10% 80%,
-      color-mix(in srgb, #4a6a9a 14%, transparent),
-      transparent 45%
-    ),
-    linear-gradient(
-      165deg,
-      var(--desk-deep) 0%,
-      var(--desk-mid) 48%,
-      #1c1820 100%
-    );
+  background: #0c0e12;
   color: #e8e2d6;
 }
 
-.mailbox-desk::before {
+.letter-stage::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.07;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background: radial-gradient(
+    ellipse 70% 50% at 50% 35%,
+    color-mix(in srgb, #3a4254 35%, transparent),
+    transparent 70%
+  );
   z-index: 0;
+}
+
+/* —— Open ceremony: rise from envelope + unfold —— */
+.letter-rise-stage {
+  position: relative;
+  width: 100%;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.letter-rise-stage--over {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.letter-rise-stage--out {
+  position: relative;
+  pointer-events: auto;
+}
+
+.letter-fold {
+  transform-origin: 50% 0%;
+  will-change: transform;
+  transition:
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.5s ease,
+    filter 0.45s ease,
+    box-shadow 0.45s ease;
+}
+
+/* Peeking out of the envelope, still folded */
+.letter-rise-stage--peek .letter-fold--closed {
+  transform: translateY(32%) rotateX(72deg) scale(0.86);
+  opacity: 0.9;
+  filter: brightness(0.88);
+  box-shadow: 0 24px 40px -18px rgb(0 0 0 / 0.55);
+}
+
+/* Rising clear of the envelope, still folded */
+.letter-rise-stage--out .letter-fold--closed {
+  transform: translateY(8%) rotateX(68deg) scale(0.94);
+  opacity: 0.95;
+  filter: brightness(0.92);
+  box-shadow: 0 30px 50px -20px rgb(0 0 0 / 0.5);
+}
+
+/* Fully open and readable */
+.letter-fold--open {
+  transform: translateY(0) rotateX(0deg) scale(1);
+  opacity: 1;
+  filter: none;
+  box-shadow: none;
+  transition:
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.45s ease,
+    filter 0.45s ease,
+    box-shadow 0.45s ease;
+}
+
+.letter-fold--open .letter-paper {
+  animation: letter-settle 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes letter-settle {
+  from {
+    box-shadow: 0 28px 48px -18px rgb(0 0 0 / 0.5);
+  }
+}
+
+/* Typewriter caret */
+.letter-caret {
+  display: inline-block;
+  width: 0.08em;
+  height: 1.05em;
+  margin-left: 0.04em;
+  vertical-align: text-bottom;
+  background: currentColor;
+  animation: letter-caret-blink 0.85s steps(1) infinite;
+}
+
+@keyframes letter-caret-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.letter-sticker-enter {
+  animation: letter-sticker-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes letter-sticker-in {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+  }
+  to {
+    opacity: 0.92;
+    filter: none;
+  }
 }
 
 .letter-story-canvas {
@@ -361,8 +605,12 @@
   filter: drop-shadow(0 0 0 2px #e0c56a)
     drop-shadow(0 4px 10px color-mix(in srgb, #000 35%, transparent));
   outline: 2px dashed color-mix(in srgb, #e0c56a 80%, transparent);
-  outline-offset: 6px;
-  border-radius: 4px;
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.letter-seal-img {
+  flex-shrink: 0;
 }
 
 .letter-story-tray {
@@ -370,10 +618,75 @@
   background: color-mix(in srgb, #1a2230 92%, #000);
 }
 
+/* Envelope color chips — permanent fiber grain on every swatch */
+.letter-env-swatch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .letter-envelope__flap,
+  .letter-envelope__interior,
   .letter-envelope__seal-wrap,
-  .letter-envelope__label {
+  .letter-envelope__label,
+  .letter-fold,
+  .letter-rise-stage--peek .letter-fold,
+  .letter-rise-stage--out .letter-fold,
+  .letter-send-ceremony__letter,
+  .letter-send-ceremony__envelope {
     transition: none !important;
   }
+
+  .letter-envelope.is-open .letter-envelope__flap {
+    transform: none !important;
+  }
+
+  .letter-envelope.is-open .letter-envelope__interior {
+    top: 4% !important;
+  }
+
+  .letter-fold--closed,
+  .letter-fold--open {
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  .letter-caret,
+  .letter-sticker-enter,
+  .letter-envelope__seal-wrap--stamp {
+    animation: none !important;
+  }
+}
+
+/* Compact paper inside the envelope pocket */
+.letter-envelope-card .letter-paper {
+  box-shadow: none;
+  min-height: 100%;
+  border-radius: 0;
+}
+
+.letter-envelope-card .letter-paper--image::before {
+  opacity: 0.85;
+}
+
+/* Envelope leave as letter takes over */
+.letter-env-enter-active {
+  transition: opacity 0.4s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.letter-env-leave-active {
+  transition: opacity 0.45s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.letter-env-enter-from {
+  opacity: 0;
+  transform: translateY(16px) scale(0.97);
+}
+.letter-env-leave-to {
+  opacity: 0;
+  transform: translateY(28px) scale(0.94);
 }

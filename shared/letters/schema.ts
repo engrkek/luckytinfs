@@ -1,13 +1,13 @@
 import { z } from 'zod'
 import { LETTER_LIMITS, LETTER_OPTION_IDS } from './assets'
-import { isSpotifyLink, normalizeSpotifyMusic } from './spotify'
+import { isYouTubeLink, normalizeYouTubeMusic } from './youtube'
 
 export const letterDesignSchema = z.object({
   background: z.enum(LETTER_OPTION_IDS.backgrounds),
   font: z.enum(LETTER_OPTION_IDS.fonts),
   envelope: z.enum(LETTER_OPTION_IDS.envelopes),
   seal: z.enum(LETTER_OPTION_IDS.seals),
-  /** Spotify open URL — omit or empty for no soundtrack */
+  /** YouTube watch URL — omit or empty for no soundtrack */
   music: z.string().trim().max(LETTER_LIMITS.musicUrlMax).optional(),
   stickers: z.array(z.object({
     id: z.enum(LETTER_OPTION_IDS.stickers),
@@ -20,15 +20,15 @@ export const letterDesignSchema = z.object({
   const music = design.music?.trim()
   if (!music)
     return
-  if (!isSpotifyLink(music)) {
+  if (!isYouTubeLink(music)) {
     ctx.addIssue({
       code: 'custom',
       path: ['music'],
-      message: 'Music must be a valid Spotify link (open.spotify.com)',
+      message: 'Music must be a valid YouTube link (youtube.com or youtu.be)',
     })
   }
 }).transform((design) => {
-  const music = normalizeSpotifyMusic(design.music)
+  const music = normalizeYouTubeMusic(design.music)
   return {
     ...design,
     music,

@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import type { LetterDesign, LetterRecipient, LetterVisibility } from '#shared/letters/types'
 import { LETTER_RECIPIENTS } from '#shared/letters/assets'
-import { envelopeOf, RECIPIENT_THEME } from '#shared/letters/visuals'
 
-const props = defineProps<{
+defineProps<{
   open: boolean
   recipient: LetterRecipient | null
   senderName: string
@@ -25,11 +24,6 @@ const emit = defineEmits<{
   'update:visibility': [value: LetterVisibility]
   'submit': []
 }>()
-
-const env = computed(() => envelopeOf(props.design.envelope))
-const theme = computed(() =>
-  props.recipient ? RECIPIENT_THEME[props.recipient] : null,
-)
 
 function close() {
   emit('update:open', false)
@@ -74,32 +68,16 @@ function close() {
             </button>
           </div>
 
-          <!-- mini envelope preview -->
+          <!-- sealed envelope + wax preview -->
           <div class="flex justify-center py-2">
-            <div
-              class="letter-envelope !max-w-[14rem] pointer-events-none"
-              :style="{
-                '--env-face': env.face,
-                '--env-flap': env.flap,
-                '--env-edge': env.edge,
-              }"
-            >
-              <div class="letter-envelope__body">
-                <div class="letter-envelope__flap" />
-                <div class="letter-envelope__pocket" />
-                <div class="letter-envelope__label px-2">
-                  <p class="font-display text-base" :style="{ color: theme?.deep ?? '#2a241c' }">
-                    {{ theme?.toLine ?? 'Pick a recipient' }}
-                  </p>
-                  <p class="mt-1 font-hand text-sm text-black/50">
-                    from {{ senderName.trim() || 'Anonymous' }}
-                  </p>
-                </div>
-                <div class="letter-envelope__seal-wrap">
-                  <LetterWaxSeal :seal-id="design.seal" size="sm" />
-                </div>
-              </div>
-            </div>
+            <LetterEnvelope
+              :recipient="recipient ?? 'bini'"
+              :sender-name="senderName"
+              :design="design"
+              :open="false"
+              :interactive="false"
+              class="w-full !max-w-xs"
+            />
           </div>
 
           <!-- recipient -->

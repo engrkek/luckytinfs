@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { sealOf } from '#shared/letters/visuals'
+import { sealSrc } from '#shared/letters/visuals'
 
 const props = withDefaults(defineProps<{
   sealId: string
@@ -8,26 +8,33 @@ const props = withDefaults(defineProps<{
   size: 'md',
 })
 
-const seal = computed(() => sealOf(props.sealId))
+const src = computed(() => sealSrc(props.sealId))
 
 const sizeClass = computed(() => ({
-  sm: 'w-10 h-10 text-sm',
-  md: 'w-[3.25rem] h-[3.25rem] text-lg',
-  lg: 'w-16 h-16 text-xl',
+  sm: 'w-10 h-10',
+  md: 'w-[3.5rem] h-[3.5rem]',
+  lg: 'w-16 h-16',
 }[props.size]))
 </script>
 
 <template>
   <span
-    class="letter-seal"
+    class="letter-seal-img inline-grid place-items-center"
     :class="sizeClass"
-    :style="{
-      '--seal-color': seal.color,
-      '--seal-glow': seal.glow,
-    }"
     :aria-label="`Wax seal: ${sealId}`"
     role="img"
   >
-    <span aria-hidden="true">{{ seal.mark }}</span>
+    <img
+      v-if="src"
+      :src="src"
+      alt=""
+      draggable="false"
+      class="block size-full object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)] select-none"
+    >
+    <span
+      v-else
+      class="letter-seal size-full text-sm"
+      aria-hidden="true"
+    >◉</span>
   </span>
 </template>

@@ -8,7 +8,7 @@ export const letter = sqliteTable('letter', {
   senderName: text().default('Anonymous').notNull(),
   senderEmail: text(), // optional, contact only, never displayed
   body: text().notNull(),
-  design: text({ mode: 'json' }).notNull(), // { background, font, envelope, seal, music?: Spotify URL, stickers: [{ id, x, y, rotation, scale }] }
+  design: text({ mode: 'json' }).notNull(), // { background, font, envelope, seal, music?: YouTube URL, stickers: [{ id, x, y, rotation, scale }] }
   visibility: text().notNull(), // public, private — set at submit, immutable (same reasoning as donation.display)
   status: text().default('pending').notNull(), // pending, approved, rejected
   adminNotes: text(), // internal only
@@ -22,5 +22,5 @@ export const letter = sqliteTable('letter', {
     .$onUpdate(() => new Date())
     .notNull(),
 }, t => [
-  index('letter_feed_idx').on(t.recipient, t.featuredOn), // mailbox daily-feed query
+  index('letter_feed_idx').on(t.recipient, t.featuredOn), // public letters feed
 ])

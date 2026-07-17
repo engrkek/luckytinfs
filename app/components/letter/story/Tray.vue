@@ -9,8 +9,8 @@ import {
   LETTER_SEALS,
   LETTER_STICKERS,
 } from '#shared/letters/assets'
-import { isSpotifyLink, parseSpotifyLink } from '#shared/letters/spotify'
-import { paperOf, stickerGlyph } from '#shared/letters/visuals'
+import { envelopeOf } from '#shared/letters/visuals'
+import { isYouTubeLink, parseYouTubeLink } from '#shared/letters/youtube'
 
 const props = defineProps<{
   tool: NonNullable<LetterStoryTool>
@@ -66,12 +66,12 @@ function applyMusic() {
     emit('update:music', undefined)
     return
   }
-  if (!isSpotifyLink(raw)) {
-    musicError.value = 'Paste an open.spotify.com link (track, album, or playlist)'
+  if (!isYouTubeLink(raw)) {
+    musicError.value = 'Paste a YouTube link (youtube.com/watch or youtu.be)'
     return
   }
   musicError.value = null
-  const parsed = parseSpotifyLink(raw)
+  const parsed = parseYouTubeLink(raw)
   emit('update:music', parsed?.openUrl)
 }
 
@@ -81,7 +81,11 @@ function clearMusic() {
   emit('update:music', undefined)
 }
 
-const musicPreview = computed(() => parseSpotifyLink(props.design.music))
+const musicPreview = computed(() => parseYouTubeLink(props.design.music))
+
+function envSwatch(id: string) {
+  return envelopeOf(id).face
+}
 </script>
 
 <template>
@@ -105,11 +109,9 @@ const musicPreview = computed(() => parseSpotifyLink(props.design.music))
         v-for="opt in LETTER_BACKGROUNDS"
         :key="opt.id"
         type="button"
-        class="snap-start shrink-0 w-16 h-20 rounded-lg border-2 overflow-hidden transition-transform active:scale-95 letter-paper !shadow-none"
-        :class="[
-          paperOf(opt.id).class,
-          design.background === opt.id ? 'border-[#e0c56a] scale-105' : 'border-white/15',
-        ]"
+        class="snap-start shrink-0 w-16 h-20 rounded-lg border-2 overflow-hidden bg-cover bg-center transition-transform active:scale-95"
+        :class="design.background === opt.id ? 'border-[#e0c56a] scale-105' : 'border-white/15'"
+        :style="{ backgroundImage: opt.preview ? `url(${opt.preview})` : undefined }"
         :aria-label="opt.label"
         :aria-pressed="design.background === opt.id"
         @click="emit('update:background', opt.id)"
@@ -147,32 +149,31 @@ const musicPreview = computed(() => parseSpotifyLink(props.design.music))
       </button>
     </div>
 
-    <!-- Envelope -->
-    <div v-else-if="tool === 'envelope'" class="flex gap-2.5 overflow-x-auto px-4 pb-4 snap-x">
-      <button
-        v-for="opt in LETTER_ENVELOPES"
-        :key="opt.id"
-        type="button"
-        class="snap-start shrink-0 flex flex-col items-center gap-1.5"
-        @click="emit('update:envelope', opt.id)"
-      >
-        <span
-          class="block w-16 h-11 rounded-sm border-2 shadow-md"
-          :class="design.envelope === opt.id ? 'border-[#e0c56a]' : 'border-white/20'"
-          :style="{
-            background: {
-              'envelope-white': '#f7f3ec',
-              'envelope-cream': '#f3e6c8',
-              'envelope-blush': '#f6d9d6',
-              'envelope-sky': '#d5e4f4',
-              'envelope-kraft': '#c9a66b',
-            }[opt.id],
-          }"
-        />
-        <span class="font-type text-[0.55rem] uppercase tracking-[0.1em] text-[#c8bfb0]/70">
-          {{ opt.label }}
-        </span>
-      </button>
+    <!-- Envelope — color only (shared paper grain on the real envelope) -->
+    <div v-else-if="tool === 'envelope'" class="px-4 pb-4 space-y-3">
+      <p class="font-type text-[0.55rem] uppercase tracking-[0.14em] text-[#c8bfb0]/45">
+        Paper texture is fixed · pick a color
+      </p>
+      <div class="flex gap-3 overflow-x-auto snap-x pb-1">
+        <button
+          v-for="opt in LETTER_ENVELOPES"
+          :key="opt.id"
+          type="button"
+          class="snap-start shrink-0 flex flex-col items-center gap-1.5"
+          :aria-label="opt.label"
+          :aria-pressed="design.envelope === opt.id"
+          @click="emit('update:envelope', opt.id)"
+        >
+          <span
+            class="letter-env-swatch relative block size-11 rounded-full border-2 shadow-inner overflow-hidden"
+            :class="design.envelope === opt.id ? 'border-[#e0c56a] scale-110' : 'border-white/20'"
+            :style="{ backgroundColor: envSwatch(opt.id) }"
+          />
+          <span class="font-type text-[0.5rem] uppercase tracking-[0.1em] text-[#c8bfb0]/70">
+            {{ opt.label }}
+          </span>
+        </button>
+      </div>
     </div>
 
     <!-- Seal -->
@@ -182,11 +183,13 @@ const musicPreview = computed(() => parseSpotifyLink(props.design.music))
         :key="opt.id"
         type="button"
         class="snap-start shrink-0 flex flex-col items-center gap-1.5 rounded-xl p-1.5 transition-transform"
-        :class="design.seal === opt.id ? 'ring-2 ring-[#e0c56a] ring-offset-2 ring-offset-[#1a2230]' : ''"
+        :class="design.seal === opt.id ? 'ring-2 ring-[#e0c56a] ring-offset-2 ring-offset-[#0c0e12]' : ''"
+        :aria-label="opt.label"
+        :aria-pressed="design.seal === opt.id"
         @click="emit('update:seal', opt.id)"
       >
         <LetterWaxSeal :seal-id="opt.id" size="md" />
-        <span class="font-type text-[0.55rem] uppercase tracking-[0.1em] text-[#c8bfb0]/70">
+        <span class="font-type text-[0.5rem] uppercase tracking-[0.1em] text-[#c8bfb0]/70 max-w-14 text-center truncate">
           {{ opt.label }}
         </span>
       </button>
@@ -199,12 +202,18 @@ const musicPreview = computed(() => parseSpotifyLink(props.design.music))
           v-for="opt in LETTER_STICKERS"
           :key="opt.id"
           type="button"
-          class="snap-start shrink-0 size-14 rounded-xl border border-white/10 bg-white/5 text-2xl grid place-items-center text-[#f4efe4] hover:bg-white/10 active:scale-95 transition-transform disabled:opacity-40"
+          class="snap-start shrink-0 size-14 rounded-xl border border-white/10 bg-white/5 grid place-items-center p-1.5 hover:bg-white/10 active:scale-95 transition-transform disabled:opacity-40"
           :disabled="design.stickers.length >= LETTER_LIMITS.stickersMax"
           :aria-label="`Add ${opt.label}`"
           @click="emit('addSticker', opt.id)"
         >
-          {{ stickerGlyph(opt.id) }}
+          <img
+            v-if="opt.preview"
+            :src="opt.preview"
+            alt=""
+            class="size-full object-contain"
+            draggable="false"
+          >
         </button>
       </div>
 
@@ -258,10 +267,10 @@ const musicPreview = computed(() => parseSpotifyLink(props.design.music))
       </p>
     </div>
 
-    <!-- Music = Spotify link -->
+    <!-- Music = YouTube link -->
     <div v-else-if="tool === 'music'" class="px-4 pb-4 space-y-3">
       <p class="text-xs text-[#c8bfb0]/70 leading-relaxed">
-        Paste a Spotify track link. Readers can play the full song while they read (after they turn sound on).
+        Paste a YouTube video link. It plays for readers as soon as they open the letter (after they allow sound).
       </p>
       <div class="flex gap-2">
         <input
@@ -270,7 +279,7 @@ const musicPreview = computed(() => parseSpotifyLink(props.design.music))
           inputmode="url"
           autocomplete="off"
           spellcheck="false"
-          placeholder="https://open.spotify.com/track/…"
+          placeholder="https://www.youtube.com/watch?v=…"
           class="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-[#f4efe4] placeholder:text-[#c8bfb0]/35 outline-none focus:border-[#e0c56a]/50"
           @keydown.enter.prevent="applyMusic"
         >
@@ -291,7 +300,7 @@ const musicPreview = computed(() => parseSpotifyLink(props.design.music))
       >
         <div class="min-w-0">
           <p class="font-type text-[0.55rem] uppercase tracking-[0.16em] text-[#c8bfb0]/55">
-            Linked · {{ musicPreview.type }}
+            Linked · YouTube
           </p>
           <p class="truncate text-xs text-[#f4efe4]/90 font-mono">
             {{ musicPreview.id }}

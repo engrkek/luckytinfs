@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { LetterStoryTool } from '~/composables/useLetterEditor'
 import { LETTER_RECIPIENTS } from '#shared/letters/assets'
-import { RECIPIENT_THEME } from '#shared/letters/visuals'
 
 const editor = useLetterEditor()
 const {
@@ -15,6 +14,7 @@ const {
   selectedSticker,
   editingText,
   sendOpen,
+  sealing,
   canSubmit,
   toggleTool,
   closeTool,
@@ -22,6 +22,7 @@ const {
   removeSticker,
   updateSticker,
   submit,
+  onCeremonyComplete,
   submitting,
   submitError,
   submittedId,
@@ -64,62 +65,81 @@ function onTool(tool: NonNullable<LetterStoryTool>) {
 }
 
 const bodyCount = computed(() => body.value.length)
-const theme = computed(() =>
-  recipient.value ? RECIPIENT_THEME[recipient.value] : null,
+
+/** Live envelope+seal when picking packaging */
+const showEnvelopePreview = computed(() =>
+  activeTool.value === 'envelope' || activeTool.value === 'seal',
 )
+
+const previewRecipient = computed(() => recipient.value ?? 'bini')
 </script>
 
 <template>
-  <!-- Success -->
   <div
-    v-if="submittedId"
-    class="mailbox-desk flex min-h-dvh flex-col items-center justify-center px-6 text-center"
+    v-if="submittedId && !sealing"
+    class="letter-stage flex min-h-dvh flex-col items-center justify-center px-6 text-center"
   >
-    <div class="relative z-1 max-w-sm space-y-4">
-      <LetterWaxSeal :seal-id="design.seal" size="lg" class="mx-auto" />
-      <h1 class="font-display text-2xl font-medium tracking-tight text-[#f4efe4]">
+    <div class="relative z-1 max-w-sm space-y-5">
+      <LetterEnvelope
+        :recipient="previewRecipient"
+        :sender-name="senderName"
+        :design="design"
+        :open="false"
+        :interactive="false"
+        class="w-full max-w-sm!"
+      />
+      <h1 class="font-display text-2xl font-medium tracking-tight text-white/95">
         Letter sealed
       </h1>
-      <p class="text-sm text-[#c8bfb0]/80 text-pretty leading-relaxed">
-        It’s on its way to the magical mailbox. Moderators will review it before it can appear in a daily feed.
+      <p class="text-sm text-white/50 text-pretty leading-relaxed">
+        Sent for review. Once approved, it can appear in the letters list.
       </p>
-      <p class="font-type text-[0.6rem] uppercase tracking-[0.18em] text-[#c8bfb0]/40">
-        {{ submittedId }}
-      </p>
-      <div class="flex flex-col gap-2 pt-2">
+      <div class="flex flex-col gap-2 pt-1">
         <button
           type="button"
-          class="rounded-full bg-[#e0c56a] px-6 py-3 font-display font-medium text-[#1a2230]"
+          class="rounded-full bg-white px-6 py-3 font-display font-medium text-neutral-900"
           @click="reset"
         >
           Write another
         </button>
         <NuxtLink
-          :to="recipient ? `/mailbox/${recipient}` : '/mailbox'"
-          class="rounded-full border border-white/15 px-6 py-3 font-type text-[0.7rem] uppercase tracking-[0.18em] text-[#c8bfb0]/80"
+          :to="recipient ? { path: '/letters', query: { to: recipient } } : '/letters'"
+          class="rounded-full border border-white/15 px-6 py-3 font-type text-[0.7rem] uppercase tracking-[0.18em] text-white/55"
         >
-          Open mailbox
+          Browse letters
         </NuxtLink>
       </div>
     </div>
   </div>
 
+  <!-- Seal ceremony -->
+  <div
+    v-else-if="sealing && recipient"
+    class="letter-stage fixed inset-0 z-50 flex flex-col items-center justify-center px-5"
+  >
+    <LetterSendCeremony
+      :recipient="recipient"
+      :sender-name="senderName"
+      :body="body"
+      :design="design"
+      @complete="onCeremonyComplete"
+    />
+  </div>
+
   <!-- Story editor stage -->
   <div
     v-else
-    class="letter-story-stage fixed inset-0 z-40 flex flex-col bg-[#121820] text-[#e8e2d6]"
+    class="letter-story-stage fixed inset-0 z-40 flex flex-col bg-[#0c0e12] text-[#e8e2d6]"
   >
-    <!-- Top chrome -->
     <header class="relative z-20 flex items-center justify-between gap-3 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2">
       <NuxtLink
-        to="/mailbox"
-        class="grid size-10 place-items-center rounded-full bg-black/35 text-[#f4efe4] backdrop-blur-sm"
+        to="/letters"
+        class="grid size-10 place-items-center rounded-full bg-white/5 text-white/90 backdrop-blur-sm border border-white/10"
         aria-label="Close editor"
       >
         <UIcon name="i-lucide-x" class="size-5" />
       </NuxtLink>
 
-      <!-- recipient chips -->
       <div class="flex min-w-0 flex-1 items-center justify-center gap-1.5 overflow-x-auto">
         <button
           v-for="r in LETTER_RECIPIENTS"
@@ -145,13 +165,34 @@ const theme = computed(() =>
       </button>
     </header>
 
-    <!-- Canvas stage (scrollable) -->
     <div
       class="relative z-10 flex-1 overflow-y-auto overscroll-contain px-3 pb-2 sm:px-6"
       @pointerdown="selectedSticker = null"
     >
       <div class="mx-auto max-w-md py-2">
-        <LettersStoryCanvas
+        <!-- Envelope + seal live preview while styling packaging -->
+        <div
+          v-if="showEnvelopePreview"
+          class="mb-5 rounded-xl border border-white/8 bg-white/3 px-3 py-6 sm:px-5 sm:py-8"
+        >
+          <p class="mb-5 text-center font-type text-[0.55rem] uppercase tracking-[0.2em] text-white/35">
+            Envelope preview
+          </p>
+          <LetterEnvelope
+            :recipient="previewRecipient"
+            :sender-name="senderName"
+            :design="design"
+            :open="false"
+            :interactive="false"
+            class="w-full max-w-none!"
+          />
+          <p class="mt-5 text-center text-xs text-white/35 text-pretty">
+            Seal only appears on the envelope — not on the letter.
+          </p>
+        </div>
+
+        <LetterStoryCanvas
+          v-show="!showEnvelopePreview"
           :recipient="recipient"
           :sender-name="senderName"
           :design="design"
@@ -159,22 +200,25 @@ const theme = computed(() =>
           :editing-text="editingText"
           :selected-sticker="selectedSticker"
           :body-max="limits.bodyMax"
+          :sender-name-max="limits.senderNameMax"
           @update:body="body = $event"
+          @update:sender-name="senderName = $event"
           @update:editing-text="editingText = $event"
           @select-sticker="selectedSticker = $event"
           @move-sticker="onMoveSticker"
         />
 
-        <p class="mt-2 text-center font-type text-[0.55rem] uppercase tracking-[0.16em] text-white/30">
+        <p
+          v-if="!showEnvelopePreview"
+          class="mt-2 text-center font-type text-[0.55rem] uppercase tracking-[0.16em] text-white/30"
+        >
           {{ bodyCount }}/{{ limits.bodyMax }}
-          <span v-if="theme"> · {{ theme.postmark }}</span>
         </p>
       </div>
     </div>
 
-    <!-- Bottom chrome: tray + dock -->
-    <div class="relative z-20 border-t border-white/10 bg-[#121820]/95 backdrop-blur-md pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-      <LettersStoryTray
+    <div class="relative z-20 border-t border-white/10 bg-[#0c0e12]/95 backdrop-blur-md pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+      <LetterStoryTray
         v-if="activeTool"
         :tool="activeTool"
         :design="design"
@@ -190,13 +234,13 @@ const theme = computed(() =>
         @scale-sticker="onScale"
         @rotate-sticker="onRotate"
       />
-      <LettersStoryDock
+      <LetterStoryDock
         :active-tool="activeTool"
         @toggle="onTool"
       />
     </div>
 
-    <LettersStorySendSheet
+    <LetterStorySendSheet
       v-model:open="sendOpen"
       v-model:recipient="recipient"
       v-model:sender-name="senderName"
