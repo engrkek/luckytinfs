@@ -501,6 +501,18 @@
   );
 }
 
+/* Mailbox page: title sits right above the viewer — fade it out while the
+   open ceremony rises into its space */
+.letter-mailbox-header {
+  transition: opacity 0.3s ease;
+}
+
+.letter-mailbox-stage:has(.letter-open-scene--opening) .letter-mailbox-header,
+.letter-mailbox-stage:has(.letter-open-scene--extracting) .letter-mailbox-header,
+.letter-mailbox-stage:has(.letter-open-scene--typing) .letter-mailbox-header {
+  opacity: 0;
+}
+
 /* —— Open ceremony: rise from envelope + unfold —— */
 .letter-rise-stage {
   position: relative;
