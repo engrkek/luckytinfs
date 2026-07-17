@@ -5,14 +5,23 @@ import { fontOf, paperOf, RECIPIENT_THEME } from '#shared/letters/visuals'
 const props = withDefaults(defineProps<{
   recipient: LetterRecipient
   senderName: string
+  /**
+   * Full letter body — always used for layout height so the paper
+   * doesn’t grow while typing (and stickers don’t drift).
+   */
   body: string
+  /**
+   * Visible text during typewriter. Defaults to full `body`.
+   * When shorter than `body`, the remainder is invisible but still occupies space.
+   */
+  revealedBody?: string
   design: LetterDesign
   compact?: boolean
-  /** Show blinking caret at end of body (typewriter) */
+  /** Show blinking caret at end of revealed text */
   typing?: boolean
   /**
-   * 0–1 typing progress. Stickers appear when the “pen” reaches their Y.
-   * Omit / 1 = show all; 0 = hide all.
+   * 0–1 typing progress. Stickers appear when the “pen” reaches their Y
+   * on the full-height letter.
    */
   stickerProgress?: number
 }>(), {
@@ -23,7 +32,20 @@ const paper = computed(() => paperOf(props.design.background))
 const fontClass = computed(() => fontOf(props.design.font))
 const theme = computed(() => RECIPIENT_THEME[props.recipient])
 
-/** Vertical threshold 0–100; stickers at/above this Y stay hidden until progress catches up */
+const visibleText = computed(() => props.revealedBody ?? props.body)
+
+/** Remainder after the caret — keeps full height without showing untyped characters */
+const ghostTail = computed(() => {
+  if (!props.typing)
+    return ''
+  const full = props.body
+  const shown = visibleText.value
+  if (shown.length >= full.length)
+    return ''
+  return full.slice(shown.length)
+})
+
+/** Vertical threshold 0–100 on the fixed full-height body area */
 const revealY = computed(() => {
   const p = props.stickerProgress
   if (p >= 1)
@@ -48,6 +70,12 @@ const paperStyle = computed(() => {
   }
   return base
 })
+
+const bodyTypeClass = computed(() => [
+  fontClass.value,
+  props.design.font === 'script' ? 'text-xl sm:text-2xl leading-snug' : 'text-base sm:text-lg',
+  props.design.font === 'type' ? 'text-[0.95rem] sm:text-base leading-[1.7]' : '',
+])
 </script>
 
 <template>
@@ -73,6 +101,11 @@ const paperStyle = computed(() => {
       </div>
     </div>
 
+    <!--
+      Body area is always full-height:
+      one text flow with visible typed chars + invisible remainder (ghost tail).
+      Stickers use % of this stable box, so they don’t jump as typing progresses.
+    -->
     <div class="relative z-2 min-h-40">
       <LetterSticker
         v-for="{ sticker, index } in visibleStickers"
@@ -83,17 +116,17 @@ const paperStyle = computed(() => {
 
       <div
         class="relative whitespace-pre-wrap text-pretty leading-relaxed"
-        :class="[
-          fontClass,
-          design.font === 'script' ? 'text-xl sm:text-2xl leading-snug' : 'text-base sm:text-lg',
-          design.font === 'type' ? 'text-[0.95rem] sm:text-base leading-[1.7]' : '',
-        ]"
+        :class="bodyTypeClass"
       >
-        <span>{{ body }}</span><span
+        <span>{{ visibleText }}</span><span
           v-if="typing"
           class="letter-caret"
           aria-hidden="true"
-        />
+        /><span
+          v-if="ghostTail"
+          class="letter-type-ghost"
+          aria-hidden="true"
+        >{{ ghostTail }}</span>
       </div>
     </div>
 

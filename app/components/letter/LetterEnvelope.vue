@@ -6,20 +6,21 @@ const props = withDefaults(defineProps<{
   recipient: LetterRecipient
   senderName: string
   design: LetterDesign
-  /** Flap open + interior slides up (CodePen-style) */
+  /** Flap open + interior peeks up */
   open?: boolean
+  /** Letter pulls fully out of the pocket */
+  extract?: boolean
   /**
    * Force seal visibility.
    * Default: visible when closed, hidden when open.
    */
   sealVisible?: boolean | null
-  /** Play stamp-down animation on the seal */
   stamping?: boolean
-  /** Allow tap-to-open (viewer) */
   interactive?: boolean
   index?: number
 }>(), {
   open: false,
+  extract: false,
   sealVisible: null,
   stamping: false,
   interactive: true,
@@ -37,7 +38,7 @@ const theme = computed(() => RECIPIENT_THEME[props.recipient])
 
 const tilt = computed(() => {
   const i = props.index ?? 0
-  const angles = [-3, 2, -1.5, 3, -2.5]
+  const angles = [-2.5, 1.5, -1, 2, -1.5]
   return angles[i % angles.length]
 })
 
@@ -59,6 +60,7 @@ function onActivate() {
     class="letter-envelope mx-auto"
     :class="[
       open && 'is-open',
+      extract && 'is-extract',
       !interactive && 'letter-envelope--static',
       stamping && 'is-stamping',
       hasInterior && 'letter-envelope--has-interior',
@@ -80,28 +82,26 @@ function onActivate() {
     @keydown.space.prevent="onActivate"
   >
     <div class="letter-envelope__shell">
-      <!-- Sliding interior (letter) — rises on open, like CodePen form -->
+      <!-- Letter slides up from under the front folds -->
       <div class="letter-envelope__interior">
         <slot>
-          <!-- Fallback empty interior when no slot -->
           <div class="letter-envelope__interior-fill" aria-hidden="true" />
         </slot>
       </div>
 
-      <!-- Top flap (triangle, flips open on rotateX) -->
+      <!-- Body fill (rectangle paper) -->
+      <div class="letter-envelope__body" aria-hidden="true" />
+
+      <!-- Side folds (front of pocket) -->
+      <div class="letter-envelope__fold letter-envelope__fold--left" aria-hidden="true" />
+      <div class="letter-envelope__fold letter-envelope__fold--right" aria-hidden="true" />
+
+      <!-- Top flap (triangle, flips open) -->
       <div class="letter-envelope__flap" aria-hidden="true">
         <div class="letter-envelope__flap-face" />
       </div>
 
-      <!-- Bottom pocket (V cut, sits in front) -->
-      <div class="letter-envelope__pocket" aria-hidden="true">
-        <div class="letter-envelope__pocket-face">
-          <div class="letter-envelope__pocket-left" />
-          <div class="letter-envelope__pocket-right" />
-        </div>
-      </div>
-
-      <!-- Address on the pocket -->
+      <!-- Address -->
       <div class="letter-envelope__label">
         <p
           class="font-display text-lg sm:text-xl font-medium tracking-tight leading-tight"
@@ -114,7 +114,7 @@ function onActivate() {
         </p>
       </div>
 
-      <!-- Wax seal over flap/pocket join -->
+      <!-- Wax seal at flap tip -->
       <div
         v-show="showSeal"
         class="letter-envelope__seal-wrap"
@@ -127,7 +127,7 @@ function onActivate() {
         />
       </div>
 
-      <!-- Mailed stamp -->
+      <!-- Mailed stamp on flap -->
       <div
         class="letter-mailed-stamp"
         :style="{ color: theme.deep }"
