@@ -240,6 +240,24 @@
   clip-path: polygon(100% 0, 100% 100%, 50% 52%);
 }
 
+/* Bottom pocket front — left/right folds only cover the side quadrants,
+   leaving this one uncovered above the interior's z-index; without it
+   anything sliding through the interior shows straight through here. */
+.letter-envelope__fold--bottom {
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, #fff 18%, transparent),
+      transparent 50%
+    ),
+    linear-gradient(
+      160deg,
+      var(--env-face),
+      color-mix(in srgb, var(--env-edge) 22%, var(--env-face))
+    );
+  clip-path: polygon(0 100%, 100% 100%, 50% 52%);
+}
+
 .letter-envelope.is-extract .letter-envelope__fold {
   z-index: 6;
 }
@@ -341,6 +359,13 @@
   transform: rotate(14deg);
 }
 
+/* Printed on the envelope surface — once the letter is fully extracted
+   (z-index 14) it's physically in front of that surface and should
+   cover this, not the other way around. */
+.letter-envelope.is-extract .letter-mailed-stamp {
+  z-index: 10;
+}
+
 .letter-mailed-stamp__ring {
   display: flex;
   flex-direction: column;
@@ -398,56 +423,90 @@
   }
 }
 
-/* —— Send ceremony —— */
+/* —— Send ceremony ——
+   The letter lives inside the envelope interior (like LetterViewer, in
+   reverse): it starts extracted, its bottom half folds up, then the
+   interior's own extract/open/close transitions slide it into the pocket. */
 .letter-send-ceremony {
   position: relative;
   width: 100%;
-  max-width: 28rem;
+  max-width: 26rem;
   margin-inline: auto;
-  min-height: 20rem;
-  perspective: 1100px;
 }
 
-.letter-send-ceremony__letter {
-  position: absolute;
-  left: 6%;
-  right: 6%;
-  top: 0;
-  z-index: 3;
-  transform-origin: 50% 100%;
-  transition:
-    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.4s ease;
-  will-change: transform, opacity;
-}
-
-.letter-send-ceremony__letter--fold {
-  transform: translateY(8%) rotateX(68deg) scale(0.92);
-  opacity: 0.95;
-}
-
-.letter-send-ceremony__letter--slide {
-  transform: translateY(42%) rotateX(78deg) scale(0.72);
-  opacity: 0.55;
-  z-index: 2;
-}
-
-.letter-send-ceremony__letter--gone {
-  transform: translateY(58%) rotateX(82deg) scale(0.55);
-  opacity: 0;
-  pointer-events: none;
-  z-index: 1;
-}
-
+/* Room above the envelope for the extracted letter (interior top: -46%) */
 .letter-send-ceremony__envelope {
-  position: relative;
-  z-index: 4;
-  margin-top: 4.5rem;
-  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  margin-top: 8.5rem;
 }
 
-.letter-send-ceremony__envelope--receive {
-  transform: translateY(-6px);
+/* The shared flap's z-index drop (16 -> 1 while open) carries a .25s delay
+   so it stays on top while it starts rotating open. That same delay bites
+   in reverse here: on close it keeps the flap BELOW the interior (z2) for
+   .25s after the class flips, so the tucked letter renders in front of a
+   flap that's already visually rotated shut. The ceremony never animates
+   an opening (it mounts pre-opened), so the delay serves no purpose here —
+   drop it to 0 for a clean close. */
+.letter-send-ceremony .letter-envelope__flap {
+  transition:
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    z-index 0s linear 0s;
+}
+
+.letter-send-ceremony__fold {
+  position: relative;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Top half of the letter — the bottom half is always drawn by the flap */
+.letter-send-ceremony__base {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 0 50% 0);
+  background: linear-gradient(165deg, #fbf6ea 0%, #f0e6d4 100%);
+}
+
+/* Bottom half, folding away by collapsing shut rather than flipping over —
+   a literal 3D flip always has a moment where a differently-shaded "back"
+   becomes visible, which just reads as a stray shadow/smudge. Collapsing
+   means nothing but the letter's own paper is ever rendered here. */
+.letter-send-ceremony__flap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  bottom: 0;
+  z-index: 2;
+  overflow: hidden;
+  clip-path: inset(0 0 0% 0);
+  transform-origin: 50% 0;
+  transition:
+    clip-path 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: clip-path, transform;
+}
+
+.letter-send-ceremony__fold--folded .letter-send-ceremony__flap {
+  clip-path: inset(0 0 100% 0);
+  transform: translateY(-6%);
+}
+
+.letter-send-ceremony__flap .letter-paper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -100%;
+  height: 200%;
+  min-height: 0;
+}
+
+.letter-send-ceremony__fold--tucked .letter-send-ceremony__base::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgb(18 14 24 / 0.06), transparent 18%),
+    linear-gradient(165deg, #fbf6ea 0%, #efe4d0 100%);
 }
 
 .letter-send-ceremony__hint {
@@ -666,8 +725,7 @@
   .letter-fold,
   .letter-rise-stage--peek .letter-fold,
   .letter-rise-stage--out .letter-fold,
-  .letter-send-ceremony__letter,
-  .letter-send-ceremony__envelope,
+  .letter-send-ceremony__flap,
   .letter-open-scene,
   .letter-open-scene__envelope {
     transition: none !important;

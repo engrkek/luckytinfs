@@ -95,6 +95,7 @@ function onActivate() {
       <!-- Side folds (front of pocket) -->
       <div class="letter-envelope__fold letter-envelope__fold--left" aria-hidden="true" />
       <div class="letter-envelope__fold letter-envelope__fold--right" aria-hidden="true" />
+      <div class="letter-envelope__fold letter-envelope__fold--bottom" aria-hidden="true" />
 
       <!-- Top flap (triangle, flips open) -->
       <div class="letter-envelope__flap" aria-hidden="true">

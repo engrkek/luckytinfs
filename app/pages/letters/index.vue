@@ -70,8 +70,8 @@ onMounted(() => {
       </header>
 
       <!-- Mailboxes -->
-      <section class="mt-10">
-        <div ref="track" class="mt-6 mx-[calc(50%-50vw)] flex snap-x snap-mandatory items-end overflow-x-auto pb-2 scrollbar-none [&::-webkit-scrollbar]:hidden">
+      <section class="mt-20">
+        <div ref="track" class="mt-10 mx-[calc(50%-50vw)] flex snap-x snap-mandatory items-end overflow-x-auto pb-2 scrollbar-none [&::-webkit-scrollbar]:hidden">
           <NuxtLink
             v-for="(m, i) in SLIDES"
             :key="`${m.id}-${i}`"

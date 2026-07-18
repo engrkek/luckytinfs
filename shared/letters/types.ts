@@ -18,6 +18,9 @@ export interface LetterDesign {
 export type LetterRecipient = 'maloi' | 'jhoanna' | 'bini'
 export type LetterVisibility = 'public' | 'private'
 
+export const LETTER_STATUSES = ['pending', 'approved', 'rejected'] as const
+export type LetterStatus = typeof LETTER_STATUSES[number]
+
 export interface LetterSubmitPayload {
   recipient: LetterRecipient
   senderName?: string

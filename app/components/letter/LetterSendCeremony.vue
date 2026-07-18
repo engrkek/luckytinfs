@@ -31,20 +31,22 @@ function later(fn: () => void, ms: number) {
   timers.push(window.setTimeout(fn, ms))
 }
 
-const letterClass = computed(() => {
-  if (phase.value === 'ready')
-    return ''
-  if (phase.value === 'fold')
-    return 'letter-send-ceremony__letter--fold'
-  if (phase.value === 'slide')
-    return 'letter-send-ceremony__letter--slide'
-  return 'letter-send-ceremony__letter--gone'
-})
+/* Bottom half folds up over the top half once we leave 'ready' */
+const folded = computed(() => phase.value !== 'ready')
 
+/* Letter stands fully out of the envelope while it folds */
+const extracted = computed(() =>
+  phase.value === 'ready' || phase.value === 'fold',
+)
+
+/* Fold finished — swap the 3D flap for a flat back so pocket clipping works */
+const tucked = computed(() => !extracted.value)
+
+/* Flap starts closing the moment folding finishes, concurrent with the
+   letter dropping into the pocket — otherwise the folded letter sits
+   fully visible in the open flap gap before anything covers it. */
 const envelopeOpen = computed(() =>
-  phase.value === 'ready'
-  || phase.value === 'fold'
-  || phase.value === 'slide',
+  phase.value === 'ready' || phase.value === 'fold',
 )
 
 const sealVisible = computed(() =>
@@ -76,7 +78,7 @@ onMounted(() => {
     return
   }
 
-  // brief beat so the open letter is visible
+  // brief beat so the open letter is visible standing out of the envelope
   later(() => {
     phase.value = 'fold'
     later(() => {
@@ -89,10 +91,10 @@ onMounted(() => {
             phase.value = 'done'
             later(() => emit('complete'), 420)
           }, 620)
-        }, 720)
-      }, 700)
-    }, 680)
-  }, 280)
+        }, 820)
+      }, 780)
+    }, 750)
+  }, 450)
 })
 
 onBeforeUnmount(() => {
@@ -103,34 +105,49 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="letter-send-ceremony" aria-live="polite">
-    <div
-      class="letter-send-ceremony__letter"
-      :class="letterClass"
-    >
-      <LetterPaper
-        :recipient="recipient"
-        :sender-name="senderName"
-        :body="body"
-        :design="design"
-        compact
-        :sticker-progress="1"
-      />
-    </div>
-
-    <div
-      class="letter-send-ceremony__envelope"
-      :class="phase === 'slide' && 'letter-send-ceremony__envelope--receive'"
-    >
+    <div class="letter-send-ceremony__envelope">
       <LetterEnvelope
         :recipient="recipient"
         :sender-name="senderName"
         :design="design"
         :open="envelopeOpen"
+        :extract="extracted"
         :seal-visible="sealVisible"
         :stamping="stamping"
         :interactive="false"
         :index="0"
-      />
+      >
+        <!-- Letter rides the envelope interior; bottom half folds up first -->
+        <div
+          class="letter-send-ceremony__fold"
+          :class="[
+            folded && 'letter-send-ceremony__fold--folded',
+            tucked && 'letter-send-ceremony__fold--tucked',
+          ]"
+        >
+          <div class="letter-send-ceremony__base letter-envelope-card">
+            <LetterPaper
+              :recipient="recipient"
+              :sender-name="senderName"
+              :body="body"
+              :design="design"
+              compact
+              :sticker-progress="1"
+            />
+          </div>
+
+          <div class="letter-send-ceremony__flap letter-envelope-card">
+            <LetterPaper
+              :recipient="recipient"
+              :sender-name="senderName"
+              :body="body"
+              :design="design"
+              compact
+              :sticker-progress="1"
+            />
+          </div>
+        </div>
+      </LetterEnvelope>
     </div>
 
     <p class="letter-send-ceremony__hint">
