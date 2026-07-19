@@ -79,6 +79,7 @@ export default defineEventHandler(async (event) => {
       return {
         letters: pool.map(toPublic),
         source: current.length ? 'stop' as const : 'archive' as const,
+        unlocked: isMember,
       }
     }
   }
@@ -90,5 +91,5 @@ export default defineEventHandler(async (event) => {
     ? DEMO_LETTERS.filter(l => l.recipient === recipient)
     : DEMO_LETTERS
 
-  return { letters: list.slice(0, limit), source: 'demo' as const }
+  return { letters: list.slice(0, limit), source: 'demo' as const, unlocked: isMember }
 })

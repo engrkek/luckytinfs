@@ -2,18 +2,12 @@
 import type { LetterStoryTool } from '~/composables/useLetterEditor'
 import { LETTER_RECIPIENTS } from '#shared/letters/assets'
 import { isLetterRecipient } from '#shared/letters/public'
-import { TOUR_STOPS } from '#shared/letters/tour'
 
 const editor = useLetterEditor()
 
-/** QR codes at each venue can lock recipient + stop via ?to=&stop= */
-const initialQuery = useRoute().query
-const initialTo = String(initialQuery.to || '')
+const initialTo = String(useRoute().query.to || '')
 if (isLetterRecipient(initialTo))
   editor.recipient.value = initialTo
-const initialStop = String(initialQuery.stop || '')
-if (TOUR_STOPS.some(s => s.id === initialStop))
-  editor.tourStop.value = initialStop as typeof editor.tourStop.value
 const {
   recipient,
   tourStop,
@@ -198,9 +192,6 @@ const previewRecipient = computed(() => recipient.value ?? 'bini')
             :interactive="false"
             class="w-full max-w-none!"
           />
-          <p class="mt-5 text-center text-xs text-white/35 text-pretty">
-            Seal only appears on the envelope — not on the letter.
-          </p>
         </div>
 
         <LetterStoryCanvas

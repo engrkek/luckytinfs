@@ -144,8 +144,91 @@ watch(isPostcard, (on) => {
       </p>
     </div>
 
+    <!-- Postcard message side: meta + signature on the left, message on the right (3:2, matches the reading view) -->
     <article
-      v-show="!isPostcard || !showFront"
+      v-if="isPostcard"
+      v-show="!showFront"
+      class="letter-paper relative flex aspect-[3/2] w-full gap-4 overflow-hidden rounded-sm p-4 sm:p-5"
+      :class="paper.class"
+      :style="paperStyle"
+      @pointerdown.self="onCanvasTap"
+    >
+      <div class="relative z-2 flex h-full w-[34%] shrink-0 flex-col justify-between border-r border-current/15 pr-4 pointer-events-none">
+        <div>
+          <p class="font-type text-[0.55rem] uppercase tracking-[0.18em] opacity-50">
+            Signals World Tour ’26
+          </p>
+          <p class="mt-1 font-display text-sm font-medium tracking-tight sm:text-base" :style="{ color: theme.deep }">
+            {{ recipient ? theme.toLine : 'Choose a recipient…' }}
+          </p>
+        </div>
+        <div class="pointer-events-auto">
+          <p class="font-type text-[0.5rem] uppercase tracking-[0.16em] opacity-45">
+            With love from
+          </p>
+          <input
+            v-if="editingName"
+            ref="nameInputRef"
+            type="text"
+            class="mt-0.5 w-full bg-transparent border-0 border-b border-current/25 p-0 m-0 text-sm outline-none focus:border-current/50"
+            :style="{ color: paper.ink }"
+            :value="senderName"
+            :maxlength="senderNameMax"
+            placeholder="Your name"
+            autocomplete="nickname"
+            @input="onNameInput"
+            @blur="stopEditingName"
+            @keydown.enter.prevent="stopEditingName"
+          >
+          <button
+            v-else
+            type="button"
+            class="mt-0.5 block max-w-full text-left text-sm transition-opacity"
+            :class="senderName.trim() ? 'opacity-90' : 'opacity-45'"
+            @click.stop="startEditingName"
+          >
+            {{ senderName.trim() || 'Tap to sign…' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="relative z-2 h-full min-w-0 flex-1 overflow-y-auto">
+        <LetterSticker
+          v-for="(sticker, i) in design.stickers"
+          :key="`${sticker.id}-${i}`"
+          :sticker="sticker"
+          interactive
+          :selected="selectedSticker === i"
+          @select="emit('selectSticker', i)"
+          @move="(pos) => emit('moveSticker', i, pos)"
+        />
+        <textarea
+          v-if="editingText"
+          ref="textareaRef"
+          class="letter-story-textarea relative z-3 w-full resize-none bg-transparent outline-none border-0 p-0 m-0 text-sm leading-relaxed"
+          :class="fontClass"
+          :style="{ color: paper.ink }"
+          :value="body"
+          :maxlength="bodyMax"
+          rows="8"
+          placeholder="Write something heartfelt…"
+          @input="onBodyInput"
+          @blur="stopEditingBody"
+        />
+        <button
+          v-else
+          type="button"
+          class="relative z-3 w-full text-left whitespace-pre-wrap text-pretty text-sm leading-relaxed"
+          :class="[fontClass, !body.trim() && 'opacity-45']"
+          @click.stop="startEditingBody"
+        >
+          {{ body.trim() || 'Tap to write your letter…' }}
+        </button>
+      </div>
+    </article>
+
+    <article
+      v-else
       class="letter-paper letter-story-canvas relative w-full overflow-hidden rounded-sm"
       :class="paper.class"
       :style="paperStyle"

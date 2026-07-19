@@ -67,7 +67,7 @@ useHead({
 
       <div
         v-else-if="error || !letter"
-        class="rounded-xl border border-white/10 bg-white/[0.03] px-6 py-14 text-center"
+        class="rounded-xl border border-white/10 bg-white/3 px-6 py-14 text-center"
       >
         <p class="font-display text-xl text-white/90">
           Letter not found

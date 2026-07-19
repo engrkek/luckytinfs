@@ -3,7 +3,7 @@ import { sealSrc } from '#shared/letters/visuals'
 
 const props = withDefaults(defineProps<{
   sealId: string
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'xs' | 'sm' | 'md' | 'lg'
 }>(), {
   size: 'md',
 })
@@ -11,6 +11,7 @@ const props = withDefaults(defineProps<{
 const src = computed(() => sealSrc(props.sealId))
 
 const sizeClass = computed(() => ({
+  xs: 'w-7 h-7',
   sm: 'w-10 h-10',
   md: 'w-[3.5rem] h-[3.5rem]',
   lg: 'w-16 h-16',

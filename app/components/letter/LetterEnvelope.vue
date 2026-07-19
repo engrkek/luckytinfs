@@ -18,12 +18,18 @@ const props = withDefaults(defineProps<{
   stamping?: boolean
   interactive?: boolean
   index?: number
+  /** Wax seal size — shrink for small thumbnail cards */
+  sealSize?: 'xs' | 'sm' | 'md' | 'lg'
+  /** Small thumbnail context — drops the fixed-size "Mailed" postmark, which doesn't scale down */
+  compact?: boolean
 }>(), {
   open: false,
   extract: false,
   sealVisible: null,
   stamping: false,
   interactive: true,
+  sealSize: 'lg',
+  compact: false,
 })
 
 const emit = defineEmits<{
@@ -105,12 +111,16 @@ function onActivate() {
       <!-- Address -->
       <div class="letter-envelope__label">
         <p
-          class="font-display text-lg sm:text-xl font-medium tracking-tight leading-tight"
+          class="truncate font-display font-medium tracking-tight leading-tight"
+          :class="compact ? 'text-[0.68rem]' : 'text-lg sm:text-xl'"
           :style="{ color: theme.deep }"
         >
           {{ theme.toLine }}
         </p>
-        <p class="mt-1.5 font-hand text-sm sm:text-base text-black/55">
+        <p
+          class="truncate font-hand text-black/55"
+          :class="compact ? 'mt-0.5 text-[0.55rem]' : 'mt-1.5 text-sm sm:text-base'"
+        >
           from {{ senderName || 'Anonymous' }}
         </p>
       </div>
@@ -123,13 +133,14 @@ function onActivate() {
       >
         <LetterWaxSeal
           :seal-id="design.seal"
-          size="lg"
+          :size="sealSize"
           class="letter-envelope__seal"
         />
       </div>
 
       <!-- Mailed stamp on flap -->
       <div
+        v-if="!compact"
         class="letter-mailed-stamp"
         :style="{ color: theme.deep }"
         aria-hidden="true"

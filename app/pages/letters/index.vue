@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import type { PublicLetter } from '#shared/letters/public'
 import { LETTER_RECIPIENTS } from '#shared/letters/assets'
+import { seededShuffle } from '#shared/letters/shuffle'
+import { nextTourStop } from '#shared/letters/tour'
 import { MAILBOX_PAINT, RECIPIENT_THEME } from '#shared/letters/visuals'
 
 useSeoMeta({
@@ -9,7 +12,7 @@ useSeoMeta({
 
 useHead({
   meta: [
-    { key: 'theme-color', name: 'theme-color', content: '#f6f0e2' },
+    { key: 'theme-color', name: 'theme-color', content: '#e8e2d6' },
   ],
 })
 
@@ -51,6 +54,15 @@ onMounted(() => {
     t = window.setTimeout(onSettle, 150)
   }, { passive: true })
 })
+
+/** Public letters, read-only marquee — order is stable within a tour stop, reshuffles at the next one */
+const currentStop = nextTourStop()
+const { data: feed } = await useFetch<{ letters: PublicLetter[] }>('/api/letters', {
+  query: { limit: 30 },
+})
+const marqueeLetters = computed(() =>
+  seededShuffle(feed.value?.letters ?? [], currentStop.id),
+)
 </script>
 
 <template>
@@ -116,6 +128,35 @@ onMounted(() => {
           ‹ Swipe for the others ›
         </p>
       </section>
+
+      <!-- Read what others sent -->
+      <section v-if="marqueeLetters.length" class="mt-20">
+        <h2 class="text-center font-display text-xl font-medium tracking-tight text-[#2c2416] sm:text-left">
+          Letters from Blooms &amp; Lumities
+        </h2>
+        <div class="mt-6 mx-[calc(50%-50vw)] flex snap-x snap-proximity gap-4 overflow-x-auto px-[calc(50vw-50%)] pb-2 scrollbar-none [&::-webkit-scrollbar]:hidden">
+          <NuxtLink
+            v-for="l in marqueeLetters"
+            :key="l.id"
+            :to="`/letters/${l.id}`"
+            class="letter-card w-40 shrink-0 snap-center"
+            :aria-label="`Read a letter for ${RECIPIENT_THEME[l.recipient].label}`"
+          >
+            <LetterEnvelope
+              :recipient="l.recipient"
+              :sender-name="l.senderName"
+              :design="l.design"
+              seal-size="xs"
+              compact
+              :open="false"
+              :interactive="false"
+            />
+          </NuxtLink>
+        </div>
+        <p class="mt-2 text-center font-type text-[0.55rem] uppercase tracking-[0.28em] text-[#a08c60]">
+          ‹ Swipe to read ›
+        </p>
+      </section>
     </div>
   </div>
 </template>
@@ -125,7 +166,8 @@ onMounted(() => {
    no JS; browsers without view() support just skip the effect. */
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view(x)) {
-    .mailbox-slide {
+    .mailbox-slide,
+    .letter-card {
       transform-origin: bottom center;
       animation: mailbox-pop linear both;
       animation-timeline: view(x);

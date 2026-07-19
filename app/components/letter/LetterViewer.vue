@@ -289,6 +289,7 @@ onBeforeUnmount(clearTimers)
               :body="letter.body"
               :design="letter.design"
               compact
+              :layout="isPostcard ? 'postcard' : 'letter'"
               :sticker-progress="0"
             />
           </div>
@@ -323,6 +324,7 @@ onBeforeUnmount(clearTimers)
                   :body="letter.body"
                   :revealed-body="revealedBody"
                   :design="letter.design"
+                  layout="postcard"
                   :typing="phase === 'typing' && !typingDone"
                   :sticker-progress="stickerProgress"
                 />
@@ -396,13 +398,19 @@ onBeforeUnmount(clearTimers)
 </template>
 
 <style scoped>
+/* Fixed landscape postcard shape — both faces fill this box exactly,
+   so flipping never changes the card's size or proportions. */
 .postcard-flip {
   perspective: 1400px;
   cursor: pointer;
+  aspect-ratio: 3 / 2;
+  width: 100%;
 }
 
 .postcard-flip__inner {
   position: relative;
+  width: 100%;
+  height: 100%;
   transform-style: preserve-3d;
   transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
 }
@@ -412,16 +420,16 @@ onBeforeUnmount(clearTimers)
 }
 
 .postcard-flip__face {
-  backface-visibility: hidden;
-}
-
-.postcard-flip__face--photo {
   position: absolute;
   inset: 0;
-  transform: rotateY(180deg);
+  backface-visibility: hidden;
   box-shadow: 0 18px 40px -18px rgb(0 0 0 / 0.5);
   border-radius: 0.125rem;
   overflow: hidden;
+}
+
+.postcard-flip__face--photo {
+  transform: rotateY(180deg);
 }
 
 @media (prefers-reduced-motion: reduce) {

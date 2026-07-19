@@ -27,9 +27,14 @@ useHead({
 
 const memberKey = typeof route.query.key === 'string' ? route.query.key : undefined
 
-const { data, status } = await useFetch<{ letters: PublicLetter[], source: string }>('/api/letters', {
+const { data, status } = await useFetch<{ letters: PublicLetter[], source: string, unlocked: boolean }>('/api/letters', {
   query: { recipient, limit: 30, ...(memberKey ? { key: memberKey } : {}) },
 })
+
+// This mailbox is for the member only — no key, no page. Bounce fans to /letters
+// rather than a "wrong key" message, so an unlocked mailbox never reveals it exists.
+if (!data.value?.unlocked)
+  await navigateTo('/letters', { replace: true })
 
 const letters = computed(() => data.value?.letters ?? [])
 
