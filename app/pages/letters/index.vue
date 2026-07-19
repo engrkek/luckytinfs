@@ -71,7 +71,7 @@ onMounted(() => {
 
       <!-- Mailboxes -->
       <section class="mt-20">
-        <div ref="track" class="mt-10 mx-[calc(50%-50vw)] flex snap-x snap-mandatory items-end overflow-x-auto pb-2 scrollbar-none [&::-webkit-scrollbar]:hidden">
+        <div ref="track" class="pt-10 mx-[calc(50%-50vw)] flex snap-x snap-mandatory items-end overflow-x-auto pb-2 scrollbar-none [&::-webkit-scrollbar]:hidden">
           <NuxtLink
             v-for="(m, i) in SLIDES"
             :key="`${m.id}-${i}`"
@@ -86,7 +86,7 @@ onMounted(() => {
             <div class="mx-auto w-[74%] max-w-90">
               <!-- Postbox body -->
               <div
-                class="mt-8 rounded-t-full rounded-b-2xl bg-(--mb) px-5 pb-6 shadow-[inset_0_12px_18px_rgb(255_255_255/0.2),inset_0_-16px_26px_rgb(0_0_0/0.18),0_24px_48px_-16px_rgb(93_70_20/0.35)] transition-transform duration-300 group-hover:-translate-y-1 group-active:scale-[0.98]"
+                class="mt-10 rounded-t-full rounded-b-2xl bg-(--mb) px-5 pb-6 shadow-[inset_0_12px_18px_rgb(255_255_255/0.2),inset_0_-16px_26px_rgb(0_0_0/0.18),0_24px_48px_-16px_rgb(93_70_20/0.35)] transition-transform duration-300 group-hover:-translate-y-1 group-active:scale-[0.98]"
                 :class="m.id === 'maloi' ? 'pt-32' : 'pt-22'"
               >
                 <p class="text-center font-type text-[0.6rem] uppercase tracking-[0.32em] text-(--mb-deep)">

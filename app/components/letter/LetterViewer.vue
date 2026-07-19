@@ -28,6 +28,17 @@ const emit = defineEmits<{
 }>()
 
 const phase = ref<Phase>('sealed')
+
+/** Postcard: message side first (typewriter runs), tap to flip to the photo */
+const isPostcard = computed(() =>
+  props.letter.design.format === 'postcard' && Boolean(props.letter.design.photo),
+)
+const flipped = ref(false)
+
+function toggleFlip() {
+  if (phase.value === 'reading' || phase.value === 'typing')
+    flipped.value = !flipped.value
+}
 const { pref: globalSound, enable: enableGlobalSound } = useLetterSound()
 const sound = ref<'pending' | 'on' | 'off'>('pending')
 
@@ -140,6 +151,7 @@ function reseal() {
   if (phase.value !== 'reading')
     return
   clearTimers()
+  flipped.value = false
   // 1) Full letter fades back onto the extracted paper behind it
   phase.value = 'tucking'
   later(() => {
@@ -224,6 +236,7 @@ const sceneClass = computed(() => `letter-open-scene--${phase.value}`)
 watch(() => props.letter.id, () => {
   clearTimers()
   phase.value = 'sealed'
+  flipped.value = false
   resetTyping()
   syncSoundFromGlobal()
 })
@@ -295,7 +308,36 @@ onBeforeUnmount(clearTimers)
           v-if="showFullLetter"
           class="letter-open-scene__full"
         >
+          <!-- Postcard: 3D flip between message back and photo front -->
+          <div
+            v-if="isPostcard"
+            class="postcard-flip"
+            :class="{ 'postcard-flip--flipped': flipped }"
+            @click="toggleFlip"
+          >
+            <div class="postcard-flip__inner">
+              <div class="postcard-flip__face">
+                <LetterPaper
+                  :recipient="letter.recipient"
+                  :sender-name="letter.senderName"
+                  :body="letter.body"
+                  :revealed-body="revealedBody"
+                  :design="letter.design"
+                  :typing="phase === 'typing' && !typingDone"
+                  :sticker-progress="stickerProgress"
+                />
+              </div>
+              <div class="postcard-flip__face postcard-flip__face--photo">
+                <img
+                  :src="`/${letter.design.photo}`"
+                  alt="Postcard photo"
+                  class="absolute inset-0 size-full rounded-sm object-cover"
+                >
+              </div>
+            </div>
+          </div>
           <LetterPaper
+            v-else
             :recipient="letter.recipient"
             :sender-name="letter.senderName"
             :body="letter.body"
@@ -313,6 +355,13 @@ onBeforeUnmount(clearTimers)
       class="mt-4 text-center font-type text-[0.55rem] uppercase tracking-[0.24em] text-white/30"
     >
       Tap to skip
+    </p>
+
+    <p
+      v-else-if="isPostcard && phase === 'reading'"
+      class="mt-4 text-center font-type text-[0.55rem] uppercase tracking-[0.24em] text-white/30"
+    >
+      {{ flipped ? 'Tap to read the message' : 'Tap the card to flip it over' }}
     </p>
 
     <div
@@ -345,3 +394,39 @@ onBeforeUnmount(clearTimers)
     </div>
   </div>
 </template>
+
+<style scoped>
+.postcard-flip {
+  perspective: 1400px;
+  cursor: pointer;
+}
+
+.postcard-flip__inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.postcard-flip--flipped .postcard-flip__inner {
+  transform: rotateY(180deg);
+}
+
+.postcard-flip__face {
+  backface-visibility: hidden;
+}
+
+.postcard-flip__face--photo {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  box-shadow: 0 18px 40px -18px rgb(0 0 0 / 0.5);
+  border-radius: 0.125rem;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .postcard-flip__inner {
+    transition: none;
+  }
+}
+</style>

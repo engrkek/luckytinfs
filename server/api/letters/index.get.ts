@@ -1,33 +1,26 @@
 import type { PublicLetter } from '#shared/letters/public'
 import type { LetterDesign, LetterRecipient } from '#shared/letters/types'
 import { letter } from '@nuxthub/db/schema'
-import { and, desc, eq, isNotNull } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
 import { DEMO_LETTERS, isLetterRecipient } from '#shared/letters/public'
-
-function startOfUtcDay(d = new Date()) {
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
-}
-
-function endOfUtcDay(d = new Date()) {
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 23, 59, 59, 999))
-}
+import { nextTourStop } from '#shared/letters/tour'
 
 function toPublic(row: {
   id: string
   recipient: string
+  tourStop: string
   senderName: string
   body: string
   design: unknown
-  featuredOn: Date | null
   createdAt: Date
 }): PublicLetter {
   return {
     id: row.id,
     recipient: row.recipient as LetterRecipient,
+    tourStop: row.tourStop as PublicLetter['tourStop'],
     senderName: row.senderName,
     body: row.body,
     design: row.design as LetterDesign,
-    featuredOn: row.featuredOn ? row.featuredOn.toISOString() : null,
     createdAt: row.createdAt.toISOString(),
   }
 }
@@ -52,44 +45,40 @@ export default defineEventHandler(async (event) => {
     return { letters: list.slice(0, limit), source: 'demo' as const }
   }
 
-  try {
-    const dayStart = startOfUtcDay()
-    const dayEnd = endOfUtcDay()
+  // Member's own printed QR key — unlocks private letters for that recipient only
+  const keyRaw = typeof query.key === 'string' ? query.key : ''
+  const memberKeys = useRuntimeConfig(event).memberMailboxKeys as Record<string, string>
+  const isMember = Boolean(recipient) && keyRaw.length > 0 && keyRaw === memberKeys[recipient!]
 
-    // Prefer today's featured public letters
-    const featured = await db
+  try {
+    const fetchApproved = (stop?: string) => db
       .select({
         id: letter.id,
         recipient: letter.recipient,
+        tourStop: letter.tourStop,
         senderName: letter.senderName,
         body: letter.body,
         design: letter.design,
-        featuredOn: letter.featuredOn,
         createdAt: letter.createdAt,
       })
       .from(letter)
       .where(and(
         eq(letter.status, 'approved'),
-        eq(letter.visibility, 'public'),
-        isNotNull(letter.featuredOn),
+        ...(isMember ? [] : [eq(letter.visibility, 'public')]),
+        ...(stop ? [eq(letter.tourStop, stop)] : []),
         ...(recipient ? [eq(letter.recipient, recipient)] : []),
       ))
-      .orderBy(desc(letter.featuredOn))
+      .orderBy(desc(letter.createdAt))
       .limit(limit)
 
-    const todays = featured.filter((row) => {
-      if (!row.featuredOn)
-        return false
-      const t = row.featuredOn.getTime()
-      return t >= dayStart.getTime() && t <= dayEnd.getTime()
-    })
-
-    const pool = todays.length ? todays : featured
+    // Current stop's letters first; any approved letters if the stop is empty
+    const current = await fetchApproved(nextTourStop().id)
+    const pool = current.length ? current : await fetchApproved()
 
     if (pool.length) {
       return {
         letters: pool.map(toPublic),
-        source: todays.length ? 'featured' as const : 'archive' as const,
+        source: current.length ? 'stop' as const : 'archive' as const,
       }
     }
   }

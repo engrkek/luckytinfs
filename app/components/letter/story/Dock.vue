@@ -10,6 +10,7 @@ const emit = defineEmits<{
 }>()
 
 const tools: { id: NonNullable<LetterStoryTool>, label: string, icon: string }[] = [
+  { id: 'postcard', label: 'Card', icon: 'i-lucide-image' },
   { id: 'paper', label: 'Paper', icon: 'i-lucide-sheet' },
   { id: 'font', label: 'Type', icon: 'i-lucide-type' },
   { id: 'envelope', label: 'Env', icon: 'i-lucide-mail' },

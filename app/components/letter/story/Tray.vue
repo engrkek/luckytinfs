@@ -19,6 +19,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
+  'update:format': [format: 'letter' | 'postcard']
+  'update:photo': [pathname: string | undefined]
   'update:background': [id: string]
   'update:font': [id: string]
   'update:envelope': [id: string]
@@ -32,6 +34,7 @@ const emit = defineEmits<{
 }>()
 
 const title = computed(() => ({
+  postcard: 'Letter or postcard',
   paper: 'Paper',
   font: 'Type',
   envelope: 'Envelope',
@@ -86,6 +89,23 @@ const musicPreview = computed(() => parseYouTubeLink(props.design.music))
 function envSwatch(id: string) {
   return envelopeOf(id).face
 }
+
+/** Postcard photo: file pick → cropper → uploaded pathname */
+const photoInput = ref<HTMLInputElement | null>(null)
+const cropFile = ref<File | null>(null)
+
+function onPhotoPick(e: Event) {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (file)
+    cropFile.value = file
+}
+
+function onCropDone(pathname: string) {
+  cropFile.value = null
+  emit('update:photo', pathname)
+}
 </script>
 
 <template>
@@ -103,8 +123,94 @@ function envSwatch(id: string) {
       </button>
     </div>
 
+    <!-- Letter / postcard format + front photo -->
+    <div v-if="tool === 'postcard'" class="px-4 pb-4 space-y-3">
+      <div class="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          class="rounded-xl border p-3 text-left transition-colors"
+          :class="(design.format ?? 'letter') === 'letter'
+            ? 'border-[#e0c56a] bg-white/10 text-[#f4efe4]'
+            : 'border-white/10 bg-white/5 text-[#c8bfb0]'"
+          @click="emit('update:format', 'letter')"
+        >
+          <span class="block text-sm font-medium">Letter</span>
+          <span class="mt-0.5 block text-xs opacity-65">Paper in an envelope</span>
+        </button>
+        <button
+          type="button"
+          class="rounded-xl border p-3 text-left transition-colors"
+          :class="design.format === 'postcard'
+            ? 'border-[#e0c56a] bg-white/10 text-[#f4efe4]'
+            : 'border-white/10 bg-white/5 text-[#c8bfb0]'"
+          @click="emit('update:format', 'postcard')"
+        >
+          <span class="block text-sm font-medium">Postcard</span>
+          <span class="mt-0.5 block text-xs opacity-65">Your photo on the front</span>
+        </button>
+      </div>
+
+      <template v-if="design.format === 'postcard'">
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            class="relative h-20 w-30 shrink-0 overflow-hidden rounded-lg border border-white/15 bg-white/5"
+            aria-label="Postcard front photo"
+            @click="photoInput?.click()"
+          >
+            <img
+              v-if="design.photo"
+              :src="`/${design.photo}`"
+              alt="Postcard front"
+              class="size-full object-cover"
+            >
+            <span v-else class="grid size-full place-items-center">
+              <UIcon name="i-lucide-image-plus" class="size-6 text-[#c8bfb0]/60" />
+            </span>
+          </button>
+          <div class="min-w-0 space-y-1.5">
+            <button
+              type="button"
+              class="rounded-full bg-[#e0c56a] px-4 py-1.5 font-display text-sm font-medium text-[#1a2230]"
+              @click="photoInput?.click()"
+            >
+              {{ design.photo ? 'Replace photo' : 'Add photo' }}
+            </button>
+            <button
+              v-if="design.photo"
+              type="button"
+              class="block font-type text-[0.6rem] uppercase tracking-[0.14em] text-red-200/90"
+              @click="emit('update:photo', undefined)"
+            >
+              Remove
+            </button>
+            <p v-else class="text-xs text-[#c8bfb0]/55">
+              Shown on the front — flip to read the message.
+            </p>
+          </div>
+        </div>
+        <input
+          ref="photoInput"
+          type="file"
+          accept="image/*"
+          class="hidden"
+          @change="onPhotoPick"
+        >
+      </template>
+      <p v-else class="font-type text-[0.55rem] uppercase tracking-[0.14em] text-[#c8bfb0]/45">
+        Switch to postcard to add a photo front
+      </p>
+
+      <LetterStoryPhotoCropper
+        v-if="cropFile"
+        :file="cropFile"
+        @done="onCropDone"
+        @cancel="cropFile = null"
+      />
+    </div>
+
     <!-- Paper -->
-    <div v-if="tool === 'paper'" class="flex gap-2.5 overflow-x-auto px-4 pb-4 snap-x">
+    <div v-else-if="tool === 'paper'" class="flex gap-2.5 overflow-x-auto px-4 pb-4 snap-x">
       <button
         v-for="opt in LETTER_BACKGROUNDS"
         :key="opt.id"

@@ -2,14 +2,21 @@
 import type { LetterStoryTool } from '~/composables/useLetterEditor'
 import { LETTER_RECIPIENTS } from '#shared/letters/assets'
 import { isLetterRecipient } from '#shared/letters/public'
+import { TOUR_STOPS } from '#shared/letters/tour'
 
 const editor = useLetterEditor()
 
-const initialTo = String(useRoute().query.to || '')
+/** QR codes at each venue can lock recipient + stop via ?to=&stop= */
+const initialQuery = useRoute().query
+const initialTo = String(initialQuery.to || '')
 if (isLetterRecipient(initialTo))
   editor.recipient.value = initialTo
+const initialStop = String(initialQuery.stop || '')
+if (TOUR_STOPS.some(s => s.id === initialStop))
+  editor.tourStop.value = initialStop as typeof editor.tourStop.value
 const {
   recipient,
+  tourStop,
   senderName,
   senderEmail,
   body,
@@ -229,6 +236,8 @@ const previewRecipient = computed(() => recipient.value ?? 'bini')
         :design="design"
         :selected-sticker="selectedSticker"
         @close="closeTool"
+        @update:format="design.format = $event"
+        @update:photo="design.photo = $event"
         @update:background="design.background = $event"
         @update:font="design.font = $event"
         @update:envelope="design.envelope = $event"
@@ -248,6 +257,7 @@ const previewRecipient = computed(() => recipient.value ?? 'bini')
     <LetterStorySendSheet
       v-model:open="sendOpen"
       v-model:recipient="recipient"
+      v-model:tour-stop="tourStop"
       v-model:sender-name="senderName"
       v-model:sender-email="senderEmail"
       v-model:visibility="visibility"

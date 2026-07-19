@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import type { TourStopId } from '#shared/letters/tour'
 import type { LetterDesign, LetterRecipient, LetterVisibility } from '#shared/letters/types'
 import { LETTER_RECIPIENTS } from '#shared/letters/assets'
+import { TOUR_STOPS } from '#shared/letters/tour'
 
 defineProps<{
   open: boolean
   recipient: LetterRecipient | null
+  tourStop: TourStopId
   senderName: string
   senderEmail: string
   visibility: LetterVisibility
@@ -19,6 +22,7 @@ defineProps<{
 const emit = defineEmits<{
   'update:open': [value: boolean]
   'update:recipient': [value: LetterRecipient | null]
+  'update:tourStop': [value: TourStopId]
   'update:senderName': [value: string]
   'update:senderEmail': [value: string]
   'update:visibility': [value: LetterVisibility]
@@ -76,7 +80,7 @@ function close() {
               :design="design"
               :open="false"
               :interactive="false"
-              class="w-full !max-w-xs"
+              class="w-full max-w-xs!"
             />
           </div>
 
@@ -99,6 +103,30 @@ function close() {
                 {{ r.label }}
               </button>
             </div>
+          </div>
+
+          <!-- tour stop -->
+          <div>
+            <p class="font-type text-[0.6rem] uppercase tracking-[0.2em] text-[#c8bfb0]/55 mb-2">
+              For which show
+            </p>
+            <select
+              :value="tourStop"
+              class="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-[#f4efe4] outline-none focus:border-[#e0c56a]/50"
+              @change="emit('update:tourStop', ($event.target as HTMLSelectElement).value as TourStopId)"
+            >
+              <option
+                v-for="s in TOUR_STOPS"
+                :key="s.id"
+                :value="s.id"
+                class="bg-[#1e2634]"
+              >
+                {{ s.city }}{{ s.date ? ` — ${s.date}` : '' }}
+              </option>
+            </select>
+            <p class="mt-1.5 text-xs text-[#c8bfb0]/55">
+              Your letter travels with this stop of the tour.
+            </p>
           </div>
 
           <!-- visibility -->
@@ -166,6 +194,9 @@ function close() {
           </p>
           <p v-if="!recipient" class="text-sm text-amber-200/80">
             Pick who this letter is for.
+          </p>
+          <p v-if="design.format === 'postcard' && !design.photo" class="text-sm text-amber-200/80">
+            Your postcard needs a front photo — add one from the Card tool.
           </p>
           <p v-if="submitError" class="text-sm text-red-300" role="alert">
             {{ submitError }}

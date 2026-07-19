@@ -1,21 +1,26 @@
+import type { TourStopId } from '#shared/letters/tour'
 import type { LetterDesign, LetterRecipient, LetterVisibility } from '#shared/letters/types'
 import {
   LETTER_DEFAULTS,
   LETTER_LIMITS,
   LETTER_STICKERS,
 } from '#shared/letters/assets'
+import { nextTourStop } from '#shared/letters/tour'
 import { normalizeYouTubeMusic } from '#shared/letters/youtube'
 
-export type LetterStoryTool = 'paper' | 'font' | 'envelope' | 'seal' | 'sticker' | 'music' | null
+export type LetterStoryTool = 'postcard' | 'paper' | 'font' | 'envelope' | 'seal' | 'sticker' | 'music' | null
 
 export function useLetterEditor() {
   const recipient = ref<LetterRecipient | null>(null)
+  const tourStop = ref<TourStopId>(nextTourStop().id)
   const senderName = ref('')
   const senderEmail = ref('')
   const body = ref('')
   const visibility = ref<LetterVisibility>('public')
 
   const design = reactive<LetterDesign>({
+    format: 'letter',
+    photo: undefined,
     background: LETTER_DEFAULTS.background,
     font: LETTER_DEFAULTS.font,
     envelope: LETTER_DEFAULTS.envelope,
@@ -37,7 +42,8 @@ export function useLetterEditor() {
   const canSubmit = computed(() =>
     recipient.value !== null
     && body.value.trim().length > 0
-    && body.value.trim().length <= LETTER_LIMITS.bodyMax,
+    && body.value.trim().length <= LETTER_LIMITS.bodyMax
+    && (design.format !== 'postcard' || Boolean(design.photo)),
   )
 
   function toggleTool(tool: NonNullable<LetterStoryTool>) {
@@ -103,10 +109,13 @@ export function useLetterEditor() {
 
     return {
       recipient: recipient.value,
+      tourStop: tourStop.value,
       senderName: senderName.value.trim() || undefined,
       senderEmail: senderEmail.value.trim() || undefined,
       body: body.value.trim(),
       design: {
+        format: design.format ?? 'letter',
+        ...(design.format === 'postcard' && design.photo ? { photo: design.photo } : {}),
         background: design.background,
         font: design.font,
         envelope: design.envelope,
@@ -176,10 +185,13 @@ export function useLetterEditor() {
 
   function reset() {
     recipient.value = null
+    tourStop.value = nextTourStop().id
     senderName.value = ''
     senderEmail.value = ''
     body.value = ''
     visibility.value = 'public'
+    design.format = 'letter'
+    design.photo = undefined
     design.background = LETTER_DEFAULTS.background
     design.font = LETTER_DEFAULTS.font
     design.envelope = LETTER_DEFAULTS.envelope
@@ -198,6 +210,7 @@ export function useLetterEditor() {
 
   return {
     recipient,
+    tourStop,
     senderName,
     senderEmail,
     body,

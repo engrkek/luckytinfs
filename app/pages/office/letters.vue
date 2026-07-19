@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { LetterStatus } from '#shared/letters/types'
+import { todaysTourStop, TOUR_STOPS } from '#shared/letters/tour'
 import { RECIPIENT_THEME } from '#shared/letters/visuals'
 
 useHead({ title: 'Letters' })
@@ -14,16 +15,21 @@ const FILTERS: { label: string, value: LetterStatus | 'all' }[] = [
 interface OfficeLetter {
   id: string
   recipient: string
+  tourStop: string
   senderName: string
   body: string
+  design: { format?: string, photo?: string } | null
   visibility: string
   status: LetterStatus
   adminNotes: string | null
-  featuredOn: number | string | null
   createdAt: number | string
 }
 
 const statusFilter = ref<LetterStatus | 'all'>('pending')
+
+/** Show day: default to that stop's letters; otherwise all stops */
+const stopFilter = ref<string>(todaysTourStop()?.id ?? 'all')
+const stopCity = (id: string) => TOUR_STOPS.find(s => s.id === id)?.city ?? id
 
 const { data, status: fetchStatus } = await useFetch('/api/office/letters')
 
@@ -36,7 +42,10 @@ const counts = computed(() => {
 })
 
 const visible = computed(() =>
-  statusFilter.value === 'all' ? letters.value : letters.value.filter(l => l.status === statusFilter.value),
+  letters.value.filter(l =>
+    (statusFilter.value === 'all' || l.status === statusFilter.value)
+    && (stopFilter.value === 'all' || l.tourStop === stopFilter.value),
+  ),
 )
 
 const dateFormatter = new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
@@ -100,6 +109,23 @@ function saveNotes(id: string) {
       </button>
     </div>
 
+    <div role="tablist" aria-label="Filter letters by tour stop" class="flex flex-wrap gap-2">
+      <button
+        v-for="s in [{ id: 'all', city: 'All stops' }, ...TOUR_STOPS]"
+        :key="s.id"
+        type="button"
+        role="tab"
+        :aria-selected="stopFilter === s.id"
+        class="rounded-full border px-3.5 py-1.5 font-type text-xs uppercase tracking-[0.12em] transition-colors"
+        :class="stopFilter === s.id
+          ? 'border-primary-400 bg-primary-400 text-secondary-950'
+          : 'border-secondary-800 bg-secondary-900/60 text-primary-200/70 hover:border-secondary-700'"
+        @click="stopFilter = s.id"
+      >
+        {{ s.city }}
+      </button>
+    </div>
+
     <div class="overflow-hidden rounded-2xl bg-[#f7f4ee]" aria-live="polite">
       <p v-if="fetchStatus === 'pending'" class="p-6 text-center text-sm text-neutral-600">
         Loading…
@@ -127,7 +153,7 @@ function saveNotes(id: string) {
                 {{ l.senderName }}
               </p>
               <p class="text-xs text-neutral-600">
-                {{ theme(l.recipient)?.label ?? l.recipient }} · {{ l.visibility }} · {{ dateFormatter.format(new Date(l.createdAt)) }}
+                {{ theme(l.recipient)?.label ?? l.recipient }} · {{ stopCity(l.tourStop) }} · {{ l.visibility }} · {{ dateFormatter.format(new Date(l.createdAt)) }}
               </p>
             </div>
           </div>
@@ -140,11 +166,16 @@ function saveNotes(id: string) {
             >
               {{ l.status }}
             </UBadge>
-            <UBadge v-if="l.featuredOn" color="info" variant="subtle">
-              featured
-            </UBadge>
           </div>
         </div>
+
+        <img
+          v-if="l.design?.photo"
+          :src="`/${l.design.photo}`"
+          alt="Postcard photo (needs review)"
+          class="h-28 w-42 rounded-lg border border-neutral-200 object-cover"
+          loading="lazy"
+        >
 
         <p class="whitespace-pre-wrap text-sm leading-relaxed text-neutral-800">
           {{ l.body }}
@@ -193,15 +224,6 @@ function saveNotes(id: string) {
             @click="updateLetter(l.id, { status: 'pending' })"
           >
             Reset
-          </UButton>
-          <UButton
-            color="neutral"
-            variant="outline"
-            size="lg"
-            :loading="savingId === l.id"
-            @click="updateLetter(l.id, { featured: !l.featuredOn })"
-          >
-            {{ l.featuredOn ? 'Unfeature' : 'Feature today' }}
           </UButton>
         </div>
       </div>

@@ -93,123 +93,173 @@ function onNameInput(e: Event) {
   const t = e.target as HTMLInputElement
   emit('update:senderName', t.value.slice(0, props.senderNameMax))
 }
+
+/** Postcard editing: peek at the photo front; writing happens on the back */
+const showFront = ref(false)
+const isPostcard = computed(() => props.design.format === 'postcard')
+watch(isPostcard, (on) => {
+  if (!on)
+    showFront.value = false
+})
 </script>
 
 <template>
-  <article
-    class="letter-paper letter-story-canvas relative w-full overflow-hidden rounded-sm"
-    :class="paper.class"
-    :style="paperStyle"
-    @pointerdown.self="onCanvasTap"
-  >
-    <!-- header -->
-    <div class="relative z-2 px-5 pt-5 sm:px-7 sm:pt-7 pointer-events-none">
-      <p class="font-type text-[0.6rem] uppercase tracking-[0.22em] opacity-50">
-        Signals World Tour ’26
-      </p>
-      <p class="mt-1 font-display text-lg font-medium tracking-tight" :style="{ color: theme.deep }">
-        {{ recipient ? theme.toLine : 'Choose a recipient…' }}
+  <div class="w-full">
+    <div v-if="isPostcard" class="mb-2 flex justify-center gap-1.5">
+      <button
+        type="button"
+        class="rounded-full border px-3 py-1 font-type text-[0.6rem] uppercase tracking-[0.14em] transition-colors"
+        :class="!showFront
+          ? 'border-[#e0c56a]/80 bg-[#e0c56a]/20 text-[#f4efe4]'
+          : 'border-white/10 bg-black/25 text-[#c8bfb0]/75'"
+        @click="showFront = false"
+      >
+        Message
+      </button>
+      <button
+        type="button"
+        class="rounded-full border px-3 py-1 font-type text-[0.6rem] uppercase tracking-[0.14em] transition-colors"
+        :class="showFront
+          ? 'border-[#e0c56a]/80 bg-[#e0c56a]/20 text-[#f4efe4]'
+          : 'border-white/10 bg-black/25 text-[#c8bfb0]/75'"
+        @click="showFront = true"
+      >
+        Photo front
+      </button>
+    </div>
+
+    <!-- Postcard front: the cropped photo -->
+    <div
+      v-if="isPostcard && showFront"
+      class="relative aspect-[3/2] w-full overflow-hidden rounded-sm bg-white/5"
+    >
+      <img
+        v-if="design.photo"
+        :src="`/${design.photo}`"
+        alt="Postcard front"
+        class="absolute inset-0 size-full object-cover"
+      >
+      <p v-else class="absolute inset-0 grid place-items-center px-6 text-center text-sm text-[#c8bfb0]/60">
+        No photo yet — add one from the Card tool below.
       </p>
     </div>
 
-    <!-- body + stickers -->
-    <div
-      class="relative z-2 min-h-[52dvh] px-5 pb-4 pt-4 sm:px-7"
+    <article
+      v-show="!isPostcard || !showFront"
+      class="letter-paper letter-story-canvas relative w-full overflow-hidden rounded-sm"
+      :class="paper.class"
+      :style="paperStyle"
       @pointerdown.self="onCanvasTap"
     >
-      <LetterSticker
-        v-for="(sticker, i) in design.stickers"
-        :key="`${sticker.id}-${i}`"
-        :sticker="sticker"
-        interactive
-        :selected="selectedSticker === i"
-        @select="emit('selectSticker', i)"
-        @move="(pos) => emit('moveSticker', i, pos)"
-      />
-
-      <!-- text surface -->
-      <div class="relative z-3 min-h-40">
-        <textarea
-          v-if="editingText"
-          ref="textareaRef"
-          class="letter-story-textarea w-full resize-none bg-transparent outline-none border-0 p-0 m-0"
-          :class="[
-            fontClass,
-            design.font === 'script' ? 'text-xl sm:text-2xl leading-snug' : 'text-base sm:text-lg leading-relaxed',
-            design.font === 'type' ? 'text-[0.95rem] sm:text-base leading-[1.7]' : '',
-          ]"
-          :style="{ color: paper.ink }"
-          :value="body"
-          :maxlength="bodyMax"
-          rows="10"
-          placeholder="Write something heartfelt…"
-          @input="onBodyInput"
-          @blur="stopEditingBody"
-        />
-        <button
-          v-else
-          type="button"
-          class="w-full text-left whitespace-pre-wrap text-pretty min-h-40"
-          :class="[
-            fontClass,
-            design.font === 'script' ? 'text-xl sm:text-2xl leading-snug' : 'text-base sm:text-lg leading-relaxed',
-            design.font === 'type' ? 'text-[0.95rem] sm:text-base leading-[1.7]' : '',
-            !body.trim() && 'opacity-45',
-          ]"
-          @click.stop="startEditingBody"
-        >
-          {{ body.trim() || 'Tap to write your letter…' }}
-        </button>
-      </div>
-    </div>
-
-    <!-- signature -->
-    <footer class="relative z-2 px-5 pb-5 sm:px-7 sm:pb-7 pt-3 border-t border-current/10 flex items-end justify-between gap-3">
-      <div class="min-w-0 flex-1 pointer-events-auto">
-        <p class="font-type text-[0.55rem] uppercase tracking-[0.18em] opacity-45">
-          With love from
+      <!-- header -->
+      <div class="relative z-2 px-5 pt-5 sm:px-7 sm:pt-7 pointer-events-none">
+        <p class="font-type text-[0.6rem] uppercase tracking-[0.22em] opacity-50">
+          Signals World Tour ’26
         </p>
-        <input
-          v-if="editingName"
-          ref="nameInputRef"
-          type="text"
-          class="mt-0.5 w-full max-w-xs bg-transparent border-0 border-b border-current/25 p-0 m-0 text-lg outline-none focus:border-current/50"
-          :class="[
-            fontClass,
-            design.font === 'script' ? 'text-xl sm:text-2xl' : '',
-            design.font === 'type' ? 'text-base sm:text-lg' : '',
-          ]"
-          :style="{ color: paper.ink }"
-          :value="senderName"
-          :maxlength="senderNameMax"
-          placeholder="Your name"
-          autocomplete="nickname"
-          @input="onNameInput"
-          @blur="stopEditingName"
-          @keydown.enter.prevent="stopEditingName"
-        >
-        <button
-          v-else
-          type="button"
-          class="mt-0.5 block max-w-full text-left text-lg transition-opacity"
-          :class="[
-            fontClass,
-            design.font === 'script' ? 'text-xl sm:text-2xl' : '',
-            design.font === 'type' ? 'text-base sm:text-lg' : '',
-            senderName.trim() ? 'opacity-90' : 'opacity-45',
-          ]"
-          @click.stop="startEditingName"
-        >
-          {{ senderName.trim() || 'Tap to sign…' }}
-        </button>
+        <p class="mt-1 font-display text-lg font-medium tracking-tight" :style="{ color: theme.deep }">
+          {{ recipient ? theme.toLine : 'Choose a recipient…' }}
+        </p>
       </div>
-      <span
-        v-if="design.music"
-        class="shrink-0 font-type text-[0.55rem] uppercase tracking-[0.16em] opacity-50 pointer-events-none"
-        title="YouTube soundtrack linked"
+
+      <!-- body + stickers -->
+      <div
+        class="relative z-2 min-h-[52dvh] px-5 pb-4 pt-4 sm:px-7"
+        @pointerdown.self="onCanvasTap"
       >
-        ♫ YouTube
-      </span>
-    </footer>
-  </article>
+        <LetterSticker
+          v-for="(sticker, i) in design.stickers"
+          :key="`${sticker.id}-${i}`"
+          :sticker="sticker"
+          interactive
+          :selected="selectedSticker === i"
+          @select="emit('selectSticker', i)"
+          @move="(pos) => emit('moveSticker', i, pos)"
+        />
+
+        <!-- text surface -->
+        <div class="relative z-3 min-h-40">
+          <textarea
+            v-if="editingText"
+            ref="textareaRef"
+            class="letter-story-textarea w-full resize-none bg-transparent outline-none border-0 p-0 m-0"
+            :class="[
+              fontClass,
+              design.font === 'script' ? 'text-xl sm:text-2xl leading-snug' : 'text-base sm:text-lg leading-relaxed',
+              design.font === 'type' ? 'text-[0.95rem] sm:text-base leading-[1.7]' : '',
+            ]"
+            :style="{ color: paper.ink }"
+            :value="body"
+            :maxlength="bodyMax"
+            rows="10"
+            placeholder="Write something heartfelt…"
+            @input="onBodyInput"
+            @blur="stopEditingBody"
+          />
+          <button
+            v-else
+            type="button"
+            class="w-full text-left whitespace-pre-wrap text-pretty min-h-40"
+            :class="[
+              fontClass,
+              design.font === 'script' ? 'text-xl sm:text-2xl leading-snug' : 'text-base sm:text-lg leading-relaxed',
+              design.font === 'type' ? 'text-[0.95rem] sm:text-base leading-[1.7]' : '',
+              !body.trim() && 'opacity-45',
+            ]"
+            @click.stop="startEditingBody"
+          >
+            {{ body.trim() || 'Tap to write your letter…' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- signature -->
+      <footer class="relative z-2 px-5 pb-5 sm:px-7 sm:pb-7 pt-3 border-t border-current/10 flex items-end justify-between gap-3">
+        <div class="min-w-0 flex-1 pointer-events-auto">
+          <p class="font-type text-[0.55rem] uppercase tracking-[0.18em] opacity-45">
+            With love from
+          </p>
+          <input
+            v-if="editingName"
+            ref="nameInputRef"
+            type="text"
+            class="mt-0.5 w-full max-w-xs bg-transparent border-0 border-b border-current/25 p-0 m-0 text-lg outline-none focus:border-current/50"
+            :class="[
+              fontClass,
+              design.font === 'script' ? 'text-xl sm:text-2xl' : '',
+              design.font === 'type' ? 'text-base sm:text-lg' : '',
+            ]"
+            :style="{ color: paper.ink }"
+            :value="senderName"
+            :maxlength="senderNameMax"
+            placeholder="Your name"
+            autocomplete="nickname"
+            @input="onNameInput"
+            @blur="stopEditingName"
+            @keydown.enter.prevent="stopEditingName"
+          >
+          <button
+            v-else
+            type="button"
+            class="mt-0.5 block max-w-full text-left text-lg transition-opacity"
+            :class="[
+              fontClass,
+              design.font === 'script' ? 'text-xl sm:text-2xl' : '',
+              design.font === 'type' ? 'text-base sm:text-lg' : '',
+              senderName.trim() ? 'opacity-90' : 'opacity-45',
+            ]"
+            @click.stop="startEditingName"
+          >
+            {{ senderName.trim() || 'Tap to sign…' }}
+          </button>
+        </div>
+        <span
+          v-if="design.music"
+          class="shrink-0 font-type text-[0.55rem] uppercase tracking-[0.16em] opacity-50 pointer-events-none"
+          title="YouTube soundtrack linked"
+        >
+          ♫ YouTube
+        </span>
+      </footer>
+    </article>
+  </div>
 </template>

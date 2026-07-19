@@ -19,10 +19,10 @@ export default defineEventHandler(async (event) => {
       .select({
         id: letter.id,
         recipient: letter.recipient,
+        tourStop: letter.tourStop,
         senderName: letter.senderName,
         body: letter.body,
         design: letter.design,
-        featuredOn: letter.featuredOn,
         createdAt: letter.createdAt,
         visibility: letter.visibility,
         status: letter.status,
@@ -42,10 +42,10 @@ export default defineEventHandler(async (event) => {
     const publicLetter: PublicLetter = {
       id: row.id,
       recipient: row.recipient as LetterRecipient,
+      tourStop: row.tourStop as PublicLetter['tourStop'],
       senderName: row.senderName,
       body: row.body,
       design: row.design as LetterDesign,
-      featuredOn: row.featuredOn ? row.featuredOn.toISOString() : null,
       createdAt: row.createdAt.toISOString(),
     }
 

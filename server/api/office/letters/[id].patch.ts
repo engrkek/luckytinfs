@@ -11,7 +11,6 @@ const patchSchema = z.object({
   visibility: z.enum(['public', 'private']).optional(),
   design: letterDesignSchema.optional(),
   adminNotes: z.string().trim().optional(),
-  featured: z.boolean().optional(), // true → featuredOn = now, false → clear
 })
 
 export default defineEventHandler(async (event) => {
@@ -20,7 +19,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Missing id' })
   }
 
-  const { status, senderName, body, visibility, design, adminNotes, featured } = await readValidatedBody(event, patchSchema.parse)
+  const { status, senderName, body, visibility, design, adminNotes } = await readValidatedBody(event, patchSchema.parse)
   const { user } = await requireUserSession(event)
 
   const [updated] = await db.update(letter)
@@ -31,7 +30,6 @@ export default defineEventHandler(async (event) => {
       ...(visibility !== undefined ? { visibility } : {}),
       ...(design !== undefined ? { design } : {}),
       ...(adminNotes !== undefined ? { adminNotes } : {}),
-      ...(featured !== undefined ? { featuredOn: featured ? new Date() : null } : {}),
     })
     .where(eq(letter.id, id))
     .returning()

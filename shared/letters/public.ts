@@ -1,12 +1,13 @@
+import type { TourStopId } from './tour'
 import type { LetterDesign, LetterRecipient } from './types'
 
 export interface PublicLetter {
   id: string
   recipient: LetterRecipient
+  tourStop: TourStopId
   senderName: string
   body: string
   design: LetterDesign
-  featuredOn: string | null
   createdAt: string
 }
 
@@ -14,6 +15,7 @@ export const DEMO_LETTERS: PublicLetter[] = [
   {
     id: 'demo-maloi-1',
     recipient: 'maloi',
+    tourStop: 'honolulu',
     senderName: 'a lumity from manila',
     body: `Maloi,
 
@@ -36,12 +38,12 @@ With all my yellow hearts,
         { id: 'sticker-23', x: 86, y: 72, rotation: 8, scale: 0.85 },
       ],
     },
-    featuredOn: new Date().toISOString(),
     createdAt: new Date().toISOString(),
   },
   {
     id: 'demo-jhoanna-1',
     recipient: 'jhoanna',
+    tourStop: 'honolulu',
     senderName: 'bloom from Cebu',
     body: `Dear Jhoanna,
 
@@ -61,12 +63,12 @@ a bloom`,
         { id: 'sticker-26', x: 16, y: 74, rotation: -16, scale: 0.95 },
       ],
     },
-    featuredOn: new Date().toISOString(),
     createdAt: new Date().toISOString(),
   },
   {
     id: 'demo-bini-1',
     recipient: 'bini',
+    tourStop: 'honolulu',
     senderName: 'Anonymous',
     body: `BINI,
 
@@ -91,12 +93,12 @@ the blooms & lumities of the world`,
         { id: 'sticker-24', x: 72, y: 78, rotation: 18, scale: 0.9 },
       ],
     },
-    featuredOn: new Date().toISOString(),
     createdAt: new Date().toISOString(),
   },
   {
     id: 'demo-maloi-2',
     recipient: 'maloi',
+    tourStop: 'honolulu',
     senderName: 'lucky tin',
     body: `hi maloi !!
 
@@ -114,7 +116,6 @@ your laughter is my favorite encore.
         { id: 'sticker-29', x: 50, y: 88, rotation: 0, scale: 1.15 },
       ],
     },
-    featuredOn: new Date().toISOString(),
     createdAt: new Date().toISOString(),
   },
 ]

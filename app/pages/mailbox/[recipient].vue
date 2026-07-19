@@ -25,8 +25,10 @@ useHead({
   ],
 })
 
+const memberKey = typeof route.query.key === 'string' ? route.query.key : undefined
+
 const { data, status } = await useFetch<{ letters: PublicLetter[], source: string }>('/api/letters', {
-  query: { recipient, limit: 30 },
+  query: { recipient, limit: 30, ...(memberKey ? { key: memberKey } : {}) },
 })
 
 const letters = computed(() => data.value?.letters ?? [])
