@@ -522,7 +522,7 @@
 
 /* Letter viewer: fan-submitted flat-lay photo behind the envelope, dimmed for legibility */
 .letter-stage--photo {
-  background-image: url('/images/letters/WEBSITE-OT8.jpg');
+  background-image: url('/images/letters/letters.jpg');
   background-size: cover;
   background-position: center;
 }
@@ -538,6 +538,20 @@
     transparent 70%
   );
   z-index: 0;
+}
+
+/* Story editor is a fixed full-viewport overlay; when mobile browser chrome
+   reveals overscroll/toolbar area beneath it, the default white <html> bg
+   shows through. Match it to the stage so the dock reads flush. */
+html:has(.letter-story-stage) {
+  background: #0c0e12;
+}
+
+/* Story editor: same flat-lay photo behind the writing surface, dimmed for legibility */
+.letter-story-stage {
+  background-image: url('/images/letters/ot8.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 /* Warm paper variant — bright landing, dark ink */

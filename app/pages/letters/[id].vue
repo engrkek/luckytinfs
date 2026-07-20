@@ -39,17 +39,17 @@ useHead({
 
 <template>
   <div class="letter-stage letter-stage--photo relative z-1 flex h-dvh flex-col overflow-hidden">
-    <div class="relative z-2 mx-auto w-full max-w-lg px-5 pt-8 sm:pt-10">
+    <div class="relative z-2 mx-auto w-full max-w-lg px-5 py-4">
       <header class="flex items-center justify-between gap-3 rounded-full border border-white/10 bg-black/70 px-4 py-2.5 backdrop-blur-sm">
         <NuxtLink
           to="/letters"
-          class="font-type text-[0.62rem] uppercase tracking-[0.24em] text-white/50 hover:text-white/80 transition-colors"
+          class="font-type text-xs uppercase tracking-[0.24em] text-white/70 hover:text-white transition-colors"
         >
           ← Letters
         </NuxtLink>
         <p
           v-if="theme"
-          class="font-type text-[0.55rem] uppercase tracking-[0.2em] text-white/40"
+          class="font-type text-xs uppercase tracking-[0.2em] text-white/70"
         >
           {{ theme.postmark }}
         </p>
