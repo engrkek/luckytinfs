@@ -156,7 +156,7 @@ function putBack() {
     <Transition name="letter-overlay">
       <div
         v-if="stage === 'letter' && current"
-        class="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-[#0c0e12]/93 backdrop-blur-sm"
+        class="letter-mailbox-overlay fixed inset-0 z-50 overflow-y-auto overscroll-contain"
       >
         <div class="mx-auto max-w-lg px-5 py-10 sm:py-14">
           <LetterViewer
@@ -168,7 +168,7 @@ function putBack() {
           <div class="mt-8 pb-16 text-center">
             <button
               type="button"
-              class="rounded-full border border-white/15 px-6 py-3 font-type text-[0.65rem] uppercase tracking-[0.18em] text-white/55 hover:bg-white/5"
+              class="rounded-full border border-white/15 px-8 py-4 font-type text-sm uppercase tracking-[0.18em] text-white/55 hover:bg-white/5"
               @click="putBack"
             >
               ← Put it back in the mailbox
@@ -181,6 +181,12 @@ function putBack() {
 </template>
 
 <style scoped>
+.letter-mailbox-overlay {
+  background-image: url('/images/letters/ot8.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
 /* Envelope pops out of the slot on draw, slips back in on reseal */
 .envelope-out {
   animation: envelope-out 550ms ease-out both;

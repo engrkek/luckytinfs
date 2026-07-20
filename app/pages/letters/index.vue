@@ -6,8 +6,8 @@ import { nextTourStop } from '#shared/letters/tour'
 import { MAILBOX_PAINT, RECIPIENT_THEME } from '#shared/letters/visuals'
 
 useSeoMeta({
-  title: 'Letters',
-  description: 'Open fan letters for Maloi, Jhoanna, and BINI — or write your own for Signals World Tour 2026.',
+  title: 'Letters for Luckytin & BINI',
+  description: 'Open fan letters for Maloi, Jhoanna, and BINI or write your own for Signals World Tour 2026.',
 })
 
 useHead({

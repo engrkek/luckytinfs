@@ -372,22 +372,22 @@ onBeforeUnmount(clearTimers)
     >
       <button
         type="button"
-        class="font-type text-[0.65rem] uppercase tracking-[0.2em] text-white/45 hover:text-white/80 transition-colors"
+        class="font-type text-sm uppercase tracking-[0.2em] text-white/45 hover:text-white/80 transition-colors"
         @click="reseal"
       >
         ← Seal again
       </button>
-      <div v-if="navigable !== false" class="flex gap-2">
+      <div v-if="navigable !== false" class="flex gap-3">
         <button
           type="button"
-          class="rounded-full border border-white/12 bg-white/4 px-4 py-2 font-type text-[0.65rem] uppercase tracking-[0.18em] text-white/70 hover:bg-white/8 transition-colors"
+          class="rounded-full border border-white/12 bg-white/4 px-6 py-3.5 font-type text-sm uppercase tracking-[0.18em] text-white/70 hover:bg-white/8 transition-colors"
           @click="emit('prev')"
         >
           Prev
         </button>
         <button
           type="button"
-          class="rounded-full border border-white/12 bg-white/4 px-4 py-2 font-type text-[0.65rem] uppercase tracking-[0.18em] text-white/70 hover:bg-white/8 transition-colors"
+          class="rounded-full border border-white/12 bg-white/4 px-6 py-3.5 font-type text-sm uppercase tracking-[0.18em] text-white/70 hover:bg-white/8 transition-colors"
           @click="emit('next')"
         >
           Next

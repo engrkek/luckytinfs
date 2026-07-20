@@ -278,23 +278,23 @@ onBeforeUnmount(() => {
 
     <!-- Minimal dock: play/pause · progress line · mute -->
     <div class="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0c0e12]/85 backdrop-blur-md pb-[env(safe-area-inset-bottom)]">
-      <div class="mx-auto flex max-w-lg items-center gap-4 px-5 py-2.5">
+      <div class="mx-auto flex max-w-lg items-center gap-4 px-5 py-3">
         <button
           type="button"
-          class="grid size-9 shrink-0 place-items-center rounded-full bg-white text-neutral-900 transition-transform active:scale-95 disabled:opacity-40"
+          class="grid size-12 shrink-0 place-items-center rounded-full bg-white text-neutral-900 transition-transform active:scale-95 disabled:opacity-40"
           :disabled="!ready || !!error"
           :aria-label="playing ? 'Pause soundtrack' : 'Play soundtrack'"
           @click="togglePlay"
         >
           <UIcon
             :name="playing ? 'i-lucide-pause' : 'i-lucide-play'"
-            class="size-4"
+            class="size-5"
             :class="!playing && 'ml-0.5'"
           />
         </button>
 
         <div class="min-w-0 flex-1">
-          <p class="mb-1.5 truncate text-xs text-white/70">
+          <p class="mb-1.5 truncate text-sm text-white/70">
             {{ error || title || 'YouTube audio' }}<span
               v-if="!error && artist"
               class="text-white/40"
@@ -316,14 +316,14 @@ onBeforeUnmount(() => {
 
         <button
           type="button"
-          class="grid size-9 shrink-0 place-items-center rounded-full text-white/60 transition-colors hover:text-white disabled:opacity-40"
+          class="grid size-12 shrink-0 place-items-center rounded-full text-white/60 transition-colors hover:text-white disabled:opacity-40"
           :disabled="!ready || !!error"
           :aria-label="muted ? 'Unmute soundtrack' : 'Mute soundtrack'"
           @click="toggleMute"
         >
           <UIcon
             :name="muted ? 'i-lucide-volume-x' : 'i-lucide-volume-2'"
-            class="size-4.5"
+            class="size-5.5"
           />
         </button>
       </div>

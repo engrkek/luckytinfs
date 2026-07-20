@@ -138,7 +138,7 @@ const previewRecipient = computed(() => recipient.value ?? 'bini')
     v-else
     class="letter-story-stage fixed inset-0 z-40 flex flex-col bg-[#0c0e12] text-[#e8e2d6]"
   >
-    <header class="relative z-20 mx-auto flex w-full max-w-xl items-center justify-between gap-3 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2">
+    <header class="relative z-20 mx-auto flex w-full max-w-xl items-center justify-between gap-3 bg-[#0c0e12] px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2">
       <NuxtLink
         to="/letters"
         class="grid size-10 place-items-center rounded-full bg-white/5 text-white/90 backdrop-blur-sm border border-white/10"
