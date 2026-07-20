@@ -19,6 +19,12 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    // Server-only — printed on each member's private mailbox QR as ?key=
+    memberMailboxKeys: {
+      maloi: '_oSkd2B6nVyk5LB5d8lTDb_Y',
+      jhoanna: '1aqlwGGP-h6Qfx8hdgEP-XWA',
+      bini: 'SuIGnhhSexYZ_MYbRyXxlL3C',
+    },
     public: {
       networkName: 'LuckyTinFS_Guest',
       sitePassword: 'luckytin02',
@@ -27,6 +33,7 @@ export default defineNuxtConfig({
 
   routeRules: {
     '/office/**': { auth: { user: { role: ['admin', 'moderator'] } }, appLayout: 'dashboard' },
+    '/api/office/**': { auth: { user: { role: ['admin', 'moderator'] } } },
   },
 
   compatibilityDate: '2025-07-15',
@@ -63,6 +70,9 @@ export default defineNuxtConfig({
     families: [
       { name: 'Cedarville Cursive' },
       { name: 'Inter', weights: ['400 700'] },
+      { name: 'Fraunces', weights: ['400 700'] },
+      { name: 'Playpen Sans', weights: ['400 700'] },
+      { name: 'Courier Prime', weights: ['400 700'] },
     ],
   },
 
