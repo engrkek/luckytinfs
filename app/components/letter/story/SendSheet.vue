@@ -198,6 +198,16 @@ function close() {
               <li>Don't share personal details like addresses or phone numbers.</li>
               <li>Letters that break these rules won't be delivered.</li>
             </ul>
+            <p class="mt-2.5 text-xs leading-relaxed text-[#c8bfb0]/55">
+              By sealing &amp; sending, you agree to our
+              <NuxtLink to="/letters/terms" class="text-[#c8bfb0]/80 underline underline-offset-2 hover:text-[#f4efe4]" target="_blank">
+                Terms
+              </NuxtLink>
+              and
+              <NuxtLink to="/letters/privacy" class="text-[#c8bfb0]/80 underline underline-offset-2 hover:text-[#f4efe4]" target="_blank">
+                Privacy Policy
+              </NuxtLink>.
+            </p>
           </div>
 
           <p v-if="!body.trim()" class="text-sm text-amber-200/80">
