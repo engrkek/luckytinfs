@@ -44,6 +44,17 @@ export const LETTER_FONTS: LetterAssetOption[] = [
   { id: 'script', label: 'Script' },
   { id: 'type', label: 'Typewriter' },
   { id: 'sans', label: 'Clean sans' },
+  { id: 'casual', label: 'Casual pen' },
+  { id: 'seine', label: 'Seine' },
+  { id: 'crayon', label: 'Crayon' },
+  { id: 'bloom', label: 'Bloom' },
+  { id: 'handflair', label: 'Handflair' },
+  { id: 'lazy', label: 'Lazy dog' },
+  { id: 'jardin', label: 'Jardin' },
+  { id: 'privilege', label: 'Privilege' },
+  { id: 'salmon', label: 'Salmon bake' },
+  { id: 'summer', label: 'Summer' },
+  { id: 'nanti', label: 'Tentang nanti' },
 ]
 
 /** Color-only envelopes (shared paper grain in CSS) */
@@ -192,7 +203,24 @@ export const LETTER_OPTION_IDS = {
     'bg-21',
     'bg-22',
   ] as const,
-  fonts: ['hand', 'script', 'type', 'sans'] as const,
+  fonts: [
+    'hand',
+    'script',
+    'type',
+    'sans',
+    'casual',
+    'seine',
+    'crayon',
+    'bloom',
+    'handflair',
+    'lazy',
+    'jardin',
+    'privilege',
+    'salmon',
+    'summer',
+    'nanti',
+  ] as const,
+
   envelopes: [
     'envelope-white',
     'envelope-cream',

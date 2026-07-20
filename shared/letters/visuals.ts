@@ -44,6 +44,17 @@ export const FONT_STYLES: Record<string, string> = {
   script: 'font-script tracking-normal',
   type: 'font-type tracking-tight',
   sans: 'font-sans tracking-normal',
+  casual: 'font-casual tracking-wide',
+  seine: 'font-seine tracking-normal',
+  crayon: 'font-crayon tracking-wide',
+  bloom: 'font-bloom tracking-normal',
+  handflair: 'font-handflair tracking-wide',
+  lazy: 'font-lazy tracking-wide',
+  jardin: 'font-jardin tracking-normal',
+  privilege: 'font-privilege tracking-normal',
+  salmon: 'font-salmon tracking-normal',
+  summer: 'font-summer tracking-wide',
+  nanti: 'font-nanti tracking-normal',
 }
 
 /** Solid color envelopes — same paper grain overlay, only hue changes */
