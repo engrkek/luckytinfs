@@ -131,7 +131,7 @@ watch(isPostcard, (on) => {
     <!-- Postcard front: the cropped photo -->
     <div
       v-if="isPostcard && showFront"
-      class="relative aspect-[3/2] w-full overflow-hidden rounded-sm bg-white/5"
+      class="relative aspect-3/2 w-full overflow-hidden rounded-sm bg-white/5"
     >
       <img
         v-if="design.photo"
@@ -140,7 +140,7 @@ watch(isPostcard, (on) => {
         class="absolute inset-0 size-full object-cover"
       >
       <p v-else class="absolute inset-0 grid place-items-center px-6 text-center text-sm text-[#c8bfb0]/60">
-        No photo yet — add one from the Card tool below.
+        No photo yet. Add one from the Card tool below.
       </p>
     </div>
 
@@ -148,16 +148,13 @@ watch(isPostcard, (on) => {
     <article
       v-if="isPostcard"
       v-show="!showFront"
-      class="letter-paper relative flex aspect-[3/2] w-full gap-4 overflow-hidden rounded-sm p-4 sm:p-5"
+      class="letter-paper relative flex aspect-3/2 w-full gap-4 overflow-hidden rounded-sm p-4 sm:p-5"
       :class="paper.class"
       :style="paperStyle"
       @pointerdown.self="onCanvasTap"
     >
       <div class="relative z-2 flex h-full w-[34%] shrink-0 flex-col justify-between border-r border-current/15 pr-4 pointer-events-none">
         <div>
-          <p class="font-type text-[0.55rem] uppercase tracking-[0.18em] opacity-50">
-            Signals World Tour ’26
-          </p>
           <p class="mt-1 font-display text-sm font-medium tracking-tight sm:text-base" :style="{ color: theme.deep }">
             {{ recipient ? theme.toLine : 'Choose a recipient…' }}
           </p>

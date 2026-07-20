@@ -28,13 +28,13 @@ Stay soft. Stay loud. Stay you.
 With all my yellow hearts,
 — m.`,
     design: {
-      background: 'bg-16',
+      background: 'bg-3',
       font: 'hand',
       envelope: 'envelope-cream',
       seal: 'seal-7',
       stickers: [
         { id: 'sticker-27', x: 82, y: 14, rotation: -12, scale: 1.1 },
-        { id: 'sticker-31', x: 14, y: 78, rotation: 18, scale: 0.95 },
+        { id: 'sticker-29', x: 14, y: 78, rotation: 18, scale: 0.95 },
         { id: 'sticker-23', x: 86, y: 72, rotation: 8, scale: 0.85 },
       ],
     },
@@ -54,7 +54,7 @@ This letter is a paper thank-you for every speech that made me braver.
 Blue skies always,
 a bloom`,
     design: {
-      background: 'bg-17',
+      background: 'bg-4',
       font: 'script',
       envelope: 'envelope-sky',
       seal: 'seal-8',
@@ -81,7 +81,7 @@ These letters travel with you. So do we.
 See you on the road,
 the blooms & lumities of the world`,
     design: {
-      background: 'bg-19',
+      background: 'bg-6',
       font: 'type',
       envelope: 'envelope-blush',
       seal: 'seal-9',
@@ -89,7 +89,7 @@ the blooms & lumities of the world`,
       music: 'https://www.youtube.com/watch?v=L4KvD79RwbM',
       stickers: [
         { id: 'sticker-22', x: 82, y: 12, rotation: -8, scale: 1 },
-        { id: 'sticker-32', x: 18, y: 82, rotation: 0, scale: 1.05 },
+        { id: 'sticker-1', x: 18, y: 82, rotation: 0, scale: 1.05 },
         { id: 'sticker-24', x: 72, y: 78, rotation: 18, scale: 0.9 },
       ],
     },
@@ -108,7 +108,7 @@ your laughter is my favorite encore.
 
 💛`,
     design: {
-      background: 'bg-18',
+      background: 'bg-5',
       font: 'hand',
       envelope: 'envelope-white',
       seal: 'seal-5',
