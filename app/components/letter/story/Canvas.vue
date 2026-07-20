@@ -108,20 +108,20 @@ watch(isPostcard, (on) => {
     <div v-if="isPostcard" class="mb-2 flex justify-center gap-1.5">
       <button
         type="button"
-        class="rounded-full border px-3 py-1 font-type text-[0.6rem] uppercase tracking-[0.14em] transition-colors"
+        class="rounded-full border px-3 py-1 font-type text-xs uppercase tracking-[0.14em] transition-colors"
         :class="!showFront
-          ? 'border-[#e0c56a]/80 bg-[#e0c56a]/20 text-[#f4efe4]'
-          : 'border-white/10 bg-black/25 text-[#c8bfb0]/75'"
+          ? 'border-[#e0c56a]/80 bg-[#e0c56a] text-black'
+          : 'border-white/10 bg-black text-[#c8bfb0]'"
         @click="showFront = false"
       >
         Message
       </button>
       <button
         type="button"
-        class="rounded-full border px-3 py-1 font-type text-[0.6rem] uppercase tracking-[0.14em] transition-colors"
+        class="rounded-full border px-3 py-1 font-type text-xs uppercase tracking-[0.14em] transition-colors"
         :class="showFront
-          ? 'border-[#e0c56a]/80 bg-[#e0c56a]/20 text-[#f4efe4]'
-          : 'border-white/10 bg-black/25 text-[#c8bfb0]/75'"
+          ? 'border-[#e0c56a]/80 bg-[#e0c56a] text-black'
+          : 'border-white/10 bg-black text-[#c8bfb0]'"
         @click="showFront = true"
       >
         Photo front
