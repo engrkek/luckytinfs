@@ -5,8 +5,6 @@ import { LETTER_RECIPIENTS } from '#shared/letters/assets'
 import { letterSubmitSchema } from '#shared/letters/schema'
 import { resolveTourStop } from '#shared/letters/tour'
 
-const SENDER_COOKIE = 'luckytin-sender'
-
 export default defineEventHandler(async (event) => {
   const data = await readValidatedBody(event, letterSubmitSchema.parse)
 
@@ -56,6 +54,7 @@ export default defineEventHandler(async (event) => {
       format: data.design.format,
       background: data.design.background,
       font: data.design.font,
+      fontSize: data.design.fontSize,
       envelope: data.design.envelope,
       seal: data.design.seal,
       ...(data.design.music ? { music: data.design.music } : {}),

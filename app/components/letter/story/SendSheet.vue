@@ -16,6 +16,7 @@ defineProps<{
   canSubmit: boolean
   submitting: boolean
   submitError: string | null
+  alreadySentMessage: string | null
   senderNameMax: number
 }>()
 
@@ -207,6 +208,9 @@ function close() {
           </p>
           <p v-if="design.format === 'postcard' && !design.photo" class="text-sm text-amber-200/80">
             Your postcard needs a front photo — add one from the Card tool.
+          </p>
+          <p v-if="alreadySentMessage" class="text-sm text-amber-200/90" role="status">
+            {{ alreadySentMessage }}
           </p>
           <p v-if="submitError" class="text-sm text-red-300" role="alert">
             {{ submitError }}

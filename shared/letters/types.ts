@@ -11,6 +11,8 @@ export interface LetterDesign {
   format?: 'letter' | 'postcard'
   background: string
   font: string
+  /** Body text size — absent on older letters → treat as md */
+  fontSize?: string
   envelope: string
   seal: string
   music?: string

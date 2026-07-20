@@ -57,6 +57,13 @@ export const LETTER_FONTS: LetterAssetOption[] = [
   { id: 'nanti', label: 'Tentang nanti' },
 ]
 
+export const LETTER_FONT_SIZES: LetterAssetOption[] = [
+  { id: 'sm', label: 'S' },
+  { id: 'md', label: 'M' },
+  { id: 'lg', label: 'L' },
+  { id: 'xl', label: 'XL' },
+]
+
 /** Color-only envelopes (shared paper grain in CSS) */
 export const LETTER_ENVELOPES: LetterAssetOption[] = [
   { id: 'envelope-white', label: 'White' },
@@ -162,6 +169,7 @@ export const LETTER_STICKERS: LetterAssetOption[] = [
 export const LETTER_DEFAULTS = {
   background: 'bg-1' as const,
   font: LETTER_FONTS[0]!.id,
+  fontSize: 'md' as const,
   envelope: LETTER_ENVELOPES[0]!.id,
   seal: 'seal-7' as const,
   /** YouTube watch URL, e.g. https://www.youtube.com/watch?v=… */
@@ -220,6 +228,7 @@ export const LETTER_OPTION_IDS = {
     'summer',
     'nanti',
   ] as const,
+  fontSizes: ['sm', 'md', 'lg', 'xl'] as const,
 
   envelopes: [
     'envelope-white',

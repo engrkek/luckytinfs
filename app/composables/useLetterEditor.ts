@@ -3,14 +3,17 @@ import type { LetterDesign, LetterRecipient, LetterVisibility } from '#shared/le
 import {
   LETTER_DEFAULTS,
   LETTER_LIMITS,
+  LETTER_RECIPIENTS,
   LETTER_STICKERS,
 } from '#shared/letters/assets'
-import { nextTourStop } from '#shared/letters/tour'
+import { nextTourStop, resolveTourStop, TOUR_STOPS } from '#shared/letters/tour'
 import { normalizeYouTubeMusic } from '#shared/letters/youtube'
 
 export type LetterStoryTool = 'postcard' | 'paper' | 'font' | 'envelope' | 'seal' | 'sticker' | 'music' | null
 
 const DRAFT_KEY = 'luckytin:letter-draft'
+
+interface SentSlot { recipient: LetterRecipient, tourStop: TourStopId }
 
 export function useLetterEditor() {
   const recipient = ref<LetterRecipient | null>(null)
@@ -25,6 +28,7 @@ export function useLetterEditor() {
     photo: undefined,
     background: LETTER_DEFAULTS.background,
     font: LETTER_DEFAULTS.font,
+    fontSize: LETTER_DEFAULTS.fontSize,
     envelope: LETTER_DEFAULTS.envelope,
     seal: LETTER_DEFAULTS.seal,
     music: LETTER_DEFAULTS.music,
@@ -35,6 +39,31 @@ export function useLetterEditor() {
   const selectedSticker = ref<number | null>(null)
   const editingText = ref(false)
   const sendOpen = ref(false)
+
+  /** Mailbox×stop slots this browser already used (cookie-backed). */
+  const { data: sentData, refresh: refreshSent } = useFetch<{ slots: SentSlot[] }>(
+    '/api/letters/sent',
+    { default: () => ({ slots: [] }) },
+  )
+
+  /** Same roll-forward as POST so past shows don't false-clear the warning. */
+  const effectiveTourStop = computed(() => resolveTourStop(tourStop.value))
+
+  const alreadySent = computed(() => {
+    if (!recipient.value)
+      return false
+    return (sentData.value?.slots ?? []).some(
+      s => s.recipient === recipient.value && s.tourStop === effectiveTourStop.value,
+    )
+  })
+
+  const alreadySentMessage = computed(() => {
+    if (!alreadySent.value || !recipient.value)
+      return null
+    const label = LETTER_RECIPIENTS.find(r => r.id === recipient.value)?.label ?? recipient.value
+    const city = TOUR_STOPS.find(s => s.id === effectiveTourStop.value)?.city
+    return `You've already sent ${label} a letter for ${city ?? 'this tour stop'}. One letter per mailbox, per stop. Pick another mailbox.`
+  })
 
   /**
    * Draft autosave: a half-written letter survives closed tabs and
@@ -110,6 +139,7 @@ export function useLetterEditor() {
 
   const canSubmit = computed(() =>
     recipient.value !== null
+    && !alreadySent.value
     && body.value.trim().length > 0
     && body.value.trim().length <= bodyMax.value
     && (design.format !== 'postcard' || Boolean(design.photo)),
@@ -187,6 +217,7 @@ export function useLetterEditor() {
         ...(design.format === 'postcard' && design.photo ? { photo: design.photo } : {}),
         background: design.background,
         font: design.font,
+        fontSize: design.fontSize ?? LETTER_DEFAULTS.fontSize,
         envelope: design.envelope,
         seal: design.seal,
         ...((): { music?: string } => {
@@ -227,6 +258,7 @@ export function useLetterEditor() {
       })
       submittedId.value = created.id
       clearDraft()
+      await refreshSent()
     }
     catch (e: unknown) {
       const err = e as { data?: { message?: string }, message?: string }
@@ -234,6 +266,8 @@ export function useLetterEditor() {
       sealing.value = false
       sealCeremonyDone.value = false
       sendOpen.value = true
+      // Slot may have been taken (or cookie just set) — re-sync warning state
+      await refreshSent()
     }
     finally {
       submitting.value = false
@@ -265,6 +299,7 @@ export function useLetterEditor() {
     design.photo = undefined
     design.background = LETTER_DEFAULTS.background
     design.font = LETTER_DEFAULTS.font
+    design.fontSize = LETTER_DEFAULTS.fontSize
     design.envelope = LETTER_DEFAULTS.envelope
     design.seal = LETTER_DEFAULTS.seal
     design.music = LETTER_DEFAULTS.music
@@ -294,6 +329,8 @@ export function useLetterEditor() {
     sealing,
     sealCeremonyDone,
     canSubmit,
+    alreadySent,
+    alreadySentMessage,
     toggleTool,
     closeTool,
     addSticker,

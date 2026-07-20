@@ -57,6 +57,30 @@ export const FONT_STYLES: Record<string, string> = {
   nanti: 'font-nanti tracking-normal',
 }
 
+/**
+ * Body / signature sizes for letter text.
+ * Decorative handwriting fonts read optically small, so this scale sits
+ * well above default UI type (M ≈ former script default, XL is display-y).
+ */
+export const FONT_SIZE_STYLES: Record<string, { body: string, signature: string }> = {
+  sm: {
+    body: 'text-[1.05rem] sm:text-[1.2rem] leading-relaxed',
+    signature: 'text-[1.15rem] sm:text-[1.3rem]',
+  },
+  md: {
+    body: 'text-[1.35rem] sm:text-[1.55rem] leading-snug',
+    signature: 'text-[1.45rem] sm:text-[1.7rem]',
+  },
+  lg: {
+    body: 'text-[1.7rem] sm:text-[1.95rem] leading-snug',
+    signature: 'text-[1.85rem] sm:text-[2.15rem]',
+  },
+  xl: {
+    body: 'text-[2.15rem] sm:text-[2.5rem] leading-tight',
+    signature: 'text-[2.3rem] sm:text-[2.7rem]',
+  },
+}
+
 /** Solid color envelopes — same paper grain overlay, only hue changes */
 export const ENVELOPE_STYLES: Record<string, { face: string, flap: string, edge: string }> = {
   'envelope-white': { face: '#f7f3ec', flap: '#efe8dc', edge: '#d9d0c2' },
@@ -134,6 +158,20 @@ export function paperOf(id: string): PaperStyle {
 
 export function fontOf(id: string) {
   return FONT_STYLES[id] ?? FONT_STYLES.hand!
+}
+
+export function fontSizeOf(id?: string) {
+  return FONT_SIZE_STYLES[id ?? 'md'] ?? FONT_SIZE_STYLES.md!
+}
+
+/** Family + size for letter body text */
+export function bodyTypeOf(fontId: string, sizeId?: string) {
+  return `${fontOf(fontId)} ${fontSizeOf(sizeId).body}`
+}
+
+/** Family + size for the signature line */
+export function signatureTypeOf(fontId: string, sizeId?: string) {
+  return `${fontOf(fontId)} ${fontSizeOf(sizeId).signature}`
 }
 
 export function envelopeOf(id: string) {
