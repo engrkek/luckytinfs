@@ -163,8 +163,82 @@ const { pref: soundPref, enable: enableSound, disable: disableSound } = useLette
     </section>
 
     <div class="relative z-1 mx-auto max-w-lg px-5 pb-24">
+      <!-- How the microsite works -->
+      <section class="mt-10" aria-labelledby="how-it-works">
+        <p class="text-center font-type text-[11px] uppercase tracking-[0.28em] text-[#a08c60]">
+          Instructions
+        </p>
+        <h2
+          id="how-it-works"
+          class="mt-2 text-center font-display text-xl font-medium tracking-tight text-[#2c2416]"
+        >
+          How it works
+        </h2>
+        <ol class="mt-6 space-y-4">
+          <li class="flex gap-3.5">
+            <span
+              class="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-[#2c2416] font-type text-[0.65rem] font-medium text-[#f4efe4]"
+              aria-hidden="true"
+            >1</span>
+            <div>
+              <p class="font-display text-base font-medium text-[#2c2416]">
+                Pick a mailbox
+              </p>
+              <p class="mt-0.5 text-sm leading-relaxed text-[#5c4f35]/85">
+                Tap Maloi, Jhoanna, or BINI above to start a letter for them.
+              </p>
+            </div>
+          </li>
+          <li class="flex gap-3.5">
+            <span
+              class="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-[#2c2416] font-type text-[0.65rem] font-medium text-[#f4efe4]"
+              aria-hidden="true"
+            >2</span>
+            <div>
+              <p class="font-display text-base font-medium text-[#2c2416]">
+                Write &amp; decorate
+              </p>
+              <p class="mt-0.5 text-sm leading-relaxed text-[#5c4f35]/85">
+                Compose a letter or postcard — paper, stickers, wax seal, and an optional song.
+              </p>
+            </div>
+          </li>
+          <li class="flex gap-3.5">
+            <span
+              class="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-[#2c2416] font-type text-[0.65rem] font-medium text-[#f4efe4]"
+              aria-hidden="true"
+            >3</span>
+            <div>
+              <p class="font-display text-base font-medium text-[#2c2416]">
+                Seal &amp; send
+              </p>
+              <p class="mt-0.5 text-sm leading-relaxed text-[#5c4f35]/85">
+                Choose the tour stop and whether it’s public or private. Every letter is reviewed before delivery.
+              </p>
+            </div>
+          </li>
+          <li class="flex gap-3.5">
+            <span
+              class="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-[#2c2416] font-type text-[0.65rem] font-medium text-[#f4efe4]"
+              aria-hidden="true"
+            >4</span>
+            <div>
+              <p class="font-display text-base font-medium text-[#2c2416]">
+                One per mailbox, per stop
+              </p>
+              <p class="mt-0.5 text-sm leading-relaxed text-[#5c4f35]/85">
+                You can send one letter to each mailbox for each show. Pick another mailbox — or wait for the next stop.
+              </p>
+            </div>
+          </li>
+        </ol>
+        <p class="mt-6 text-center text-sm leading-relaxed text-[#5c4f35]/75 text-pretty">
+          Public letters may show up below for other Blooms &amp; Lumities to open and read.
+        </p>
+      </section>
+
       <!-- Read what others sent -->
-      <section v-if="marqueeLetters.length" class="mt-8">
+      <section v-if="marqueeLetters.length" class="mt-12">
         <h2 class="text-center font-display text-xl font-medium tracking-tight text-[#2c2416] sm:text-left">
           Letters from Blooms &amp; Lumities
         </h2>
@@ -187,9 +261,61 @@ const { pref: soundPref, enable: enableSound, disable: disableSound } = useLette
             />
           </NuxtLink>
         </div>
-        <p class="mt-2 text-center font-type text-[0.55rem] uppercase tracking-[0.28em] text-[#a08c60]">
+        <p class="mt-2 text-center font-type text-[11px] uppercase tracking-[0.28em] text-[#a08c60]">
           ‹ Swipe to read ›
         </p>
+      </section>
+
+      <!-- Fan project description + credits -->
+      <section class="mt-14 border-t border-[#d8cba8]/60 pt-10" aria-labelledby="about-project">
+        <p class="text-center font-type text-[11px] uppercase tracking-[0.28em] text-[#a08c60]">
+          About
+        </p>
+        <h2
+          id="about-project"
+          class="mt-2 text-center font-display text-xl font-medium tracking-tight text-[#2c2416]"
+        >
+          A Luckytin Fan Support project
+        </h2>
+        <div class="mt-4 space-y-3 text-center text-sm leading-relaxed text-[#5c4f35]/85 text-pretty">
+          <p>
+            Letters for Luckytin &amp; BINI is a fan project by
+            <strong class="font-medium text-[#2c2416]">
+              Luckytin Fan Support
+            </strong>
+            — made by Lumities so Blooms can send love to Maloi, Jhoanna, and BINI along the Signals World Tour 2026.
+          </p>
+          <p>
+            With thanks to
+            <strong class="font-medium text-[#2c2416]">
+              Jhoanna Fan Support
+            </strong>
+            for allowing us to use
+            <strong class="font-medium text-[#2c2416]">
+              Chicka
+            </strong>,
+            and to
+            <strong class="font-medium text-[#2c2416]">
+              Maloi Fan Support
+            </strong>
+            for allowing us to use
+            <strong class="font-medium text-[#2c2416]">
+              Luca
+            </strong>.
+          </p>
+          <p class="text-xs text-[#5c4f35]/65">
+            Not affiliated with BINI, Star Music, or ABS-CBN.
+          </p>
+          <p class="pt-1 font-type text-[11px] uppercase tracking-[0.2em] text-[#a08c60]">
+            <NuxtLink to="/letters/terms" class="hover:text-[#2c2416]">
+              Terms
+            </NuxtLink>
+            <span class="mx-2 opacity-40">·</span>
+            <NuxtLink to="/letters/privacy" class="hover:text-[#2c2416]">
+              Privacy
+            </NuxtLink>
+          </p>
+        </div>
       </section>
     </div>
 
@@ -201,12 +327,12 @@ const { pref: soundPref, enable: enableSound, disable: disableSound } = useLette
       >
         <div class="flex items-center gap-2.5 rounded-full border border-[#d8cba8] bg-[#f7f2e4]/95 py-1.5 pl-4 pr-1.5 shadow-[0_12px_32px_-12px_rgb(93_70_20/0.4)] backdrop-blur-sm">
           <UIcon name="i-lucide-volume-2" class="size-3.5 shrink-0 text-[#6b5c38]" />
-          <p class="font-type text-[0.55rem] uppercase tracking-[0.16em] text-[#6b5c38]">
+          <p class="font-type text-[11px] uppercase tracking-widest text-[#6b5c38]">
             Sound on for the full experience
           </p>
           <button
             type="button"
-            class="shrink-0 rounded-full bg-[#2c2416] px-3 py-1.5 font-type text-[0.55rem] uppercase tracking-[0.14em] text-[#f4efe4]"
+            class="shrink-0 rounded-full bg-[#2c2416] px-3 py-1.5 font-type text-[11px] uppercase tracking-widest text-[#f4efe4]"
             @click="enableSound"
           >
             Sound on
