@@ -63,6 +63,9 @@ const { data: feed } = await useFetch<{ letters: PublicLetter[] }>('/api/letters
 const marqueeLetters = computed(() =>
   seededShuffle(feed.value?.letters ?? [], currentStop.id),
 )
+
+/** Letters play soundtracks — ask once so YouTube autoplay gets a real user gesture */
+const { pref: soundPref, enable: enableSound, disable: disableSound } = useLetterSound()
 </script>
 
 <template>
@@ -70,7 +73,7 @@ const marqueeLetters = computed(() =>
     class="letter-stage letter-stage--paper relative z-1 min-h-dvh"
     :style="{ '--glow': MAILBOX_PAINT[active].body }"
   >
-    <div class="relative z-1 mx-auto max-w-lg px-5 pt-10 pb-24 sm:pt-14">
+    <div class="relative z-1 mx-auto max-w-lg px-5 pt-10 pb-24 sm:pt-14 md:max-w-3xl">
       <!-- Landing hero -->
       <header class="text-center sm:text-left">
         <p class="font-type text-[0.6rem] uppercase tracking-[0.28em] text-[#a08c60]">
@@ -83,12 +86,13 @@ const marqueeLetters = computed(() =>
 
       <!-- Mailboxes -->
       <section class="mt-20">
-        <div ref="track" class="pt-10 mx-[calc(50%-50vw)] flex snap-x snap-mandatory items-end overflow-x-auto pb-2 scrollbar-none [&::-webkit-scrollbar]:hidden">
+        <div ref="track" class="pt-10 mx-[calc(50%-50vw)] flex snap-x snap-mandatory items-end overflow-x-auto pb-2 scrollbar-none [&::-webkit-scrollbar]:hidden md:mx-0 md:snap-none md:overflow-visible">
           <NuxtLink
             v-for="(m, i) in SLIDES"
             :key="`${m.id}-${i}`"
             :to="{ path: '/letters/write', query: { to: m.id } }"
-            class="group mailbox-slide w-full shrink-0 snap-center"
+            class="group mailbox-slide w-full shrink-0 snap-center md:w-1/3"
+            :class="(i === 0 || i === SLIDES.length - 1) && 'md:hidden'"
             :style="{
               '--mb': MAILBOX_PAINT[m.id].body,
               '--mb-deep': MAILBOX_PAINT[m.id].deep,
@@ -124,7 +128,7 @@ const marqueeLetters = computed(() =>
             </div>
           </NuxtLink>
         </div>
-        <p class="mt-2 text-center font-type text-[0.55rem] uppercase tracking-[0.28em] text-[#a08c60]">
+        <p class="mt-2 text-center font-type text-[0.55rem] uppercase tracking-[0.28em] text-[#a08c60] md:hidden">
           ‹ Swipe for the others ›
         </p>
       </section>
@@ -134,7 +138,7 @@ const marqueeLetters = computed(() =>
         <h2 class="text-center font-display text-xl font-medium tracking-tight text-[#2c2416] sm:text-left">
           Letters from Blooms &amp; Lumities
         </h2>
-        <div class="mt-6 mx-[calc(50%-50vw)] flex snap-x snap-proximity gap-4 overflow-x-auto px-[calc(50vw-50%)] pb-2 scrollbar-none [&::-webkit-scrollbar]:hidden">
+        <div class="mt-6 mx-[calc(50%-50vw)] flex snap-x snap-proximity gap-4 overflow-x-auto px-[calc(50vw-50%)] pb-2 scrollbar-none [&::-webkit-scrollbar]:hidden md:mx-0 md:flex-wrap md:justify-center md:overflow-visible md:px-0">
           <NuxtLink
             v-for="l in marqueeLetters"
             :key="l.id"
@@ -153,18 +157,47 @@ const marqueeLetters = computed(() =>
             />
           </NuxtLink>
         </div>
-        <p class="mt-2 text-center font-type text-[0.55rem] uppercase tracking-[0.28em] text-[#a08c60]">
+        <p class="mt-2 text-center font-type text-[0.55rem] uppercase tracking-[0.28em] text-[#a08c60] md:hidden">
           ‹ Swipe to read ›
         </p>
       </section>
     </div>
+
+    <!-- Sound preference prompt -->
+    <ClientOnly>
+      <div
+        v-if="soundPref === 'pending'"
+        class="fixed inset-x-0 bottom-4 z-20 flex justify-center px-5"
+      >
+        <div class="flex items-center gap-2.5 rounded-full border border-[#d8cba8] bg-[#f7f2e4]/95 py-1.5 pl-4 pr-1.5 shadow-[0_12px_32px_-12px_rgb(93_70_20/0.4)] backdrop-blur-sm">
+          <UIcon name="i-lucide-volume-2" class="size-3.5 shrink-0 text-[#6b5c38]" />
+          <p class="font-type text-[0.55rem] uppercase tracking-[0.16em] text-[#6b5c38]">
+            Sound on for the full experience
+          </p>
+          <button
+            type="button"
+            class="shrink-0 rounded-full bg-[#2c2416] px-3 py-1.5 font-type text-[0.55rem] uppercase tracking-[0.14em] text-[#f4efe4]"
+            @click="enableSound"
+          >
+            Sound on
+          </button>
+          <button
+            type="button"
+            class="shrink-0 rounded-full px-2 py-1.5 font-type text-[0.55rem] uppercase tracking-[0.14em] text-[#6b5c38]/70"
+            @click="disableSound"
+          >
+            Mute
+          </button>
+        </div>
+      </div>
+    </ClientOnly>
   </div>
 </template>
 
 <style scoped>
 /* Centered slide scales up, off-center slides shrink — CSS scroll-driven,
    no JS; browsers without view() support just skip the effect. */
-@media (prefers-reduced-motion: no-preference) {
+@media (prefers-reduced-motion: no-preference) and (max-width: 767px) {
   @supports (animation-timeline: view(x)) {
     .mailbox-slide,
     .letter-card {

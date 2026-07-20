@@ -35,22 +35,19 @@ function close() {
 </script>
 
 <template>
-  <Teleport to="body">
-    <div
-      v-if="open"
-      class="fixed inset-0 z-50 flex flex-col justify-end"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="send-sheet-title"
-    >
-      <button
-        type="button"
-        class="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
-        aria-label="Close send sheet"
-        @click="close"
-      />
-
-      <div class="relative z-1 max-h-[90dvh] overflow-y-auto rounded-t-2xl border border-white/10 bg-[#1e2634] text-[#e8e2d6] shadow-2xl">
+  <UDrawer
+    :open="open"
+    :handle="false"
+    title="Send letter"
+    description="Sealed & waiting for moderation"
+    :ui="{
+      overlay: 'bg-black/55 backdrop-blur-[2px]',
+      content: 'max-h-[90dvh] rounded-t-2xl border border-white/10 bg-[#1e2634] text-[#e8e2d6] shadow-2xl ring-0 sm:inset-x-auto sm:left-1/2 sm:w-full sm:max-w-lg sm:-translate-x-1/2',
+    }"
+    @update:open="emit('update:open', $event)"
+  >
+    <template #content>
+      <div class="overflow-y-auto">
         <div class="mx-auto mt-3 h-1 w-10 rounded-full bg-white/20" aria-hidden="true" />
 
         <div class="px-5 pt-4 pb-8 space-y-5">
@@ -112,7 +109,7 @@ function close() {
             </p>
             <select
               :value="tourStop"
-              class="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-[#f4efe4] outline-none focus:border-[#e0c56a]/50"
+              class="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-[#f4efe4] outline-none focus:border-jhoanna-400/60"
               @change="emit('update:tourStop', ($event.target as HTMLSelectElement).value as TourStopId)"
             >
               <option
@@ -139,7 +136,7 @@ function close() {
                 type="button"
                 class="rounded-xl border p-3 text-left transition-colors"
                 :class="visibility === 'public'
-                  ? 'border-[#e0c56a] bg-white/10'
+                  ? 'border-jhoanna-400 bg-jhoanna-400/10'
                   : 'border-white/10 bg-white/5'"
                 @click="emit('update:visibility', 'public')"
               >
@@ -150,7 +147,7 @@ function close() {
                 type="button"
                 class="rounded-xl border p-3 text-left transition-colors"
                 :class="visibility === 'private'
-                  ? 'border-[#e0c56a] bg-white/10'
+                  ? 'border-jhoanna-400 bg-jhoanna-400/10'
                   : 'border-white/10 bg-white/5'"
                 @click="emit('update:visibility', 'private')"
               >
@@ -171,7 +168,7 @@ function close() {
                 type="text"
                 :maxlength="senderNameMax"
                 placeholder="Anonymous"
-                class="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-[#f4efe4] placeholder:text-[#c8bfb0]/35 outline-none focus:border-[#e0c56a]/50"
+                class="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-[#f4efe4] placeholder:text-[#c8bfb0]/35 outline-none focus:border-jhoanna-400/60"
                 @input="emit('update:senderName', ($event.target as HTMLInputElement).value)"
               >
             </label>
@@ -183,10 +180,23 @@ function close() {
                 :value="senderEmail"
                 type="email"
                 placeholder="contact only"
-                class="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-[#f4efe4] placeholder:text-[#c8bfb0]/35 outline-none focus:border-[#e0c56a]/50"
+                class="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-[#f4efe4] placeholder:text-[#c8bfb0]/35 outline-none focus:border-jhoanna-400/60"
                 @input="emit('update:senderEmail', ($event.target as HTMLInputElement).value)"
               >
             </label>
+          </div>
+
+          <!-- house rules -->
+          <div class="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+            <p class="font-type text-[0.6rem] uppercase tracking-[0.2em] text-[#c8bfb0]/55 mb-1.5">
+              Before you send
+            </p>
+            <ul class="list-disc space-y-1 pl-4 text-xs leading-relaxed text-[#c8bfb0]/75">
+              <li>Every letter is reviewed before it can appear publicly.</li>
+              <li>Keep it kind — no hate, harassment, or inappropriate language.</li>
+              <li>Don't share personal details like addresses or phone numbers.</li>
+              <li>Letters that break these rules won't be delivered.</li>
+            </ul>
           </div>
 
           <p v-if="!body.trim()" class="text-sm text-amber-200/80">
@@ -212,6 +222,6 @@ function close() {
           </button>
         </div>
       </div>
-    </div>
-  </Teleport>
+    </template>
+  </UDrawer>
 </template>

@@ -187,7 +187,7 @@ watch(isPostcard, (on) => {
             :class="senderName.trim() ? 'opacity-90' : 'opacity-45'"
             @click.stop="startEditingName"
           >
-            {{ senderName.trim() || 'Tap to sign…' }}
+            {{ senderName.trim() || 'Sign your name…' }}
           </button>
         </div>
       </div>
@@ -222,7 +222,7 @@ watch(isPostcard, (on) => {
           :class="[fontClass, !body.trim() && 'opacity-45']"
           @click.stop="startEditingBody"
         >
-          {{ body.trim() || 'Tap to write your letter…' }}
+          {{ body.trim() || 'Write your letter…' }}
         </button>
       </div>
     </article>
@@ -290,7 +290,7 @@ watch(isPostcard, (on) => {
             ]"
             @click.stop="startEditingBody"
           >
-            {{ body.trim() || 'Tap to write your letter…' }}
+            {{ body.trim() || 'Write your letter…' }}
           </button>
         </div>
       </div>
@@ -332,7 +332,7 @@ watch(isPostcard, (on) => {
             ]"
             @click.stop="startEditingName"
           >
-            {{ senderName.trim() || 'Tap to sign…' }}
+            {{ senderName.trim() || 'Sign your name…' }}
           </button>
         </div>
         <span
