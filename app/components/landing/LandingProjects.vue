@@ -14,7 +14,7 @@ const freebies = [
           current fan project
         </h2>
 
-        <div class="mt-8 flex flex-col xl:flex-row items-center justify-center">
+        <div class="mt-10 flex flex-col xl:flex-row items-center justify-center">
           <Stamp src="/images/projects/HMoAYULbwAE-l9R.jpeg" alt="photocard fan support" class="rotate-6 w-40 xl:w-70" />
           <Stamp src="/images/projects/HMoAYySbkAA2kmP.jpeg" alt="handbanner fan support" class="-rotate-12 w-40 xl:w-70" />
         </div>
