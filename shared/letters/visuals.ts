@@ -15,14 +15,28 @@ export interface PaperStyle {
 }
 
 export const PAPER_STYLES: Record<string, PaperStyle> = {
-  'bg-14': { class: 'letter-paper--image', ink: '#1a2430', src: letterImageUrl('backgrounds', 14), wash: 0.58 },
-  'bg-15': { class: 'letter-paper--image', ink: '#1f2a38', src: letterImageUrl('backgrounds', 15), wash: 0.42 },
-  'bg-16': { class: 'letter-paper--image', ink: '#2a2428', src: letterImageUrl('backgrounds', 16), wash: 0.28 },
-  'bg-17': { class: 'letter-paper--image', ink: '#1f2a38', src: letterImageUrl('backgrounds', 17), wash: 0.28 },
-  'bg-18': { class: 'letter-paper--image', ink: '#243028', src: letterImageUrl('backgrounds', 18), wash: 0.18 },
-  'bg-19': { class: 'letter-paper--image', ink: '#1e2c32', src: letterImageUrl('backgrounds', 19), wash: 0.32 },
-  'bg-20': { class: 'letter-paper--image', ink: '#1a2e32', src: letterImageUrl('backgrounds', 20), wash: 0.22 },
-  'bg-21': { class: 'letter-paper--image', ink: '#1a2a30', src: letterImageUrl('backgrounds', 21), wash: 0.48 },
+  'bg-1': { class: 'letter-paper--image', ink: '#1a2430', src: letterImageUrl('backgrounds', 1), wash: 0.58 },
+  'bg-2': { class: 'letter-paper--image', ink: '#1f2a38', src: letterImageUrl('backgrounds', 2), wash: 0.42 },
+  'bg-3': { class: 'letter-paper--image', ink: '#2a2428', src: letterImageUrl('backgrounds', 3), wash: 0.28 },
+  'bg-4': { class: 'letter-paper--image', ink: '#1f2a38', src: letterImageUrl('backgrounds', 4), wash: 0.28 },
+  'bg-5': { class: 'letter-paper--image', ink: '#243028', src: letterImageUrl('backgrounds', 5), wash: 0.18 },
+  'bg-6': { class: 'letter-paper--image', ink: '#1e2c32', src: letterImageUrl('backgrounds', 6), wash: 0.32 },
+  'bg-7': { class: 'letter-paper--image', ink: '#1a2e32', src: letterImageUrl('backgrounds', 7), wash: 0.22 },
+  'bg-8': { class: 'letter-paper--image', ink: '#1a2a30', src: letterImageUrl('backgrounds', 8), wash: 0.48 },
+  'bg-9': { class: 'letter-paper--image', ink: '#3a2f10', src: letterImageUrl('backgrounds', 9), wash: 0.55 },
+  'bg-10': { class: 'letter-paper--image', ink: '#3a2f10', src: letterImageUrl('backgrounds', 10), wash: 0.3 },
+  'bg-11': { class: 'letter-paper--image', ink: '#332a10', src: letterImageUrl('backgrounds', 11), wash: 0.22 },
+  'bg-12': { class: 'letter-paper--image', ink: '#3a2f10', src: letterImageUrl('backgrounds', 12), wash: 0.3 },
+  'bg-13': { class: 'letter-paper--image', ink: '#123236', src: letterImageUrl('backgrounds', 13), wash: 0.55 },
+  'bg-14': { class: 'letter-paper--image', ink: '#123236', src: letterImageUrl('backgrounds', 14), wash: 0.22 },
+  'bg-15': { class: 'letter-paper--image', ink: '#123236', src: letterImageUrl('backgrounds', 15), wash: 0.28 },
+  'bg-16': { class: 'letter-paper--image', ink: '#2a241c', src: letterImageUrl('backgrounds', 16), wash: 0.12 },
+  'bg-17': { class: 'letter-paper--image', ink: '#2a241c', src: letterImageUrl('backgrounds', 17), wash: 0.15 },
+  'bg-18': { class: 'letter-paper--image', ink: '#123236', src: letterImageUrl('backgrounds', 18), wash: 0.35 },
+  'bg-19': { class: 'letter-paper--image', ink: '#2a241c', src: letterImageUrl('backgrounds', 19), wash: 0.2 },
+  'bg-20': { class: 'letter-paper--image', ink: '#16303a', src: letterImageUrl('backgrounds', 20), wash: 0.32 },
+  'bg-21': { class: 'letter-paper--image', ink: '#3a2f10', src: letterImageUrl('backgrounds', 21), wash: 0.4 },
+  'bg-22': { class: 'letter-paper--image', ink: '#2e2418', src: letterImageUrl('backgrounds', 22), wash: 0.22 },
 }
 
 export const FONT_STYLES: Record<string, string> = {
@@ -73,7 +87,7 @@ export const RECIPIENT_THEME: Record<LetterRecipient, {
     soft: 'var(--color-maloi-50)',
     deep: 'var(--color-maloi-900)',
     gingham: 'bg-gingham-yellow',
-    postmark: 'MALOI · SIGNALS',
+    postmark: 'FOR MALOI',
     toLine: 'For Maloi 💛',
   },
   jhoanna: {
@@ -82,7 +96,7 @@ export const RECIPIENT_THEME: Record<LetterRecipient, {
     soft: 'var(--color-jhoanna-50)',
     deep: 'var(--color-jhoanna-900)',
     gingham: 'bg-gingham-blue',
-    postmark: 'JHOANNA · SIGNALS',
+    postmark: 'FOR JHOANNA',
     toLine: 'For Jhoanna 💙',
   },
   bini: {
@@ -91,7 +105,7 @@ export const RECIPIENT_THEME: Record<LetterRecipient, {
     soft: '#fceef4',
     deep: '#4a1f33',
     gingham: 'bg-gingham-yellow-blue',
-    postmark: 'BINI · SIGNALS',
+    postmark: 'FOR BINI',
     toLine: 'For BINI 🌸',
   },
 }
@@ -104,7 +118,7 @@ export const MAILBOX_PAINT: Record<LetterRecipient, { body: string, deep: string
 }
 
 export function paperOf(id: string): PaperStyle {
-  return PAPER_STYLES[id] ?? PAPER_STYLES['bg-18']!
+  return PAPER_STYLES[id] ?? PAPER_STYLES['bg-1']!
 }
 
 export function fontOf(id: string) {

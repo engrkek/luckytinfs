@@ -215,7 +215,7 @@ function onCropDone(pathname: string) {
         v-for="opt in LETTER_BACKGROUNDS"
         :key="opt.id"
         type="button"
-        class="snap-start shrink-0 w-16 h-20 rounded-lg border-2 overflow-hidden bg-cover bg-center transition-transform active:scale-95"
+        class="snap-start shrink-0 w-16 h-20 rounded-lg border-2 overflow-hidden bg-white bg-cover bg-center transition-transform active:scale-95"
         :class="design.background === opt.id ? 'border-[#e0c56a] scale-105' : 'border-white/15'"
         :style="{ backgroundImage: opt.preview ? `url(${opt.preview})` : undefined }"
         :aria-label="opt.label"
@@ -275,7 +275,7 @@ function onCropDone(pathname: string) {
             :class="design.envelope === opt.id ? 'border-[#e0c56a] scale-110' : 'border-white/20'"
             :style="{ backgroundColor: envSwatch(opt.id) }"
           />
-          <span class="font-type text-[0.5rem] uppercase tracking-[0.1em] text-[#c8bfb0]/70">
+          <span class="font-type text-[0.5rem] uppercase tracking-widest text-[#c8bfb0]/70">
             {{ opt.label }}
           </span>
         </button>
@@ -295,7 +295,7 @@ function onCropDone(pathname: string) {
         @click="emit('update:seal', opt.id)"
       >
         <LetterWaxSeal :seal-id="opt.id" size="md" />
-        <span class="font-type text-[0.5rem] uppercase tracking-[0.1em] text-[#c8bfb0]/70 max-w-14 text-center truncate">
+        <span class="font-type text-[0.5rem] uppercase tracking-widest text-[#c8bfb0]/70 max-w-14 text-center truncate">
           {{ opt.label }}
         </span>
       </button>
