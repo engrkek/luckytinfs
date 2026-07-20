@@ -96,8 +96,8 @@ const { pref: soundPref, enable: enableSound, disable: disableSound } = useLette
     class="letter-stage letter-stage--paper relative z-1 min-h-dvh"
     :style="{ '--glow': MAILBOX_PAINT[active].body }"
   >
-    <div class="relative z-1 mx-auto min-h-dvh max-w-lg flex flex-col px-5 pt-10 sm:pt-14">
-      <!-- Landing hero -->
+    <!-- Hero: header + mailboxes fill one screen -->
+    <section class="relative z-1 mx-auto flex h-dvh max-w-lg flex-col px-5 pt-10 sm:pt-14 pb-[max(1rem,env(safe-area-inset-bottom))]">
       <header class="shrink-0 text-center">
         <p class="font-type text-[0.6rem] uppercase tracking-[0.28em] text-[#a08c60]">
           Signals World Tour 2026
@@ -107,9 +107,12 @@ const { pref: soundPref, enable: enableSound, disable: disableSound } = useLette
         </h1>
       </header>
 
-      <!-- Mailboxes: height tracks the viewport so the box stays grounded at the bottom of the screen -->
-      <section class="mt-auto pt-10 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <div ref="track" class="relative mx-[max(calc(50%-50vw),calc(50%-36rem))] flex snap-x snap-mandatory items-end gap-x-6 overflow-x-auto pt-2 pb-2 scrollbar-none [&::-webkit-scrollbar]:hidden">
+      <!-- Mailboxes sit in remaining hero space; Maloi runs tallest -->
+      <div class="mt-8 min-h-0 flex flex-1 flex-col justify-end">
+        <div
+          ref="track"
+          class="relative mx-[max(calc(50%-50vw),calc(50%-36rem))] flex snap-x snap-mandatory items-end gap-x-6 overflow-x-auto pt-3 pb-2 scrollbar-none [&::-webkit-scrollbar]:hidden"
+        >
           <NuxtLink
             v-for="(m, i) in SLIDES"
             :key="`${m.id}-${i}`"
@@ -124,14 +127,14 @@ const { pref: soundPref, enable: enableSound, disable: disableSound } = useLette
             <div
               class="mx-auto flex w-full max-w-90 flex-col transition-opacity duration-400 ease-[cubic-bezier(0.22,1,0.36,1)]"
               :class="[
-                m.id === 'maloi' ? 'h-[clamp(24rem,84dvh,40rem)]' : 'h-[clamp(22rem,78dvh,38rem)]',
+                m.id === 'maloi' ? 'h-[60dvh]' : 'h-[50dvh]',
                 active === m.id ? 'opacity-100' : 'opacity-55',
               ]"
             >
-              <!-- Postbox body -->
+              <!-- Postbox body — Maloi's runs tallest (shortest member, tallest mailbox) -->
               <div
                 class="flex flex-1 flex-col rounded-t-full rounded-b-2xl bg-(--mb) px-5 pb-6 shadow-[inset_0_12px_18px_rgb(255_255_255/0.2),inset_0_-16px_26px_rgb(0_0_0/0.18),0_24px_48px_-16px_rgb(93_70_20/0.35)] transition-transform duration-300 group-hover:-translate-y-1 group-active:scale-[0.98]"
-                :class="m.id === 'maloi' ? 'pt-32' : 'pt-22'"
+                :class="m.id === 'maloi' ? 'pt-28' : 'pt-18'"
               >
                 <p class="shrink-0 text-center font-type text-[0.6rem] uppercase tracking-[0.32em] text-(--mb-deep)">
                   Mail
@@ -153,15 +156,15 @@ const { pref: soundPref, enable: enableSound, disable: disableSound } = useLette
             </div>
           </NuxtLink>
         </div>
-        <p class="mt-2 text-center font-type text-[0.55rem] uppercase tracking-[0.28em] text-[#a08c60]">
-          ‹ Swipe for the others ›
+        <p class="mt-2 shrink-0 text-center font-type text-xs uppercase tracking-[0.25em] text-[#a08c60]">
+          ‹ Tap a mailbox / Swipe for the others ›
         </p>
-      </section>
-    </div>
+      </div>
+    </section>
 
     <div class="relative z-1 mx-auto max-w-lg px-5 pb-24">
       <!-- Read what others sent -->
-      <section v-if="marqueeLetters.length" class="mt-20">
+      <section v-if="marqueeLetters.length" class="mt-8">
         <h2 class="text-center font-display text-xl font-medium tracking-tight text-[#2c2416] sm:text-left">
           Letters from Blooms &amp; Lumities
         </h2>
