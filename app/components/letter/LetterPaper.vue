@@ -94,9 +94,6 @@ const bodyTypeClass = computed(() => [
     <template v-if="layout === 'postcard'">
       <div class="relative z-2 flex h-full w-[34%] shrink-0 flex-col justify-between border-r border-current/15 pr-4">
         <div>
-          <p class="font-type text-[0.55rem] uppercase tracking-[0.18em] opacity-55">
-            Signals World Tour ’26
-          </p>
           <p
             class="mt-1 font-display text-sm font-medium tracking-tight sm:text-base"
             :style="{ color: theme.deep }"
@@ -122,12 +119,6 @@ const bodyTypeClass = computed(() => [
       </div>
 
       <div class="relative z-2 h-full min-w-0 flex-1 overflow-y-auto">
-        <LetterSticker
-          v-for="{ sticker, index } in visibleStickers"
-          :key="`${sticker.id}-${index}`"
-          :sticker="sticker"
-          class="letter-sticker-enter"
-        />
         <div
           class="relative whitespace-pre-wrap text-pretty leading-relaxed"
           :class="bodyTypeClass"
@@ -149,9 +140,6 @@ const bodyTypeClass = computed(() => [
     <template v-else>
       <div class="relative z-2 flex items-start justify-between gap-3 mb-5 sm:mb-7">
         <div>
-          <p class="font-type text-[0.65rem] uppercase tracking-[0.22em] opacity-55">
-            Signals World Tour ’26
-          </p>
           <p
             class="mt-1 font-display text-lg sm:text-xl font-medium tracking-tight"
             :style="{ color: theme.deep }"
@@ -164,16 +152,9 @@ const bodyTypeClass = computed(() => [
       <!--
         Body area is always full-height:
         one text flow with visible typed chars + invisible remainder (ghost tail).
-        Stickers use % of this stable box, so they don’t jump as typing progresses.
+        Stickers use % of the full paper, so they don’t jump as typing progresses.
       -->
       <div class="relative z-2 min-h-40">
-        <LetterSticker
-          v-for="{ sticker, index } in visibleStickers"
-          :key="`${sticker.id}-${index}`"
-          :sticker="sticker"
-          class="letter-sticker-enter"
-        />
-
         <div
           class="relative whitespace-pre-wrap text-pretty leading-relaxed"
           :class="bodyTypeClass"
@@ -206,5 +187,15 @@ const bodyTypeClass = computed(() => [
         </p>
       </footer>
     </template>
+
+    <!-- Stickers: full paper surface (letter or postcard), same % space as the editor -->
+    <div class="pointer-events-none absolute inset-0 z-10">
+      <LetterSticker
+        v-for="{ sticker, index } in visibleStickers"
+        :key="`${sticker.id}-${index}`"
+        :sticker="sticker"
+        class="letter-sticker-enter"
+      />
+    </div>
   </article>
 </template>

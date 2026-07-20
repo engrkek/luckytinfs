@@ -190,15 +190,6 @@ watch(isPostcard, (on) => {
       </div>
 
       <div class="relative z-2 h-full min-w-0 flex-1 overflow-y-auto">
-        <LetterSticker
-          v-for="(sticker, i) in design.stickers"
-          :key="`${sticker.id}-${i}`"
-          :sticker="sticker"
-          interactive
-          :selected="selectedSticker === i"
-          @select="emit('selectSticker', i)"
-          @move="(pos) => emit('moveSticker', i, pos)"
-        />
         <textarea
           v-if="editingText"
           ref="textareaRef"
@@ -222,6 +213,19 @@ watch(isPostcard, (on) => {
           {{ body.trim() || 'Write your letter…' }}
         </button>
       </div>
+
+      <!-- Stickers use the full postcard surface (not just the message column) -->
+      <div class="pointer-events-none absolute inset-0 z-10">
+        <LetterSticker
+          v-for="(sticker, i) in design.stickers"
+          :key="`${sticker.id}-${i}`"
+          :sticker="sticker"
+          interactive
+          :selected="selectedSticker === i"
+          @select="emit('selectSticker', i)"
+          @move="(pos) => emit('moveSticker', i, pos)"
+        />
+      </div>
     </article>
 
     <article
@@ -233,30 +237,16 @@ watch(isPostcard, (on) => {
     >
       <!-- header -->
       <div class="relative z-2 px-5 pt-5 sm:px-7 sm:pt-7 pointer-events-none">
-        <p class="font-type text-[0.6rem] uppercase tracking-[0.22em] opacity-50">
-          Signals World Tour ’26
-        </p>
         <p class="mt-1 font-display text-lg font-medium tracking-tight" :style="{ color: theme.deep }">
           {{ recipient ? theme.toLine : 'Choose a recipient…' }}
         </p>
       </div>
 
-      <!-- body + stickers -->
+      <!-- body text -->
       <div
         class="relative z-2 min-h-[52dvh] px-5 pb-4 pt-4 sm:px-7"
         @pointerdown.self="onCanvasTap"
       >
-        <LetterSticker
-          v-for="(sticker, i) in design.stickers"
-          :key="`${sticker.id}-${i}`"
-          :sticker="sticker"
-          interactive
-          :selected="selectedSticker === i"
-          @select="emit('selectSticker', i)"
-          @move="(pos) => emit('moveSticker', i, pos)"
-        />
-
-        <!-- text surface -->
         <div class="relative z-3 min-h-40">
           <textarea
             v-if="editingText"
@@ -340,6 +330,19 @@ watch(isPostcard, (on) => {
           ♫ YouTube
         </span>
       </footer>
+
+      <!-- Stickers use the full letter surface (header, body, signature) -->
+      <div class="pointer-events-none absolute inset-0 z-10">
+        <LetterSticker
+          v-for="(sticker, i) in design.stickers"
+          :key="`${sticker.id}-${i}`"
+          :sticker="sticker"
+          interactive
+          :selected="selectedSticker === i"
+          @select="emit('selectSticker', i)"
+          @move="(pos) => emit('moveSticker', i, pos)"
+        />
+      </div>
     </article>
   </div>
 </template>

@@ -12,7 +12,7 @@ useSeoMeta({
 
 useHead({
   meta: [
-    { key: 'theme-color', name: 'theme-color', content: '#e8e2d6' },
+    { key: 'theme-color', name: 'theme-color', content: '#f6f0e2' },
   ],
 })
 
