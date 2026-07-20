@@ -211,7 +211,7 @@ watch(isPostcard, (on) => {
           :value="body"
           :maxlength="bodyMax"
           rows="8"
-          placeholder="Write something heartfelt…"
+          placeholder="Write your letter…"
           @input="onBodyInput"
           @blur="stopEditingBody"
         />
@@ -274,14 +274,14 @@ watch(isPostcard, (on) => {
             :value="body"
             :maxlength="bodyMax"
             rows="10"
-            placeholder="Write something heartfelt…"
+            placeholder="Write your letter…"
             @input="onBodyInput"
             @blur="stopEditingBody"
           />
           <button
             v-else
             type="button"
-            class="w-full text-left whitespace-pre-wrap text-pretty min-h-40"
+            class="flex w-full items-start text-left whitespace-pre-wrap text-pretty min-h-40"
             :class="[
               fontClass,
               design.font === 'script' ? 'text-xl sm:text-2xl leading-snug' : 'text-base sm:text-lg leading-relaxed',

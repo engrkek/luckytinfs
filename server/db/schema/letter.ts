@@ -7,6 +7,7 @@ export const letter = sqliteTable('letter', {
   id: text().primaryKey().$default(() => nanoid()).notNull(),
   recipient: text().notNull(), // maloi, jhoanna, bini
   tourStop: text().default(TOUR_STOPS[0].id).notNull(), // assigned at submit via resolveTourStop()
+  senderId: text(), // anonymous browser cookie id — limits sends to 1 letter/mailbox/stop; null on legacy rows
   senderName: text().default('Anonymous').notNull(),
   senderEmail: text(), // optional, contact only, never displayed
   body: text().notNull(),
@@ -25,4 +26,5 @@ export const letter = sqliteTable('letter', {
 }, t => [
   index('letter_feed_idx').on(t.recipient, t.tourStop), // per-stop public feed
   index('letter_stop_idx').on(t.tourStop), // per-stop member feed
+  index('letter_sender_idx').on(t.senderId, t.tourStop), // send-limit lookup
 ])

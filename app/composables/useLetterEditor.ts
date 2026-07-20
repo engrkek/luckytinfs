@@ -44,24 +44,22 @@ export function useLetterEditor() {
   onMounted(() => {
     try {
       const raw = localStorage.getItem(DRAFT_KEY)
-      if (!raw)
-        return
-      const draft = JSON.parse(raw)
+      const draft = raw ? JSON.parse(raw) : null
       // Only restore over an untouched editor; ?to= query may set recipient first
-      if (body.value.trim() || !draft || typeof draft !== 'object')
-        return
-      if (typeof draft.body === 'string')
-        body.value = draft.body
-      if (typeof draft.senderName === 'string')
-        senderName.value = draft.senderName
-      if (typeof draft.senderEmail === 'string')
-        senderEmail.value = draft.senderEmail
-      if (draft.visibility === 'public' || draft.visibility === 'private')
-        visibility.value = draft.visibility
-      if (!recipient.value && draft.recipient)
-        recipient.value = draft.recipient
-      if (draft.design && typeof draft.design === 'object')
-        Object.assign(design, draft.design)
+      if (draft && typeof draft === 'object' && !body.value.trim()) {
+        if (typeof draft.body === 'string')
+          body.value = draft.body
+        if (typeof draft.senderName === 'string')
+          senderName.value = draft.senderName
+        if (typeof draft.senderEmail === 'string')
+          senderEmail.value = draft.senderEmail
+        if (draft.visibility === 'public' || draft.visibility === 'private')
+          visibility.value = draft.visibility
+        if (!recipient.value && draft.recipient)
+          recipient.value = draft.recipient
+        if (draft.design && typeof draft.design === 'object')
+          Object.assign(design, draft.design)
+      }
     }
     catch {
       // corrupt draft / blocked storage — start fresh
