@@ -54,6 +54,14 @@ export const letterSubmitSchema = z.object({
   body: z.string().trim().min(1).max(LETTER_LIMITS.bodyMax),
   design: letterDesignSchema,
   visibility: z.enum(['public', 'private']),
+}).superRefine((input, ctx) => {
+  if (input.design.format === 'postcard' && input.body.length > LETTER_LIMITS.postcardBodyMax) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['body'],
+      message: `Postcards fit up to ${LETTER_LIMITS.postcardBodyMax} characters`,
+    })
+  }
 })
 
 export type LetterSubmitInput = z.infer<typeof letterSubmitSchema>

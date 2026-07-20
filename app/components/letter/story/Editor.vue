@@ -33,6 +33,7 @@ const {
   submitError,
   submittedId,
   reset,
+  bodyMax,
   limits,
 } = editor
 
@@ -43,8 +44,8 @@ function openSend() {
   sendOpen.value = true
 }
 
-function onMoveSticker(index: number, pos: { x: number, y: number }) {
-  updateSticker(index, pos)
+function onMoveSticker(index: number, patch: Partial<{ x: number, y: number, rotation: number, scale: number }>) {
+  updateSticker(index, patch)
 }
 
 function onScale(delta: number) {
@@ -202,7 +203,7 @@ const previewRecipient = computed(() => recipient.value ?? 'bini')
           :body="body"
           :editing-text="editingText"
           :selected-sticker="selectedSticker"
-          :body-max="limits.bodyMax"
+          :body-max="bodyMax"
           :sender-name-max="limits.senderNameMax"
           @update:body="body = $event"
           @update:sender-name="senderName = $event"
@@ -213,9 +214,10 @@ const previewRecipient = computed(() => recipient.value ?? 'bini')
 
         <p
           v-if="!showEnvelopePreview"
-          class="mt-2 text-center font-type text-[0.55rem] uppercase tracking-[0.16em] text-white/30"
+          class="mt-2 text-center font-type text-[0.55rem] uppercase tracking-[0.16em]"
+          :class="bodyCount > bodyMax ? 'text-red-400' : 'text-white/30'"
         >
-          {{ bodyCount }}/{{ limits.bodyMax }}
+          {{ bodyCount }}/{{ bodyMax }}
         </p>
       </div>
     </div>

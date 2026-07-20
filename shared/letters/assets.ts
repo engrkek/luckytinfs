@@ -85,7 +85,8 @@ export const LETTER_DEFAULTS = {
 }
 
 export const LETTER_LIMITS = {
-  bodyMax: 5000,
+  bodyMax: 1500,
+  postcardBodyMax: 300,
   senderNameMax: 50,
   stickersMax: 20,
   musicUrlMax: 500,

@@ -39,10 +39,15 @@ export function useLetterEditor() {
   /** Ceremony finished visually */
   const sealCeremonyDone = ref(false)
 
+  /** Postcards have less room than letters */
+  const bodyMax = computed(() =>
+    design.format === 'postcard' ? LETTER_LIMITS.postcardBodyMax : LETTER_LIMITS.bodyMax,
+  )
+
   const canSubmit = computed(() =>
     recipient.value !== null
     && body.value.trim().length > 0
-    && body.value.trim().length <= LETTER_LIMITS.bodyMax
+    && body.value.trim().length <= bodyMax.value
     && (design.format !== 'postcard' || Boolean(design.photo)),
   )
 
@@ -234,6 +239,7 @@ export function useLetterEditor() {
     submitError,
     submittedId,
     reset,
+    bodyMax,
     limits: LETTER_LIMITS,
   }
 }

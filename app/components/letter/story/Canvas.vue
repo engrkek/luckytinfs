@@ -18,7 +18,7 @@ const emit = defineEmits<{
   'update:senderName': [value: string]
   'update:editingText': [value: boolean]
   'selectSticker': [index: number | null]
-  'moveSticker': [index: number, pos: { x: number, y: number }]
+  'moveSticker': [index: number, patch: Partial<{ x: number, y: number, rotation: number, scale: number }>]
 }>()
 
 const paper = computed(() => paperOf(props.design.background))
