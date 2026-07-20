@@ -12,28 +12,22 @@ const FILTERS: { label: string, value: LetterStatus | 'all' }[] = [
   { label: 'All', value: 'all' },
 ]
 
-interface OfficeLetter {
-  id: string
-  recipient: string
-  tourStop: string
-  senderName: string
-  body: string
-  design: { format?: string, photo?: string } | null
-  visibility: string
-  status: LetterStatus
-  adminNotes: string | null
-  createdAt: number | string
-}
-
 const statusFilter = ref<LetterStatus | 'all'>('pending')
 
 /** Show day: default to that stop's letters; otherwise all stops */
 const stopFilter = ref<string>(todaysTourStop()?.id ?? 'all')
 const stopCity = (id: string) => TOUR_STOPS.find(s => s.id === id)?.city ?? id
 
-const { data, status: fetchStatus } = await useFetch('/api/office/letters')
+const { letters, isPending } = useOfficeLetters()
+const {
+  mutate: updateLetter,
+  isLoading: isSaving,
+  variables: savingVars,
+} = useUpdateOfficeLetter()
 
-const letters = computed<OfficeLetter[]>(() => data.value?.letters ?? [])
+const savingId = computed(() =>
+  isSaving.value ? savingVars.value?.id ?? null : null,
+)
 
 const counts = computed(() => {
   const c: Record<string, number> = { pending: 0, approved: 0, rejected: 0, all: letters.value.length }
@@ -58,29 +52,17 @@ function initials(name: string) {
   return name.trim().charAt(0).toUpperCase()
 }
 
-const toast = useToast()
-const savingId = ref<string | null>(null)
 const notesDraft = reactive<Record<string, string>>({})
 
-async function updateLetter(id: string, body: Record<string, unknown>) {
-  savingId.value = id
-  try {
-    const { letter: updated } = await $fetch(`/api/office/letters/${id}`, { method: 'PATCH', body })
-    const index = letters.value.findIndex(l => l.id === id)
-    if (index !== -1 && data.value)
-      data.value.letters.splice(index, 1, updated)
-  }
-  catch (e) {
-    const err = e as { data?: { statusMessage?: string } }
-    toast.add({ title: 'Update failed', description: err.data?.statusMessage ?? 'Something went wrong', color: 'error' })
-  }
-  finally {
-    savingId.value = null
-  }
+function noteValue(id: string, fallback: string | null) {
+  return notesDraft[id] ?? fallback ?? ''
 }
 
-function saveNotes(id: string) {
-  updateLetter(id, { adminNotes: notesDraft[id] ?? '' })
+function saveNotes(id: string, current: string | null) {
+  const next = notesDraft[id] ?? current ?? ''
+  if (next === (current ?? ''))
+    return
+  updateLetter({ id, adminNotes: next })
 }
 </script>
 
@@ -127,7 +109,7 @@ function saveNotes(id: string) {
     </div>
 
     <div class="overflow-hidden rounded-2xl bg-[#f7f4ee]" aria-live="polite">
-      <p v-if="fetchStatus === 'pending'" class="p-6 text-center text-sm text-neutral-600">
+      <p v-if="isPending" class="p-6 text-center text-sm text-neutral-600">
         Loading…
       </p>
       <p v-else-if="!visible.length" class="p-6 text-center text-sm text-neutral-600">
@@ -181,16 +163,29 @@ function saveNotes(id: string) {
           {{ l.body }}
         </p>
 
+        <OfficeLetterMusic
+          v-if="l.design?.music"
+          :music="l.design.music"
+        />
+
+        <p
+          v-if="l.reviewer"
+          class="text-xs text-neutral-500"
+        >
+          Reviewed by
+          <span class="font-medium text-neutral-700">{{ l.reviewer.name }}</span>
+        </p>
+
         <UFormField label="Internal notes" :ui="{ label: 'text-xs text-neutral-500' }">
           <UTextarea
-            v-model="notesDraft[l.id]"
-            :default-value="l.adminNotes ?? ''"
+            :model-value="noteValue(l.id, l.adminNotes)"
             placeholder="Visible to admins only…"
             :rows="1"
             autoresize
             size="sm"
             class="w-full"
-            @blur="saveNotes(l.id)"
+            @update:model-value="notesDraft[l.id] = String($event ?? '')"
+            @blur="saveNotes(l.id, l.adminNotes)"
           />
         </UFormField>
 
@@ -201,7 +196,7 @@ function saveNotes(id: string) {
             size="lg"
             :loading="savingId === l.id"
             :disabled="l.status === 'approved'"
-            @click="updateLetter(l.id, { status: 'approved' })"
+            @click="updateLetter({ id: l.id, status: 'approved' })"
           >
             Approve
           </UButton>
@@ -211,7 +206,7 @@ function saveNotes(id: string) {
             size="lg"
             :loading="savingId === l.id"
             :disabled="l.status === 'rejected'"
-            @click="updateLetter(l.id, { status: 'rejected' })"
+            @click="updateLetter({ id: l.id, status: 'rejected' })"
           >
             Reject
           </UButton>
@@ -221,7 +216,7 @@ function saveNotes(id: string) {
             size="lg"
             :loading="savingId === l.id"
             :disabled="l.status === 'pending'"
-            @click="updateLetter(l.id, { status: 'pending' })"
+            @click="updateLetter({ id: l.id, status: 'pending' })"
           >
             Reset
           </UButton>

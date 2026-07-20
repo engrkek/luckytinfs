@@ -9,7 +9,7 @@ import {
   LETTER_SEALS,
   LETTER_STICKERS,
 } from '#shared/letters/assets'
-import { envelopeOf } from '#shared/letters/visuals'
+import { envelopeOf, fontOf } from '#shared/letters/visuals'
 import { isYouTubeLink, parseYouTubeLink } from '#shared/letters/youtube'
 
 const props = defineProps<{
@@ -240,12 +240,7 @@ function onCropDone(pathname: string) {
       >
         <span
           class="block text-lg leading-none"
-          :class="{
-            'font-hand': opt.id === 'hand',
-            'font-script': opt.id === 'script',
-            'font-type': opt.id === 'type',
-            'font-sans': opt.id === 'sans',
-          }"
+          :class="fontOf(opt.id)"
         >
           Aa
         </span>

@@ -1,6 +1,7 @@
 import { letter } from '@nuxthub/db/schema'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
+import { user } from '#auth/schema'
 import { letterDesignSchema } from '#shared/letters/schema'
 import { LETTER_STATUSES } from '#shared/letters/types'
 
@@ -20,11 +21,11 @@ export default defineEventHandler(async (event) => {
   }
 
   const { status, senderName, body, visibility, design, adminNotes } = await readValidatedBody(event, patchSchema.parse)
-  const { user } = await requireUserSession(event)
+  const { user: sessionUser } = await requireUserSession(event)
 
   const [updated] = await db.update(letter)
     .set({
-      ...(status !== undefined ? { status, reviewedBy: user.id } : {}),
+      ...(status !== undefined ? { status, reviewedBy: sessionUser.id } : {}),
       ...(senderName !== undefined ? { senderName } : {}),
       ...(body !== undefined ? { body } : {}),
       ...(visibility !== undefined ? { visibility } : {}),
@@ -38,5 +39,27 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Letter not found' })
   }
 
-  return { letter: updated }
+  // Resolve reviewer name for the client (may be prior reviewer if only notes changed)
+  let reviewer: { id: string, name: string } | null = null
+  if (updated.reviewedBy) {
+    if (updated.reviewedBy === sessionUser.id && sessionUser.name) {
+      reviewer = { id: sessionUser.id, name: sessionUser.name }
+    }
+    else {
+      const [row] = await db
+        .select({ id: user.id, name: user.name })
+        .from(user)
+        .where(eq(user.id, updated.reviewedBy))
+        .limit(1)
+      if (row)
+        reviewer = row
+    }
+  }
+
+  return {
+    letter: {
+      ...updated,
+      reviewer,
+    },
+  }
 })

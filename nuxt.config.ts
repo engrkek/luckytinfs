@@ -51,6 +51,8 @@ export default defineNuxtConfig({
     optimizeDeps: {
       include: [
         'better-auth/client/plugins',
+        'compressorjs',
+        'vue-advanced-cropper',
       ],
     },
   },
@@ -73,6 +75,19 @@ export default defineNuxtConfig({
       { name: 'Fraunces', weights: ['400 700'] },
       { name: 'Playpen Sans', weights: ['400 700'] },
       { name: 'Courier Prime', weights: ['400 700'] },
+      // Local letter fonts (public/fonts) — weight 400 matches unweighted filenames
+      { name: 'Nice Gourmet Script Trial', provider: 'local', weights: [400] },
+      { name: 'A.Casual.Handwritten.Pen', provider: 'local', weights: [400] },
+      { name: 'Au Bord de la Seine', provider: 'local', weights: [400] },
+      { name: 'DK Crayon Crumble', provider: 'local', weights: [400] },
+      { name: 'Elegant Bloom', provider: 'local', weights: [400] },
+      { name: 'Handflair', provider: 'local', weights: [400] },
+      { name: 'Lazy Dog', provider: 'local', weights: [400] },
+      { name: 'Le Jardin du Bonheur', provider: 'local', weights: [400] },
+      { name: 'Privilege People', provider: 'local', weights: [400] },
+      { name: 'Salmon Bake', provider: 'local', weights: [400] },
+      { name: 'Summer Nyumer', provider: 'local', weights: [400] },
+      { name: 'Tentang Nanti Demo', provider: 'local', weights: [400] },
     ],
   },
 
