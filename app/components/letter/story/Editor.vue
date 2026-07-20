@@ -35,6 +35,7 @@ const {
   reset,
   bodyMax,
   limits,
+  alreadySentMessage,
 } = editor
 
 function openSend() {
@@ -165,12 +166,22 @@ const previewRecipient = computed(() => recipient.value ?? 'bini')
       <button
         type="button"
         class="shrink-0 rounded-full bg-[#e0c56a] px-4 py-2 font-display text-sm font-medium text-[#1a2230] disabled:opacity-40"
-        :disabled="!body.trim()"
+        :disabled="!body.trim() && !alreadySentMessage"
         @click="openSend"
       >
         Send
       </button>
     </header>
+
+    <div
+      v-if="alreadySentMessage"
+      class="relative z-20 mx-auto mt-4 w-full max-w-xl px-3 pb-2"
+      role="status"
+    >
+      <p class="rounded-xl border border-error-400/30 bg-error-600 px-3 py-2.5 text-center text-sm leading-snug text-white">
+        {{ alreadySentMessage }}
+      </p>
+    </div>
 
     <div
       class="relative z-10 flex-1 overflow-y-auto overscroll-contain px-3 pb-2 sm:px-6"
@@ -234,6 +245,7 @@ const previewRecipient = computed(() => recipient.value ?? 'bini')
           @update:photo="design.photo = $event"
           @update:background="design.background = $event"
           @update:font="design.font = $event"
+          @update:font-size="design.fontSize = $event"
           @update:envelope="design.envelope = $event"
           @update:seal="design.seal = $event"
           @update:music="design.music = $event"
@@ -261,6 +273,7 @@ const previewRecipient = computed(() => recipient.value ?? 'bini')
       :can-submit="canSubmit"
       :submitting="submitting"
       :submit-error="submitError"
+      :already-sent-message="alreadySentMessage"
       :sender-name-max="limits.senderNameMax"
       @submit="submit"
     />

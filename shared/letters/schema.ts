@@ -7,6 +7,7 @@ export const letterDesignSchema = z.object({
   format: z.enum(['letter', 'postcard']).default('letter'),
   background: z.enum(LETTER_OPTION_IDS.backgrounds),
   font: z.enum(LETTER_OPTION_IDS.fonts),
+  fontSize: z.enum(LETTER_OPTION_IDS.fontSizes).default('md'),
   envelope: z.enum(LETTER_OPTION_IDS.envelopes),
   seal: z.enum(LETTER_OPTION_IDS.seals),
   /** YouTube watch URL — omit or empty for no soundtrack */

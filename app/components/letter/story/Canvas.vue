@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { LetterDesign, LetterRecipient } from '#shared/letters/types'
-import { fontOf, paperOf, RECIPIENT_THEME } from '#shared/letters/visuals'
+import { bodyTypeOf, paperOf, RECIPIENT_THEME, signatureTypeOf } from '#shared/letters/visuals'
 
 const props = defineProps<{
   recipient: LetterRecipient | null
@@ -22,7 +22,8 @@ const emit = defineEmits<{
 }>()
 
 const paper = computed(() => paperOf(props.design.background))
-const fontClass = computed(() => fontOf(props.design.font))
+const bodyTypeClass = computed(() => bodyTypeOf(props.design.font, props.design.fontSize))
+const signatureTypeClass = computed(() => signatureTypeOf(props.design.font, props.design.fontSize))
 const theme = computed(() =>
   props.recipient ? RECIPIENT_THEME[props.recipient] : RECIPIENT_THEME.bini,
 )
@@ -167,7 +168,8 @@ watch(isPostcard, (on) => {
             v-if="editingName"
             ref="nameInputRef"
             type="text"
-            class="mt-0.5 w-full bg-transparent border-0 border-b border-current/25 p-0 m-0 text-sm outline-none focus:border-current/50"
+            class="mt-0.5 w-full bg-transparent border-0 border-b border-current/25 p-0 m-0 outline-none focus:border-current/50"
+            :class="signatureTypeClass"
             :style="{ color: paper.ink }"
             :value="senderName"
             :maxlength="senderNameMax"
@@ -180,8 +182,8 @@ watch(isPostcard, (on) => {
           <button
             v-else
             type="button"
-            class="mt-0.5 block max-w-full text-left text-sm transition-opacity"
-            :class="senderName.trim() ? 'opacity-90' : 'opacity-45'"
+            class="mt-0.5 block max-w-full text-left transition-opacity"
+            :class="[signatureTypeClass, senderName.trim() ? 'opacity-90' : 'opacity-45']"
             @click.stop="startEditingName"
           >
             {{ senderName.trim() || 'Sign your name…' }}
@@ -193,8 +195,8 @@ watch(isPostcard, (on) => {
         <textarea
           v-if="editingText"
           ref="textareaRef"
-          class="letter-story-textarea relative z-3 w-full resize-none bg-transparent outline-none border-0 p-0 m-0 text-sm leading-relaxed"
-          :class="fontClass"
+          class="letter-story-textarea relative z-3 w-full resize-none bg-transparent outline-none border-0 p-0 m-0"
+          :class="bodyTypeClass"
           :style="{ color: paper.ink }"
           :value="body"
           :maxlength="bodyMax"
@@ -206,8 +208,8 @@ watch(isPostcard, (on) => {
         <button
           v-else
           type="button"
-          class="relative z-3 w-full text-left whitespace-pre-wrap text-pretty text-sm leading-relaxed"
-          :class="[fontClass, !body.trim() && 'opacity-45']"
+          class="relative z-3 w-full text-left whitespace-pre-wrap text-pretty"
+          :class="[bodyTypeClass, !body.trim() && 'opacity-45']"
           @click.stop="startEditingBody"
         >
           {{ body.trim() || 'Write your letter…' }}
@@ -252,11 +254,7 @@ watch(isPostcard, (on) => {
             v-if="editingText"
             ref="textareaRef"
             class="letter-story-textarea w-full resize-none bg-transparent outline-none border-0 p-0 m-0"
-            :class="[
-              fontClass,
-              design.font === 'script' ? 'text-xl sm:text-2xl leading-snug' : 'text-base sm:text-lg leading-relaxed',
-              design.font === 'type' ? 'text-[0.95rem] sm:text-base leading-[1.7]' : '',
-            ]"
+            :class="bodyTypeClass"
             :style="{ color: paper.ink }"
             :value="body"
             :maxlength="bodyMax"
@@ -269,12 +267,7 @@ watch(isPostcard, (on) => {
             v-else
             type="button"
             class="flex w-full items-start text-left whitespace-pre-wrap text-pretty min-h-40"
-            :class="[
-              fontClass,
-              design.font === 'script' ? 'text-xl sm:text-2xl leading-snug' : 'text-base sm:text-lg leading-relaxed',
-              design.font === 'type' ? 'text-[0.95rem] sm:text-base leading-[1.7]' : '',
-              !body.trim() && 'opacity-45',
-            ]"
+            :class="[bodyTypeClass, !body.trim() && 'opacity-45']"
             @click.stop="startEditingBody"
           >
             {{ body.trim() || 'Write your letter…' }}
@@ -292,12 +285,8 @@ watch(isPostcard, (on) => {
             v-if="editingName"
             ref="nameInputRef"
             type="text"
-            class="mt-0.5 w-full max-w-xs bg-transparent border-0 border-b border-current/25 p-0 m-0 text-lg outline-none focus:border-current/50"
-            :class="[
-              fontClass,
-              design.font === 'script' ? 'text-xl sm:text-2xl' : '',
-              design.font === 'type' ? 'text-base sm:text-lg' : '',
-            ]"
+            class="mt-0.5 w-full max-w-xs bg-transparent border-0 border-b border-current/25 p-0 m-0 outline-none focus:border-current/50"
+            :class="signatureTypeClass"
             :style="{ color: paper.ink }"
             :value="senderName"
             :maxlength="senderNameMax"
@@ -310,13 +299,8 @@ watch(isPostcard, (on) => {
           <button
             v-else
             type="button"
-            class="mt-0.5 block max-w-full text-left text-lg transition-opacity"
-            :class="[
-              fontClass,
-              design.font === 'script' ? 'text-xl sm:text-2xl' : '',
-              design.font === 'type' ? 'text-base sm:text-lg' : '',
-              senderName.trim() ? 'opacity-90' : 'opacity-45',
-            ]"
+            class="mt-0.5 block max-w-full text-left transition-opacity"
+            :class="[signatureTypeClass, senderName.trim() ? 'opacity-90' : 'opacity-45']"
             @click.stop="startEditingName"
           >
             {{ senderName.trim() || 'Sign your name…' }}

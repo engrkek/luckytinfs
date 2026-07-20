@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { LetterDesign, LetterRecipient } from '#shared/letters/types'
-import { fontOf, paperOf, RECIPIENT_THEME } from '#shared/letters/visuals'
+import { bodyTypeOf, paperOf, RECIPIENT_THEME, signatureTypeOf } from '#shared/letters/visuals'
 
 const props = withDefaults(defineProps<{
   recipient: LetterRecipient
@@ -32,7 +32,8 @@ const props = withDefaults(defineProps<{
 })
 
 const paper = computed(() => paperOf(props.design.background))
-const fontClass = computed(() => fontOf(props.design.font))
+const bodyTypeClass = computed(() => bodyTypeOf(props.design.font, props.design.fontSize))
+const signatureTypeClass = computed(() => signatureTypeOf(props.design.font, props.design.fontSize))
 const theme = computed(() => RECIPIENT_THEME[props.recipient])
 
 const visibleText = computed(() => props.revealedBody ?? props.body)
@@ -74,11 +75,6 @@ const paperStyle = computed(() => {
   return base
 })
 
-const bodyTypeClass = computed(() => [
-  fontClass.value,
-  props.design.font === 'script' ? 'text-xl sm:text-2xl leading-snug' : 'text-base sm:text-lg',
-  props.design.font === 'type' ? 'text-[0.95rem] sm:text-base leading-[1.7]' : '',
-])
 </script>
 
 <template>
@@ -106,12 +102,8 @@ const bodyTypeClass = computed(() => [
             With love from
           </p>
           <p
-            class="mt-0.5 text-sm sm:text-base"
-            :class="[
-              fontClass,
-              design.font === 'script' ? 'text-base sm:text-lg' : '',
-              design.font === 'type' ? 'text-xs sm:text-sm' : '',
-            ]"
+            class="mt-0.5"
+            :class="signatureTypeClass"
           >
             {{ senderName || 'Anonymous' }}
           </p>
@@ -120,7 +112,7 @@ const bodyTypeClass = computed(() => [
 
       <div class="relative z-2 h-full min-w-0 flex-1 overflow-y-auto">
         <div
-          class="relative whitespace-pre-wrap text-pretty leading-relaxed"
+          class="relative whitespace-pre-wrap text-pretty"
           :class="bodyTypeClass"
         >
           <span>{{ visibleText }}</span><span
@@ -156,7 +148,7 @@ const bodyTypeClass = computed(() => [
       -->
       <div class="relative z-2 min-h-40">
         <div
-          class="relative whitespace-pre-wrap text-pretty leading-relaxed"
+          class="relative whitespace-pre-wrap text-pretty"
           :class="bodyTypeClass"
         >
           <span>{{ visibleText }}</span><span
@@ -176,12 +168,8 @@ const bodyTypeClass = computed(() => [
           With love from
         </p>
         <p
-          class="mt-0.5 text-lg sm:text-xl"
-          :class="[
-            fontClass,
-            design.font === 'script' ? 'text-xl sm:text-2xl' : '',
-            design.font === 'type' ? 'text-base sm:text-lg' : '',
-          ]"
+          class="mt-0.5"
+          :class="signatureTypeClass"
         >
           {{ senderName || 'Anonymous' }}
         </p>

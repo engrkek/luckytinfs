@@ -4,12 +4,13 @@ import type { LetterStoryTool } from '~/composables/useLetterEditor'
 import {
   LETTER_BACKGROUNDS,
   LETTER_ENVELOPES,
+  LETTER_FONT_SIZES,
   LETTER_FONTS,
   LETTER_LIMITS,
   LETTER_SEALS,
   LETTER_STICKERS,
 } from '#shared/letters/assets'
-import { envelopeOf, fontOf } from '#shared/letters/visuals'
+import { envelopeOf, fontOf, fontSizeOf } from '#shared/letters/visuals'
 import { isYouTubeLink, parseYouTubeLink } from '#shared/letters/youtube'
 
 const props = defineProps<{
@@ -23,6 +24,7 @@ const emit = defineEmits<{
   'update:photo': [pathname: string | undefined]
   'update:background': [id: string]
   'update:font': [id: string]
+  'update:fontSize': [id: string]
   'update:envelope': [id: string]
   'update:seal': [id: string]
   'update:music': [id: string | undefined]
@@ -32,6 +34,8 @@ const emit = defineEmits<{
   'rotateSticker': [delta: number]
   'close': []
 }>()
+
+const activeFontSize = computed(() => props.design.fontSize ?? 'md')
 
 const title = computed(() => ({
   postcard: 'Letter or postcard',
@@ -226,28 +230,59 @@ function onCropDone(pathname: string) {
       </button>
     </div>
 
-    <!-- Font -->
-    <div v-else-if="tool === 'font'" class="flex gap-2 overflow-x-auto px-4 pb-4 snap-x">
-      <button
-        v-for="opt in LETTER_FONTS"
-        :key="opt.id"
-        type="button"
-        class="snap-start shrink-0 min-w-22 rounded-xl border px-4 py-3 text-left transition-colors"
-        :class="design.font === opt.id
-          ? 'border-[#e0c56a] bg-white/10 text-[#f4efe4]'
-          : 'border-white/10 bg-white/5 text-[#c8bfb0]'"
-        @click="emit('update:font', opt.id)"
-      >
-        <span
-          class="block text-lg leading-none"
-          :class="fontOf(opt.id)"
+    <!-- Font family + size -->
+    <div v-else-if="tool === 'font'" class="space-y-3 px-4 pb-4">
+      <div class="flex gap-2 overflow-x-auto snap-x">
+        <button
+          v-for="opt in LETTER_FONTS"
+          :key="opt.id"
+          type="button"
+          class="snap-start shrink-0 min-w-22 rounded-xl border px-4 py-3 text-left transition-colors"
+          :class="design.font === opt.id
+            ? 'border-[#e0c56a] bg-white/10 text-[#f4efe4]'
+            : 'border-white/10 bg-white/5 text-[#c8bfb0]'"
+          @click="emit('update:font', opt.id)"
         >
-          Aa
-        </span>
-        <span class="mt-1 block font-type text-[0.55rem] uppercase tracking-[0.14em] opacity-70">
-          {{ opt.label }}
-        </span>
-      </button>
+          <span
+            class="block text-lg leading-none"
+            :class="fontOf(opt.id)"
+          >
+            Aa
+          </span>
+          <span class="mt-1 block font-type text-[0.55rem] uppercase tracking-[0.14em] opacity-70">
+            {{ opt.label }}
+          </span>
+        </button>
+      </div>
+
+      <div>
+        <p class="mb-2 font-type text-[0.55rem] uppercase tracking-[0.14em] text-[#c8bfb0]/45">
+          Size
+        </p>
+        <div class="flex gap-2">
+          <button
+            v-for="opt in LETTER_FONT_SIZES"
+            :key="opt.id"
+            type="button"
+            class="flex-1 rounded-xl border py-2.5 transition-colors"
+            :class="activeFontSize === opt.id
+              ? 'border-[#e0c56a] bg-white/10 text-[#f4efe4]'
+              : 'border-white/10 bg-white/5 text-[#c8bfb0]'"
+            :aria-pressed="activeFontSize === opt.id"
+            @click="emit('update:fontSize', opt.id)"
+          >
+            <span
+              class="block text-center leading-none"
+              :class="[fontOf(design.font), fontSizeOf(opt.id).body]"
+            >
+              Aa
+            </span>
+            <span class="mt-1 block text-center font-type text-[0.55rem] uppercase tracking-[0.14em] opacity-70">
+              {{ opt.label }}
+            </span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Envelope — color only (shared paper grain on the real envelope) -->
