@@ -10,6 +10,8 @@ import { normalizeYouTubeMusic } from '#shared/letters/youtube'
 
 export type LetterStoryTool = 'postcard' | 'paper' | 'font' | 'envelope' | 'seal' | 'sticker' | 'music' | null
 
+const DRAFT_KEY = 'luckytin:letter-draft'
+
 export function useLetterEditor() {
   const recipient = ref<LetterRecipient | null>(null)
   const tourStop = ref<TourStopId>(nextTourStop().id)
@@ -33,6 +35,68 @@ export function useLetterEditor() {
   const selectedSticker = ref<number | null>(null)
   const editingText = ref(false)
   const sendOpen = ref(false)
+
+  /**
+   * Draft autosave: a half-written letter survives closed tabs and
+   * accidental back-swipes. Restored after mount (avoids hydration
+   * mismatch), cleared on successful send or explicit reset.
+   */
+  onMounted(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY)
+      const draft = raw ? JSON.parse(raw) : null
+      // Only restore over an untouched editor; ?to= query may set recipient first
+      if (draft && typeof draft === 'object' && !body.value.trim()) {
+        if (typeof draft.body === 'string')
+          body.value = draft.body
+        if (typeof draft.senderName === 'string')
+          senderName.value = draft.senderName
+        if (typeof draft.senderEmail === 'string')
+          senderEmail.value = draft.senderEmail
+        if (draft.visibility === 'public' || draft.visibility === 'private')
+          visibility.value = draft.visibility
+        if (!recipient.value && draft.recipient)
+          recipient.value = draft.recipient
+        if (draft.design && typeof draft.design === 'object')
+          Object.assign(design, draft.design)
+      }
+    }
+    catch {
+      // corrupt draft / blocked storage — start fresh
+    }
+
+    watch(
+      [body, senderName, senderEmail, recipient, visibility, () => JSON.stringify(design)],
+      () => {
+        try {
+          if (!body.value.trim()) {
+            localStorage.removeItem(DRAFT_KEY)
+            return
+          }
+          localStorage.setItem(DRAFT_KEY, JSON.stringify({
+            body: body.value,
+            senderName: senderName.value,
+            senderEmail: senderEmail.value,
+            recipient: recipient.value,
+            visibility: visibility.value,
+            design,
+          }))
+        }
+        catch {
+          // storage full / private mode — draft just won't persist
+        }
+      },
+    )
+  })
+
+  function clearDraft() {
+    try {
+      localStorage.removeItem(DRAFT_KEY)
+    }
+    catch {
+      // ignore
+    }
+  }
 
   /** Full-screen seal ceremony after confirm */
   const sealing = ref(false)
@@ -162,6 +226,7 @@ export function useLetterEditor() {
         body: buildPayload(),
       })
       submittedId.value = created.id
+      clearDraft()
     }
     catch (e: unknown) {
       const err = e as { data?: { message?: string }, message?: string }
@@ -189,6 +254,7 @@ export function useLetterEditor() {
   })
 
   function reset() {
+    clearDraft()
     recipient.value = null
     tourStop.value = nextTourStop().id
     senderName.value = ''

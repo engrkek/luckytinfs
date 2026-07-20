@@ -299,7 +299,7 @@ onBeforeUnmount(clearTimers)
           v-if="phase === 'sealed'"
           class="mt-6 text-center font-type text-[0.65rem] uppercase tracking-[0.32em] text-white/40"
         >
-          Tap the seal
+          Open the seal
         </p>
       </div>
 
@@ -356,14 +356,14 @@ onBeforeUnmount(clearTimers)
       v-if="isCeremony"
       class="mt-4 text-center font-type text-[0.55rem] uppercase tracking-[0.24em] text-white/30"
     >
-      Tap to skip
+      Skip
     </p>
 
     <p
       v-else-if="isPostcard && phase === 'reading'"
       class="mt-4 text-center font-type text-[0.55rem] uppercase tracking-[0.24em] text-white/30"
     >
-      {{ flipped ? 'Tap to read the message' : 'Tap the card to flip it over' }}
+      {{ flipped ? 'Flip to read the message' : 'Flip the card over' }}
     </p>
 
     <div

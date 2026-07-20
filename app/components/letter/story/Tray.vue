@@ -369,7 +369,7 @@ function onCropDone(pathname: string) {
         v-else
         class="font-type text-[0.6rem] uppercase tracking-[0.14em] text-[#c8bfb0]/45"
       >
-        Tap a sticker to add · {{ design.stickers.length }}/{{ LETTER_LIMITS.stickersMax }}
+        Pick a sticker to add · {{ design.stickers.length }}/{{ LETTER_LIMITS.stickersMax }}
       </p>
     </div>
 

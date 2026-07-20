@@ -138,7 +138,7 @@ const previewRecipient = computed(() => recipient.value ?? 'bini')
     v-else
     class="letter-story-stage fixed inset-0 z-40 flex flex-col bg-[#0c0e12] text-[#e8e2d6]"
   >
-    <header class="relative z-20 flex items-center justify-between gap-3 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2">
+    <header class="relative z-20 mx-auto flex w-full max-w-xl items-center justify-between gap-3 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2">
       <NuxtLink
         to="/letters"
         class="grid size-10 place-items-center rounded-full bg-white/5 text-white/90 backdrop-blur-sm border border-white/10"
@@ -223,28 +223,30 @@ const previewRecipient = computed(() => recipient.value ?? 'bini')
     </div>
 
     <div class="relative z-20 border-t border-white/10 bg-[#0c0e12]/95 backdrop-blur-md pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-      <LetterStoryTray
-        v-if="activeTool"
-        :tool="activeTool"
-        :design="design"
-        :selected-sticker="selectedSticker"
-        @close="closeTool"
-        @update:format="design.format = $event"
-        @update:photo="design.photo = $event"
-        @update:background="design.background = $event"
-        @update:font="design.font = $event"
-        @update:envelope="design.envelope = $event"
-        @update:seal="design.seal = $event"
-        @update:music="design.music = $event"
-        @add-sticker="addSticker"
-        @remove-sticker="removeSticker"
-        @scale-sticker="onScale"
-        @rotate-sticker="onRotate"
-      />
-      <LetterStoryDock
-        :active-tool="activeTool"
-        @toggle="onTool"
-      />
+      <div class="mx-auto w-full max-w-xl">
+        <LetterStoryTray
+          v-if="activeTool"
+          :tool="activeTool"
+          :design="design"
+          :selected-sticker="selectedSticker"
+          @close="closeTool"
+          @update:format="design.format = $event"
+          @update:photo="design.photo = $event"
+          @update:background="design.background = $event"
+          @update:font="design.font = $event"
+          @update:envelope="design.envelope = $event"
+          @update:seal="design.seal = $event"
+          @update:music="design.music = $event"
+          @add-sticker="addSticker"
+          @remove-sticker="removeSticker"
+          @scale-sticker="onScale"
+          @rotate-sticker="onRotate"
+        />
+        <LetterStoryDock
+          :active-tool="activeTool"
+          @toggle="onTool"
+        />
+      </div>
     </div>
 
     <LetterStorySendSheet
