@@ -83,7 +83,7 @@ function close() {
 
           <!-- recipient -->
           <div>
-            <p class="font-type text-[0.6rem] uppercase tracking-[0.2em] text-[#c8bfb0]/55 mb-2">
+            <p class="font-type text-xs uppercase tracking-[0.2em] text-[#c8bfb0]/55 mb-2">
               To
             </p>
             <div class="flex gap-2">
@@ -104,7 +104,7 @@ function close() {
 
           <!-- tour stop -->
           <div>
-            <p class="font-type text-[0.6rem] uppercase tracking-[0.2em] text-[#c8bfb0]/55 mb-2">
+            <p class="font-type text-xs uppercase tracking-[0.2em] text-[#c8bfb0]/55 mb-2">
               For which show
             </p>
             <select
@@ -128,7 +128,7 @@ function close() {
 
           <!-- visibility -->
           <div>
-            <p class="font-type text-[0.6rem] uppercase tracking-[0.2em] text-[#c8bfb0]/55 mb-2">
+            <p class="font-type text-xs uppercase tracking-[0.2em] text-[#c8bfb0]/55 mb-2">
               Visibility
             </p>
             <div class="grid grid-cols-2 gap-2">
@@ -160,7 +160,7 @@ function close() {
           <!-- identity -->
           <div class="space-y-3">
             <label class="block">
-              <span class="font-type text-[0.6rem] uppercase tracking-[0.2em] text-[#c8bfb0]/55">
+              <span class="font-type text-xs uppercase tracking-[0.2em] text-[#c8bfb0]/55">
                 Your name (optional)
               </span>
               <input
@@ -173,7 +173,7 @@ function close() {
               >
             </label>
             <label class="block">
-              <span class="font-type text-[0.6rem] uppercase tracking-[0.2em] text-[#c8bfb0]/55">
+              <span class="font-type text-xs uppercase tracking-[0.2em] text-[#c8bfb0]/55">
                 Email (optional, never shown)
               </span>
               <input
@@ -188,12 +188,12 @@ function close() {
 
           <!-- house rules -->
           <div class="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-            <p class="font-type text-[0.6rem] uppercase tracking-[0.2em] text-[#c8bfb0]/55 mb-1.5">
+            <p class="font-type text-xs uppercase tracking-[0.2em] text-[#c8bfb0]/55 mb-1.5">
               Before you send
             </p>
-            <ul class="list-disc space-y-1 pl-4 text-xs leading-relaxed text-[#c8bfb0]/75">
+            <ul class="list-disc space-y-1 pl-4 text-sm leading-relaxed text-[#c8bfb0]/75">
               <li>Every letter is reviewed before it can appear publicly.</li>
-              <li>Keep it kind — no hate, harassment, or inappropriate language.</li>
+              <li>Keep it kind. Strictly no hate, harassment, or inappropriate language.</li>
               <li>Don't share personal details like addresses or phone numbers.</li>
               <li>Letters that break these rules won't be delivered.</li>
             </ul>
