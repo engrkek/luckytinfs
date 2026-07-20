@@ -26,8 +26,7 @@
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  background:
-    linear-gradient(
+  background: linear-gradient(
       color-mix(in srgb, #fffdf8 calc(var(--paper-wash) * 100%), transparent),
       color-mix(in srgb, #fff8f0 calc(var(--paper-wash) * 100%), transparent)
     ),
@@ -137,8 +136,7 @@
   aspect-ratio: 1.6 / 1;
   overflow: hidden;
   border-radius: 0.15rem 0.15rem 0.3rem 0.3rem;
-  box-shadow:
-    0 18px 40px -16px color-mix(in srgb, #120e18 50%, transparent),
+  box-shadow: 0 18px 40px -16px color-mix(in srgb, #120e18 50%, transparent),
     0 4px 12px -4px color-mix(in srgb, #120e18 28%, transparent);
   transform-style: preserve-3d;
 }
@@ -152,8 +150,7 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  background:
-    linear-gradient(
+  background: linear-gradient(
       165deg,
       color-mix(in srgb, #fff 18%, transparent),
       transparent 50%
@@ -176,10 +173,8 @@
   z-index: 2;
   overflow: hidden;
   border-radius: 0.1rem;
-  transition:
-    top 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.5s ease;
+  transition: top 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease;
   transition-delay: 0.12s;
   pointer-events: none;
   box-shadow: 0 8px 24px -10px color-mix(in srgb, #120e18 40%, transparent);
@@ -196,8 +191,7 @@
   transform: scale(1.02);
   transition-delay: 0s;
   z-index: 14;
-  box-shadow:
-    0 22px 40px -12px color-mix(in srgb, #120e18 50%, transparent),
+  box-shadow: 0 22px 40px -12px color-mix(in srgb, #120e18 50%, transparent),
     0 4px 12px -4px color-mix(in srgb, #120e18 25%, transparent);
   overflow: visible;
 }
@@ -244,8 +238,7 @@
    leaving this one uncovered above the interior's z-index; without it
    anything sliding through the interior shows straight through here. */
 .letter-envelope__fold--bottom {
-  background:
-    linear-gradient(
+  background: linear-gradient(
       165deg,
       color-mix(in srgb, #fff 18%, transparent),
       transparent 50%
@@ -271,8 +264,7 @@
   height: 52%;
   z-index: 16;
   transform-origin: top center;
-  transition:
-    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
     z-index 0s linear 0.25s;
   filter: drop-shadow(0 5px 6px color-mix(in srgb, #120e18 12%, transparent));
   pointer-events: none;
@@ -326,21 +318,26 @@
   transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.letter-envelope:not(.is-open):not(.letter-envelope--static) .letter-envelope__seal {
+.letter-envelope:not(.is-open):not(.letter-envelope--static)
+  .letter-envelope__seal {
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   cursor: pointer;
 }
 
-.letter-envelope:not(.is-open):not(.letter-envelope--static):hover .letter-envelope__seal,
-.letter-envelope:not(.is-open):not(.letter-envelope--static):focus-visible .letter-envelope__seal {
+.letter-envelope:not(.is-open):not(.letter-envelope--static):hover
+  .letter-envelope__seal,
+.letter-envelope:not(.is-open):not(.letter-envelope--static):focus-visible
+  .letter-envelope__seal {
   transform: scale(1.08);
 }
 
-.letter-envelope:not(.is-open):not(.letter-envelope--static):active .letter-envelope__seal {
+.letter-envelope:not(.is-open):not(.letter-envelope--static):active
+  .letter-envelope__seal {
   transform: scale(0.96);
 }
 
-.letter-envelope.is-open .letter-envelope__seal-wrap:not(.letter-envelope__seal-wrap--stamp) {
+.letter-envelope.is-open
+  .letter-envelope__seal-wrap:not(.letter-envelope__seal-wrap--stamp) {
   opacity: 0;
   transform: translate(-50%, -50%) scale(0.55) rotate(16deg);
   pointer-events: none;
@@ -360,8 +357,8 @@
 }
 
 /* Printed on the envelope surface — once the letter is fully extracted
-   (z-index 14) it's physically in front of that surface and should
-   cover this, not the other way around. */
+  (z-index 14) it's physically in front of that surface and should
+  cover this, not the other way around. */
 .letter-envelope.is-extract .letter-mailed-stamp {
   z-index: 10;
 }
@@ -447,8 +444,7 @@
    an opening (it mounts pre-opened), so the delay serves no purpose here —
    drop it to 0 for a clean close. */
 .letter-send-ceremony .letter-envelope__flap {
-  transition:
-    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
     z-index 0s linear 0s;
 }
 
@@ -480,8 +476,7 @@
   overflow: hidden;
   clip-path: inset(0 0 0% 0);
   transform-origin: 50% 0;
-  transition:
-    clip-path 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+  transition: clip-path 0.55s cubic-bezier(0.4, 0, 0.2, 1),
     transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: clip-path, transform;
 }
@@ -504,8 +499,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(180deg, rgb(18 14 24 / 0.06), transparent 18%),
+  background: linear-gradient(180deg, rgb(18 14 24 / 0.06), transparent 18%),
     linear-gradient(165deg, #fbf6ea 0%, #efe4d0 100%);
 }
 
@@ -524,6 +518,13 @@
   min-height: 100dvh;
   background: #0c0e12;
   color: #e8e2d6;
+}
+
+/* Letter viewer: fan-submitted flat-lay photo behind the envelope, dimmed for legibility */
+.letter-stage--photo {
+  background-image: url('/images/letters/WEBSITE-OT8.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 .letter-stage::before {
@@ -585,11 +586,8 @@
 .letter-fold {
   transform-origin: 50% 0%;
   will-change: transform;
-  transition:
-    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.5s ease,
-    filter 0.45s ease,
-    box-shadow 0.45s ease;
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease,
+    filter 0.45s ease, box-shadow 0.45s ease;
 }
 
 /* Peeking out of the envelope, still folded */
@@ -614,11 +612,8 @@
   opacity: 1;
   filter: none;
   box-shadow: none;
-  transition:
-    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.45s ease,
-    filter 0.45s ease,
-    box-shadow 0.45s ease;
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease,
+    filter 0.45s ease, box-shadow 0.45s ease;
 }
 
 .letter-fold--open .letter-paper {
@@ -805,9 +800,7 @@
 .letter-open-scene__envelope {
   position: relative;
   z-index: 1;
-  transition:
-    opacity 0.5s ease,
-    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.5s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .letter-open-scene--extracting .letter-open-scene__envelope {
@@ -848,9 +841,7 @@
 .letter-open-scene__full {
   position: relative;
   z-index: 2;
-  transition:
-    opacity 0.45s ease,
-    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.45s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Reseal step 1: letter lifts back toward the envelope and fades */
@@ -883,9 +874,7 @@
 
 /* Full letter handoff after extract */
 .letter-full-enter-active {
-  transition:
-    opacity 0.55s ease,
-    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.55s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .letter-full-enter-from {
   /* Letter arrives from the envelope above, not from below */

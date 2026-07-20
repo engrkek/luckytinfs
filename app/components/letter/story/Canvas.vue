@@ -187,7 +187,7 @@ watch(isPostcard, (on) => {
             :class="senderName.trim() ? 'opacity-90' : 'opacity-45'"
             @click.stop="startEditingName"
           >
-            {{ senderName.trim() || 'Tap to sign…' }}
+            {{ senderName.trim() || 'Sign your name…' }}
           </button>
         </div>
       </div>
@@ -211,7 +211,7 @@ watch(isPostcard, (on) => {
           :value="body"
           :maxlength="bodyMax"
           rows="8"
-          placeholder="Write something heartfelt…"
+          placeholder="Write your letter…"
           @input="onBodyInput"
           @blur="stopEditingBody"
         />
@@ -222,7 +222,7 @@ watch(isPostcard, (on) => {
           :class="[fontClass, !body.trim() && 'opacity-45']"
           @click.stop="startEditingBody"
         >
-          {{ body.trim() || 'Tap to write your letter…' }}
+          {{ body.trim() || 'Write your letter…' }}
         </button>
       </div>
     </article>
@@ -274,14 +274,14 @@ watch(isPostcard, (on) => {
             :value="body"
             :maxlength="bodyMax"
             rows="10"
-            placeholder="Write something heartfelt…"
+            placeholder="Write your letter…"
             @input="onBodyInput"
             @blur="stopEditingBody"
           />
           <button
             v-else
             type="button"
-            class="w-full text-left whitespace-pre-wrap text-pretty min-h-40"
+            class="flex w-full items-start text-left whitespace-pre-wrap text-pretty min-h-40"
             :class="[
               fontClass,
               design.font === 'script' ? 'text-xl sm:text-2xl leading-snug' : 'text-base sm:text-lg leading-relaxed',
@@ -290,7 +290,7 @@ watch(isPostcard, (on) => {
             ]"
             @click.stop="startEditingBody"
           >
-            {{ body.trim() || 'Tap to write your letter…' }}
+            {{ body.trim() || 'Write your letter…' }}
           </button>
         </div>
       </div>
@@ -332,7 +332,7 @@ watch(isPostcard, (on) => {
             ]"
             @click.stop="startEditingName"
           >
-            {{ senderName.trim() || 'Tap to sign…' }}
+            {{ senderName.trim() || 'Sign your name…' }}
           </button>
         </div>
         <span
