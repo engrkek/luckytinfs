@@ -2,17 +2,11 @@ import type { PublicLetter } from '#shared/letters/public'
 import type { LetterDesign, LetterRecipient } from '#shared/letters/types'
 import { letter } from '@nuxthub/db/schema'
 import { and, eq } from 'drizzle-orm'
-import { DEMO_LETTERS } from '#shared/letters/public'
-
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
   if (!id) {
     throw createError({ statusCode: 400, statusMessage: 'Missing id' })
   }
-
-  const demo = DEMO_LETTERS.find(l => l.id === id)
-  if (demo)
-    return { letter: demo, source: 'demo' as const }
 
   try {
     const [row] = await db
