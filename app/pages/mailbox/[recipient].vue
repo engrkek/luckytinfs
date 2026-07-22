@@ -2,7 +2,7 @@
 import type { PublicLetter } from '#shared/letters/public'
 import type { LetterRecipient } from '#shared/letters/types'
 import { isLetterRecipient } from '#shared/letters/public'
-import { MAILBOX_PAINT, RECIPIENT_THEME } from '#shared/letters/visuals'
+import { envelopeOf, MAILBOX_PAINT, RECIPIENT_THEME, sealSrc } from '#shared/letters/visuals'
 
 const route = useRoute()
 const recipientRaw = String(route.params.recipient || '')
@@ -42,6 +42,20 @@ const stage = ref<'mailbox' | 'drawing' | 'letter' | 'returning'>('mailbox')
 const current = ref<PublicLetter | null>(null)
 let lastId: string | null = null
 
+// Read pile: letters this fan has already drawn, kept so they can reread
+// without re-rolling the mailbox. Persists across visits (per recipient).
+const readIds = useLocalStorage<string[]>(`mailbox-read-${recipient}`, [])
+const readPile = computed(() =>
+  readIds.value
+    .map(id => letters.value.find(l => l.id === id))
+    .filter((l): l is PublicLetter => Boolean(l)),
+)
+
+function markRead(letter: PublicLetter) {
+  if (!readIds.value.includes(letter.id))
+    readIds.value.push(letter.id)
+}
+
 function draw() {
   if (stage.value !== 'mailbox' || !letters.value.length)
     return
@@ -51,10 +65,20 @@ function draw() {
     : letters.value
   current.value = pool[Math.floor(Math.random() * pool.length)]!
   lastId = current.value.id
+  markRead(current.value)
   stage.value = 'drawing'
   setTimeout(() => {
     stage.value = 'letter'
   }, 550)
+}
+
+/** Reopen a letter straight from the read pile — no pull-out animation */
+function reread(letter: PublicLetter) {
+  if (stage.value !== 'mailbox')
+    return
+  current.value = letter
+  lastId = letter.id
+  stage.value = 'letter'
 }
 
 /** Overlay closes and the envelope slips back into the slot */
@@ -149,6 +173,49 @@ function putBack() {
             Tap the mailbox for a letter
           </template>
         </p>
+      </div>
+
+      <!-- Read pile — letters already drawn, sitting beside the mailbox to reread -->
+      <div v-if="readPile.length" class="mt-8">
+        <p class="text-center font-type text-[0.55rem] uppercase tracking-[0.28em] text-[#a08c60]/70">
+          Read again
+        </p>
+        <div class="mt-3 flex flex-wrap justify-center gap-x-1.5 gap-y-3">
+          <div
+            v-for="(l, i) in readPile"
+            :key="l.id"
+            class="shrink-0"
+            :style="{ transform: `rotate(${((i % 5) - 2) * 4}deg)` }"
+          >
+            <button
+              type="button"
+              class="relative block h-11 w-16 overflow-hidden rounded-[2px] shadow-[0_2px_5px_rgb(0_0_0/0.25)] transition-transform hover:-translate-y-1 hover:scale-105 active:scale-95 disabled:pointer-events-none"
+              :style="{
+                background: envelopeOf(l.design.envelope).face,
+                border: `1px solid ${envelopeOf(l.design.envelope).edge}`,
+              }"
+              :disabled="stage !== 'mailbox'"
+              :aria-label="`Reread letter from ${l.senderName}`"
+              @click="reread(l)"
+            >
+              <span
+                class="absolute inset-x-0 top-0 h-1/2"
+                :style="{
+                  background: envelopeOf(l.design.envelope).flap,
+                  clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
+                }"
+                aria-hidden="true"
+              />
+              <img
+                v-if="sealSrc(l.design.seal)"
+                :src="sealSrc(l.design.seal)!"
+                alt=""
+                aria-hidden="true"
+                class="absolute left-1/2 top-1/2 size-5 -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]"
+              >
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
