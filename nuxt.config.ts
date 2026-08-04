@@ -16,6 +16,7 @@ export default defineNuxtConfig({
 
   colorMode: {
     preference: 'light',
+    storageKey: 'luckytinfs-color-mode',
   },
 
   runtimeConfig: {
