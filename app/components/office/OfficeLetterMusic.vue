@@ -53,16 +53,14 @@ watch(
 <template>
   <div
     v-if="resource"
-    class="flex items-start gap-3 rounded-xl border border-neutral-200 bg-white/70 px-3 py-2.5"
+    class="flex items-center gap-3 border-t border-neutral-200 pt-3"
   >
-    <div class="grid size-9 shrink-0 place-items-center rounded-lg bg-red-50 text-red-600">
-      <UIcon name="i-lucide-music-2" class="size-4" />
-    </div>
+    <UIcon name="i-lucide-music-2" class="size-4 shrink-0 text-neutral-400" />
     <div class="min-w-0 flex-1">
-      <p class="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-500">
+      <p class="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-600">
         Song choice
       </p>
-      <p v-if="metaPending" class="truncate text-sm text-neutral-500">
+      <p v-if="metaPending" class="truncate text-sm text-neutral-600">
         Loading title…
       </p>
       <template v-else>

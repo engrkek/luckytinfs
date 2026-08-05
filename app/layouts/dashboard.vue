@@ -11,14 +11,18 @@ useHead({
   },
   titleTemplate: '%s // LTFS Office',
 })
+
+const isDesktop = useMediaQuery('(min-width: 768px)', { ssrWidth: 767 })
 </script>
 
 <template>
-  <div class="w-full h-dvh overflow-y-hidden">
-    <div class="h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto">
+  <div class="w-full h-dvh flex flex-1 overflow-y-hidden" :style="{ '--ui-radius': '0rem' }">
+    <OfficeSidebar v-if="isDesktop" />
+
+    <div class="flex-1 h-[calc(100dvh-72px)] xl:h-dvh overflow-x-hidden overflow-y-auto">
       <slot />
     </div>
 
-    <OfficeTabs />
+    <OfficeTabs v-if="!isDesktop" />
   </div>
 </template>

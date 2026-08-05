@@ -6,6 +6,8 @@
 @source '../../../shared';
 
 @theme static {
+  --color-paper: #f7f4ee;
+
   --font-sans: 'Inter', sans-serif;
   --font-display: 'Fraunces', serif;
   --font-type: 'Courier Prime', monospace;
@@ -50,7 +52,26 @@
   --color-maloi-900: #292500;
   --color-maloi-950: #141200;
 
+  --color-bini-50: #ebf8fa;
+  --color-bini-100: #d7f2f4;
+  --color-bini-200: #b2e5eb;
+  --color-bini-300: #8ad8e0;
+  --color-bini-400: #63cbd6;
+  --color-bini-500: #39bdcb;
+  --color-bini-600: #2c9aa6;
+  --color-bini-700: #21747d;
+  --color-bini-800: #154b51;
+  --color-bini-900: #0b2628;
+  --color-bini-950: #051314;
+
   --animate-shake: shake 0.45s ease;
+}
+
+@layer base {
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 @utility bg-gingham-yellow {

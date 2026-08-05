@@ -136,9 +136,9 @@ export const RECIPIENT_THEME: Record<LetterRecipient, {
   },
   bini: {
     label: 'BINI',
-    accent: '#c45c8a',
-    soft: '#fceef4',
-    deep: '#4a1f33',
+    accent: 'var(--color-bini-400)',
+    soft: 'var(--color-bini-50)',
+    deep: 'var(--color-bini-900)',
     gingham: 'bg-gingham-yellow-blue',
     postmark: 'FOR BINI',
     toLine: 'For BINI 🌸',
