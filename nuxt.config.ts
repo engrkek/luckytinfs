@@ -19,6 +19,10 @@ export default defineNuxtConfig({
     storageKey: 'luckytinfs-color-mode',
   },
 
+  ui: {
+    prose: true,
+  },
+
   runtimeConfig: {
     // Server-only — printed on each member's private mailbox QR as ?key=
     memberMailboxKeys: {
@@ -104,5 +108,9 @@ export default defineNuxtConfig({
       includeCustomCollections: true,
     },
     provider: 'iconify',
+  },
+
+  image: {
+    provider: 'none',
   },
 })
