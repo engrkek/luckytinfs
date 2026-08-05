@@ -3,6 +3,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 
 const tabs: NavigationMenuItem[] = [
   { icon: 'ph:star-four-fill', label: 'Home', to: '/office' },
+  { icon: 'ph:balloon', label: 'Events', to: '/office/events' },
   { icon: 'ph:folder', label: 'Letters', to: '/office/letters' },
 ]
 </script>

@@ -80,7 +80,7 @@ function saveNotes(id: string, current: string | null) {
 <template>
   <UContainer class="max-w-3xl py-6 space-y-4">
     <div class="space-y-2">
-      <h1 class="font-display text-3xl text-primary-100 tracking-tight">
+      <h1 class="font-display text-3xl text-primary-100 tracking-tighter">
         the letter queue
       </h1>
     </div>
