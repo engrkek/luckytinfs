@@ -1,15 +1,16 @@
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { nanoid } from 'nanoid'
-import { campaign } from './campaign'
+import { event } from './event'
 
-// Donation perk tier: earned when a donor's cumulative approved donations
-// to the campaign reach minAmount. Always computed, never stored.
-export const tier = sqliteTable('tier', {
+// Event ticket tier: a fixed-price registration option, independent of
+// campaign donation tiers. Unlike tier.minAmount (a cumulative threshold),
+// price here is charged in full per registration.
+export const eventTier = sqliteTable('event_tier', {
   id: text().primaryKey().$default(() => nanoid()).notNull(),
-  campaignId: text().references(() => campaign.id).notNull(),
+  eventId: text().references(() => event.id).notNull(),
   name: text().notNull(), // e.g. "Tier 1"
-  minAmount: integer().notNull(), // in cents
-  items: text({ mode: 'json' }).$type<string[]>().notNull(), // e.g. ["1x Unseen photocard", "1x Handbanner"]
+  price: integer().notNull(), // in cents
+  items: text({ mode: 'json' }).$type<string[]>().notNull(),
   imageUrl: text(),
   createdAt: integer({ mode: 'timestamp_ms' })
     .$default(() => new Date())

@@ -6,6 +6,18 @@ export default defineAppConfig({
       neutral: 'neutral',
     },
 
+    badge: {
+      slots: {
+        base: '[--ui-radius:0.5rem]',
+      },
+    },
+
+    empty: {
+      slots: {
+        title: 'font-display font-normal text-secondary-950',
+      },
+    },
+
     navigationMenu: {
       variants: {
         active: {
@@ -25,6 +37,12 @@ export default defineAppConfig({
           },
         },
       ],
+    },
+
+    pageCard: {
+      slots: {
+        container: 'gap-y-2 sm:p-4',
+      },
     },
 
     sidebar: {
