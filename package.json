@@ -29,22 +29,22 @@
     "drizzle-orm": "^0.45.2",
     "motion-v": "^2.3.0",
     "nanoid": "^5.1.16",
-    "nuxt": "^4.5.1",
+    "nuxt": "^4.5.2",
     "tailwindcss": "^4.3.3",
     "vue-advanced-cropper": "^2.8.9",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^9.2.0",
-    "@iconify-json/lucide": "^1.2.121",
+    "@antfu/eslint-config": "^9.3.0",
+    "@iconify-json/lucide": "^1.2.122",
     "@iconify-json/material-symbols": "^1.2.88",
     "@iconify-json/ph": "^1.2.2",
-    "@nuxt/eslint": "^1.16.0",
+    "@nuxt/eslint": "^1.17.0",
     "@vueuse/core": "^14.4.0",
     "@vueuse/nuxt": "^14.4.0",
-    "eslint": "^10.8.0",
+    "eslint": "^10.8.1",
     "typescript": "^6.0.3",
     "unstorage": "^1.17.5",
-    "wrangler": "^4.118.0"
+    "wrangler": "^4.120.0"
   }
 }
