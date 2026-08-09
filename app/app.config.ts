@@ -14,7 +14,7 @@ export default defineAppConfig({
 
     empty: {
       slots: {
-        title: 'font-display font-normal text-secondary-950',
+        title: 'font-display font-normal text-secondary-950 tracking-tighter',
       },
     },
 
@@ -22,8 +22,8 @@ export default defineAppConfig({
       variants: {
         active: {
           false: {
-            link: 'text-secondary-300',
-            linkLeadingIcon: 'text-secondary-300',
+            link: 'border-l-2 border-transparent text-primary-200',
+            linkLeadingIcon: 'text-primary-200',
           },
         },
       },
@@ -33,7 +33,7 @@ export default defineAppConfig({
           active: true,
           highlight: false,
           class: {
-            link: 'before:bg-secondary-900',
+            link: 'border-primary before:bg-primary/10',
           },
         },
       ],
