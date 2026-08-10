@@ -25,9 +25,8 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     // Server-only — printed on each member's private mailbox QR as ?key=
+    // maloi/jhoanna have no key: only handed the bare link, so their mailbox unlocks without one
     memberMailboxKeys: {
-      maloi: '_oSkd2B6nVyk5LB5d8lTDb_Y',
-      jhoanna: '1aqlwGGP-h6Qfx8hdgEP-XWA',
       bini: 'SuIGnhhSexYZ_MYbRyXxlL3C',
     },
     public: {

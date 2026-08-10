@@ -36,10 +36,12 @@ export default defineEventHandler(async (event) => {
 
   const recipient = recipientRaw ? recipientRaw as LetterRecipient : null
 
-  // Member's own printed QR key — unlocks private letters for that recipient only
+  // Member's own printed QR key — unlocks private letters for that recipient only.
+  // Recipients with no key configured are unlocked by link alone (no QR was handed out).
   const keyRaw = typeof query.key === 'string' ? query.key : ''
   const memberKeys = useRuntimeConfig(event).memberMailboxKeys as Record<string, string>
-  const isMember = Boolean(recipient) && keyRaw.length > 0 && keyRaw === memberKeys[recipient!]
+  const requiredKey = recipient ? memberKeys[recipient] : undefined
+  const isMember = Boolean(recipient) && (!requiredKey || keyRaw === requiredKey)
 
   const fetchApproved = (stop?: string) => db
     .select({
