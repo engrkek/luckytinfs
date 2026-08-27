@@ -19,8 +19,6 @@ useSeoMeta({
 
 <template>
   <div class="min-h-dvh flex flex-col">
-    <LandingHeader />
-
     <section class="relative isolate flex flex-1 flex-col bg-secondary-900 bg-[url('/images/textures/06.jpg')] bg-blend-screen bg-cover bg-center overflow-hidden">
       <!-- Lyrics wallpaper -->
       <div class="select-none absolute inset-0 -z-10 font-script text-2xl xl:text-4xl text-justify opacity-15">
