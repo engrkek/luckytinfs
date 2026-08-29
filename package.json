@@ -12,7 +12,8 @@
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "deploy": "wrangler deploy --env=preview"
   },
   "dependencies": {
     "@libsql/client": "^0.17.4",
