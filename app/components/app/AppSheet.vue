@@ -16,6 +16,7 @@ const isDesktop = useMediaQuery('(min-width: 768px)', { ssrWidth: 767 })
     :title
     :description
     :close="{ onClick: () => emit('close', false) }"
+    class="max-w-xl"
   >
     <template #header>
       <slot name="header" />
@@ -35,7 +36,6 @@ const isDesktop = useMediaQuery('(min-width: 768px)', { ssrWidth: 767 })
     v-model:open="open"
     :title
     :description
-    :close="{ onClick: () => emit('close', false) }"
   >
     <template #header>
       <slot name="header" />

@@ -1,13 +1,18 @@
 <script setup lang="ts">
+const colorMode = useColorMode()
+const color = computed(() => colorMode.value === 'dark' ? '#171717' : 'white')
+
 useHead({
   meta: [
-    { key: 'theme-color', name: 'theme-color', content: '#0f2038' },
+    { charset: 'utf-8' },
+    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+    { key: 'theme-color', name: 'theme-color', content: color },
   ],
   htmlAttrs: {
     class: 'scroll-smooth',
   },
   bodyAttrs: {
-    class: 'overflow-x-hidden bg-secondary-950 text-primary-100 selection:bg-primary-200 selection:text-secondary-950',
+    class: 'overflow-x-hidden font-medium',
   },
   titleTemplate: '%s // LTFS Office',
 })
@@ -16,7 +21,7 @@ const isDesktop = useMediaQuery('(min-width: 768px)', { ssrWidth: 767 })
 </script>
 
 <template>
-  <div class="w-full h-dvh flex flex-1 overflow-y-hidden" :style="{ '--ui-radius': '0rem' }">
+  <div class="w-full h-dvh flex flex-1 overflow-y-hidden" style="--ui-radius: 0.625rem">
     <OfficeSidebar v-if="isDesktop" />
 
     <div class="flex-1 h-[calc(100dvh-72px)] xl:h-dvh overflow-x-hidden overflow-y-auto">
