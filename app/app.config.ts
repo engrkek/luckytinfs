@@ -6,37 +6,16 @@ export default defineAppConfig({
       neutral: 'neutral',
     },
 
-    badge: {
+    drawer: {
       slots: {
-        base: '[--ui-radius:0.5rem]',
+        title: 'font-display font-bold text-2xl tracking-tighter',
       },
     },
 
     empty: {
       slots: {
-        title: 'font-display font-normal text-secondary-950 tracking-tighter',
+        title: 'font-display font-normal tracking-tighter',
       },
-    },
-
-    navigationMenu: {
-      variants: {
-        active: {
-          false: {
-            link: 'border-l-2 border-transparent text-primary-200',
-            linkLeadingIcon: 'text-primary-200',
-          },
-        },
-      },
-      compoundVariants: [
-        {
-          variant: 'pill',
-          active: true,
-          highlight: false,
-          class: {
-            link: 'border-primary before:bg-primary/10',
-          },
-        },
-      ],
     },
 
     pageCard: {
@@ -45,24 +24,10 @@ export default defineAppConfig({
       },
     },
 
-    sidebar: {
-      variants: {
-        side: {
-          left: {
-            container: 'inset-s-0 border-e border-secondary-900',
-            rail: 'inset-e-0 translate-x-1/2 rtl:-translate-x-1/2',
-          },
-        },
+    slideover: {
+      slots: {
+        title: 'font-display font-bold text-2xl tracking-tighter',
       },
-      compoundVariants: [
-        {
-          side: 'left',
-          collapsible: 'none',
-          class: {
-            root: 'border-e border-secondary-800',
-          },
-        },
-      ],
     },
   },
 })
