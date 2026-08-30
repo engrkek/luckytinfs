@@ -9,7 +9,7 @@ export const tier = sqliteTable('tier', {
   campaignId: text().references(() => campaign.id).notNull(),
   name: text().notNull(), // e.g. "Tier 1"
   minAmount: integer().notNull(), // in cents
-  items: text({ mode: 'json' }).$type<string[]>().notNull(), // e.g. ["Unseen photocard", "Handbanner"]
+  items: text({ mode: 'json' }).$type<string[]>().notNull(), // e.g. ["1x Unseen photocard", "1x Handbanner"]
   imageUrl: text(),
   createdAt: integer({ mode: 'timestamp_ms' })
     .$default(() => new Date())
