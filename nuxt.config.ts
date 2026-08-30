@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxt/image',
     '@nuxthub/core',
-    '@onmax/nuxt-better-auth',
+    '@nuxtjs/better-auth',
     '@pinia/nuxt',
     '@pinia/colada-nuxt',
     '@vueuse/nuxt',
@@ -13,10 +13,6 @@ export default defineNuxtConfig({
   ],
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
-
-  colorMode: {
-    preference: 'light',
-  },
 
   runtimeConfig: {
     public: {
