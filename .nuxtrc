@@ -1,2 +1,3 @@
 setups.nuxt-skill-hub="0.1.1"
 setups.@onmax/nuxt-better-auth="0.0.4"
+setups.@nuxtjs/better-auth="0.2.2"

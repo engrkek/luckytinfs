@@ -22,6 +22,20 @@
       "when": 1784119617817,
       "tag": "0002_talented_surge",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1788045896440,
+      "tag": "0003_outstanding_mad_thinker",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1788045997178,
+      "tag": "0004_public_punisher",
+      "breakpoints": true
     }
   ]
 }
