@@ -1,38 +1,77 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
+@import './letters.css';
+
+/* Letter font class names live in shared/ (FONT_STYLES) — scan so utilities emit */
+@source '../../../shared';
 
 @theme static {
-  --font-sans: 'General Sans', sans-serif;
-  --font-display: 'Clash Display', sans-serif;
+  --color-paper: #f7f4ee;
+
+  --font-sans: 'Geist', sans-serif;
+  --font-display: 'Fraunces', serif;
   --font-type: 'Courier Prime', monospace;
   --font-hand: 'Playpen Sans', cursive;
   --font-script: 'Nice Gourmet Script Trial', cursive;
+  /* Family must match Nuxt local slug (filename strips trailing .Noncommercial) */
+  --font-casual: 'A.Casual.Handwritten.Pen', cursive;
+  --font-seine: 'Au Bord de la Seine', cursive;
+  --font-crayon: 'DK Crayon Crumble', cursive;
+  --font-bloom: 'Elegant Bloom', cursive;
+  --font-handflair: 'Handflair', cursive;
+  --font-lazy: 'Lazy Dog', cursive;
+  --font-jardin: 'Le Jardin du Bonheur', cursive;
+  --font-privilege: 'Privilege People', cursive;
+  --font-salmon: 'Salmon Bake', cursive;
+  --font-summer: 'Summer Nyumer', cursive;
+  --font-nanti: 'Tentang Nanti Demo', cursive;
 
-  --color-maloi-50: #fefaec;
-  --color-maloi-100: #fdf5d8;
-  --color-maloi-200: #fbecb2;
-  --color-maloi-300: #f9e390;
-  --color-maloi-400: #f7da69;
-  --color-maloi-500: #f5d042;
-  --color-maloi-600: #edbf0d;
-  --color-maloi-700: #b39009;
-  --color-maloi-800: #745d06;
-  --color-maloi-900: #3a2f03;
-  --color-maloi-950: #1d1702;
+  --font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 
-  --color-jhoanna-50: #dbe1fa;
-  --color-jhoanna-100: #b2bff5;
-  --color-jhoanna-200: #6a83ec;
-  --color-jhoanna-300: #1d43e2;
-  --color-jhoanna-400: #142d9a;
-  --color-jhoanna-500: #0a174e;
-  --color-jhoanna-600: #08133f;
-  --color-jhoanna-700: #060d2d;
-  --color-jhoanna-800: #040920;
-  --color-jhoanna-900: #02040e;
-  --color-jhoanna-950: #010309;
+  --color-jhoanna-50: #eff4fb;
+  --color-jhoanna-100: #dfe8f6;
+  --color-jhoanna-200: #bfd1ee;
+  --color-jhoanna-300: #9fbbe5;
+  --color-jhoanna-400: #7fa4dc;
+  --color-jhoanna-500: #5f8dd3;
+  --color-jhoanna-600: #3f76cb;
+  --color-jhoanna-700: #3063b0;
+  --color-jhoanna-800: #275190;
+  --color-jhoanna-900: #1f4072;
+  --color-jhoanna-950: #0f2038;
+
+  --color-maloi-50: #fff9c2;
+  --color-maloi-100: #fff384;
+  --color-maloi-200: #ffef57;
+  --color-maloi-300: #ffeb2e;
+  --color-maloi-400: #ffe705;
+  --color-maloi-500: #d6c100;
+  --color-maloi-600: #ad9c00;
+  --color-maloi-700: #807300;
+  --color-maloi-800: #574e00;
+  --color-maloi-900: #292500;
+  --color-maloi-950: #141200;
+
+  --color-bini-50: #ebf8fa;
+  --color-bini-100: #d7f2f4;
+  --color-bini-200: #b2e5eb;
+  --color-bini-300: #8ad8e0;
+  --color-bini-400: #63cbd6;
+  --color-bini-500: #39bdcb;
+  --color-bini-600: #2c9aa6;
+  --color-bini-700: #21747d;
+  --color-bini-800: #154b51;
+  --color-bini-900: #0b2628;
+  --color-bini-950: #051314;
 
   --animate-shake: shake 0.45s ease;
+}
+
+@layer base {
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 @utility bg-gingham-yellow {

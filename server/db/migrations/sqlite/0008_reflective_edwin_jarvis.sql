@@ -1,3 +1,6 @@
+DROP TABLE `event_registration`;--> statement-breakpoint
+DROP TABLE `event_tier`;--> statement-breakpoint
+DROP TABLE `event`;--> statement-breakpoint
 CREATE TABLE `event` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,

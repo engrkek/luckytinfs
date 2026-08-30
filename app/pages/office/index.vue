@@ -1,7 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+useHead({ title: 'Home' })
+</script>
 
 <template>
-  <div>
+  <UContainer class="max-w-3xl py-6 space-y-5">
     Page: office/index
-  </div>
+  </UContainer>
 </template>
