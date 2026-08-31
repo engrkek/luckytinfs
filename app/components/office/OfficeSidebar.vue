@@ -47,6 +47,7 @@ const userMenu: DropdownMenuItem[] = [
           :avatar="{ src: user.image ?? '', alt: user.name }"
           :name="user.name"
           :description="user.role ?? undefined"
+          :ui="{ description: 'capitalize' }"
         />
       </UDropdownMenu>
     </template>

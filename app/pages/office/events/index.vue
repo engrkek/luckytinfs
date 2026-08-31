@@ -6,6 +6,7 @@ useHead({ title: 'Events' })
 
 const overlay = useOverlay()
 const eventForm = overlay.create(LazyOfficeEventForm)
+const isDesktop = useMediaQuery('(min-width: 768px)', { ssrWidth: 767 })
 
 const { data: events } = useFetch<CEvent[]>('/api/office/events', { key: 'office-events' })
 </script>
@@ -27,7 +28,7 @@ const { data: events } = useFetch<CEvent[]>('/api/office/events', { key: 'office
         </div>
       </div>
 
-      <UCard :ui="{ body: 'p-0 lg:p-0' }">
+      <UCard v-if="isDesktop" :ui="{ body: 'p-0 lg:p-0' }">
         <div class="flex flex-wrap items-center gap-2 p-3">
           <UInput icon="ph:magnifying-glass" placeholder="Search events..." class="mr-auto" />
           <UDropdownMenu
@@ -43,6 +44,31 @@ const { data: events } = useFetch<CEvent[]>('/api/office/events', { key: 'office
 
         <OfficeEventTable v-if="events" :events="events" />
       </UCard>
+
+      <template v-else>
+        <div v-if="events && events.length > 0" class="grid gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <UInput icon="ph:magnifying-glass" placeholder="Search events..." class="mr-auto" />
+            <UDropdownMenu
+              :items="[
+                { icon: 'ph:printer', label: 'Print' },
+                { icon: 'ph:file-csv', label: 'CSV' },
+                { icon: 'ph:copy', label: 'Copy' },
+              ]"
+            >
+              <UButton label="Export" trailing-icon="ph:caret-down" color="neutral" variant="soft" />
+            </UDropdownMenu>
+          </div>
+
+          <UPageCard v-for="event in events" :key="event.id" :to="`/office/events/${event.id}`">
+            <h2 class="font-display font-bold text-xl tracking-tighter">
+              {{ event.name }}
+            </h2>
+          </UPageCard>
+        </div>
+
+        <UEmpty v-else icon="ph:calendar-blank" title="No events yet" description="Create one to start managing an event." />
+      </template>
     </template>
   </UDashboardPanel>
 </template>
