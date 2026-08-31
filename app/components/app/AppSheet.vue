@@ -1,9 +1,9 @@
 <script setup lang="ts">
 defineProps<{
-  title: string
-  description: string
+  title?: string
+  description?: string
 }>()
-const emit = defineEmits<{ close: [boolean] }>()
+
 const open = defineModel<boolean>('open', { default: false })
 
 const isDesktop = useMediaQuery('(min-width: 768px)', { ssrWidth: 767 })
@@ -15,8 +15,7 @@ const isDesktop = useMediaQuery('(min-width: 768px)', { ssrWidth: 767 })
     v-model:open="open"
     :title
     :description
-    :close="{ onClick: () => emit('close', false) }"
-    class="max-w-xl"
+    class="max-w-lg"
   >
     <template #header>
       <slot name="header" />
