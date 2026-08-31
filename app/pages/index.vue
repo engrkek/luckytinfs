@@ -27,12 +27,14 @@ useSeoMeta({
   <div>
     <LandingHeader />
 
-    <section class="bg-gingham-yellow text-primary">
+    <section class="bg-secondary-100 text-primary">
       <UContainer class="max-w-7xl py-20">
         <h1 class="font-display font-bold text-5xl lg:text-7xl tracking-tight">
-          Para kay <span class="text-secondary-600">Lucky</span> at Tintin
+          Para kay <span class="text-secondary-600">Lucky</span> at <div class="text-primary-400">
+            Tintin
+          </div>
         </h1>
-        <p class="text-xl text-primary-400">
+        <p class="text-xl">
           The official fan support team for BINI Maloi & BINI Jhoanna.
         </p>
       </UContainer>
@@ -46,13 +48,11 @@ useSeoMeta({
       </UContainer>
     </section>
 
-    <section class="bg-gingham-blue">
+    <section class="bg-primary">
       <UContainer class="max-w-7xl py-20">
-        <UCard>
-          <h2 class="font-display font-bold text-3xl lg:text-5xl tracking-tight">
-            What we've done so far
-          </h2>
-        </UCard>
+        <h2 class="font-display font-bold text-3xl lg:text-5xl tracking-tight">
+          What we've done so far
+        </h2>
       </UContainer>
     </section>
 
