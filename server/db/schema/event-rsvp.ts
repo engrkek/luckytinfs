@@ -9,6 +9,7 @@ export const eventRsvp = sqliteTable('event_rsvp', {
   fullName: text().notNull(),
   nickname: text(),
   email: text(),
+  contactNumber: text(),
   socialPlatform: text(),
   socialHandle: text(),
   companions: text({ mode: 'json' }).$type<{ name: string, relationship: string }[]>(), // json for future fields per companion

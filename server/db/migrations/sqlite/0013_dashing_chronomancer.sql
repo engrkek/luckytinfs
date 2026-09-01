@@ -1,0 +1,1 @@
+ALTER TABLE `event_rsvp` ADD `contact_number` text;

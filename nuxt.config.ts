@@ -11,6 +11,13 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     'motion-v/nuxt',
   ],
+
+  $production: {
+    image: {
+      provider: 'cloudflare',
+    },
+  },
+
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
 
@@ -109,7 +116,5 @@ export default defineNuxtConfig({
     provider: 'iconify',
   },
 
-  image: {
-    provider: 'none',
-  },
+  image: { provider: 'none' },
 })

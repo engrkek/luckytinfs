@@ -6,10 +6,12 @@ const postSchema = z.object({
   fullName: z.string().min(1),
   nickname: z.string().optional(),
   email: z.email().optional(),
+  contactNumber: z.string().optional(),
   socialPlatform: z.string().optional(),
   socialHandle: z.string().optional(),
   regFee: z.number().int().nonnegative().optional(),
   refNo: z.string().optional(),
+  receiptUrl: z.string().optional(),
   notes: z.string().optional(),
   status: z.enum(['for_review', 'approved', 'confirmed', 'invalid']).optional(),
 })
