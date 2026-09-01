@@ -42,7 +42,6 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^9.3.0",
-    "@iconify-json/lucide": "^1.2.127",
     "@iconify-json/material-symbols": "^1.2.90",
     "@iconify-json/ph": "^1.2.2",
     "@nuxt/eslint": "^1.17.0",

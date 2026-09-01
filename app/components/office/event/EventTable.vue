@@ -4,38 +4,9 @@ import type { CEvent } from '#shared/types'
 
 defineProps<{ events: CEvent[] }>()
 
-const UButton = resolveComponent('UButton')
-
-function sortableColumn(accessorKey: keyof CEvent, label: string): TableColumn<CEvent> {
-  return {
-    accessorKey,
-    header: ({ column }) => {
-      const isSorted = column.getIsSorted()
-
-      return h(UButton, {
-        variant: 'link',
-        label,
-        trailingIcon: isSorted
-          ? isSorted === 'asc'
-            ? 'ph:arrow-up'
-            : 'ph:arrow-down'
-          : 'ph:arrows-down-up',
-        size: 'sm',
-        ui: {
-          trailingIcon: 'ml-auto',
-        },
-        class: 'w-full font-bold',
-        onClick: () => column.toggleSorting(),
-      })
-    },
-  }
-}
-
 const columns: TableColumn<CEvent>[] = [
-  {
-    ...sortableColumn('name', 'Name'),
-  },
-  sortableColumn('capacity', 'Capacity'),
+  sortableColumn<CEvent>('name', 'Name'),
+  sortableColumn<CEvent>('capacity', 'Capacity'),
 ]
 
 function onSelect(e: Event, row: TableRow<CEvent>) {

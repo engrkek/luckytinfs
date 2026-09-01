@@ -30,13 +30,14 @@ const { data: events } = useFetch<CEvent[]>('/api/office/events', { key: 'office
 
       <UCard v-if="isDesktop" :ui="{ body: 'p-0 lg:p-0' }">
         <div class="flex flex-wrap items-center gap-2 p-3">
-          <UInput icon="ph:magnifying-glass" placeholder="Search events..." class="mr-auto" />
+          <UInput icon="ph:magnifying-glass" placeholder="Search events..." class="flex-1 min-w-60 lg:max-w-60" />
           <UDropdownMenu
             :items="[
               { icon: 'ph:printer', label: 'Print' },
               { icon: 'ph:file-csv', label: 'CSV' },
               { icon: 'ph:copy', label: 'Copy' },
             ]"
+            class="lg:ml-auto"
           >
             <UButton label="Export" trailing-icon="ph:caret-down" color="neutral" variant="soft" />
           </UDropdownMenu>
@@ -48,13 +49,14 @@ const { data: events } = useFetch<CEvent[]>('/api/office/events', { key: 'office
       <template v-else>
         <div v-if="events && events.length > 0" class="grid gap-2">
           <div class="flex flex-wrap items-center gap-2">
-            <UInput icon="ph:magnifying-glass" placeholder="Search events..." class="mr-auto" />
+            <UInput icon="ph:magnifying-glass" placeholder="Search events..." class="flex-1 min-w-60 lg:max-w-60" />
             <UDropdownMenu
               :items="[
                 { icon: 'ph:printer', label: 'Print' },
                 { icon: 'ph:file-csv', label: 'CSV' },
                 { icon: 'ph:copy', label: 'Copy' },
               ]"
+              class="lg:ml-auto"
             >
               <UButton label="Export" trailing-icon="ph:caret-down" color="neutral" variant="soft" />
             </UDropdownMenu>

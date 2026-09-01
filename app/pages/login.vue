@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import type { ButtonProps } from '@nuxt/ui'
 
+definePageMeta({
+  colorMode: 'light',
+})
+
 useHead({
   meta: [
-    { key: 'theme-color', name: 'theme-color', content: '#1f4072' },
+    { charset: 'utf-8' },
+    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+    { key: 'theme-color', name: 'theme-color', content: '#0a174e' },
   ],
   bodyAttrs: {
-    class: 'overflow-x-hidden bg-secondary-900 text-primary-100 selection:bg-primary-300 selection:text-secondary-950',
+    class: 'overflow-x-hidden font-medium bg-primary text-secondary selection:bg-secondary selection:text-primary',
   },
 })
 
@@ -33,7 +39,7 @@ const providers: ButtonProps[] = [{
   <UContainer class="max-w-md min-h-dvh flex flex-col items-center justify-center gap-8">
     <NuxtImg src="/images/logos/logo-square-white.png" class="size-40" />
 
-    <div class="bg-linear-to-br from-primary-50 to-primary-100 px-6 py-5 drop-shadow-2xl">
+    <UCard>
       <UAuthForm
         :providers
         icon="ph:lock"
@@ -49,6 +55,6 @@ const providers: ButtonProps[] = [{
           By signing in, you agree to our <ULink to="/" class="text-primary font-medium">Terms of Service</ULink>.
         </template>
       </UAuthForm>
-    </div>
+    </UCard>
   </UContainer>
 </template>

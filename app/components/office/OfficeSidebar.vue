@@ -17,6 +17,8 @@ const userMenu: DropdownMenuItem[] = [
 
 <template>
   <USidebar
+    collapsible="icon"
+    variant="floating"
     :ui="{
       container: 'h-full',
       inner: 'bg-muted/75 divide-transparent',
@@ -34,9 +36,6 @@ const userMenu: DropdownMenuItem[] = [
       <UNavigationMenu
         :items="tabs"
         orientation="vertical"
-        :ui="{
-          link: 'px-4 py-3',
-        }"
       />
     </template>
 
