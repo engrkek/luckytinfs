@@ -63,9 +63,9 @@ const statuses: SelectItem[] = [
 <template>
   <UDashboardPanel :id="`event-${id}`">
     <template v-if="event" #body>
-      <div class="flex flex-col lg:flex-row lg:items-center gap-2">
-        <UBreadcrumb :items="breadcrumbs" />
+      <UBreadcrumb :items="breadcrumbs" />
 
+      <div class="flex flex-col lg:flex-row lg:items-center gap-2">
         <div>
           <div class="flex flex-wrap items-center gap-2">
             <h1 class="font-display font-bold text-2xl tracking-tighter text-pretty">
@@ -79,7 +79,7 @@ const statuses: SelectItem[] = [
           </div>
         </div>
 
-        <div class="lg:ml-auto flex flex-wrap items-center gap-2">
+        <div class="lg:ml-auto flex flex-wrap items-center lg:justify-end gap-2">
           <UButton
             icon="ph:pencil"
             label="Edit event"
@@ -118,10 +118,10 @@ const statuses: SelectItem[] = [
         <div class="flex flex-wrap items-center gap-2 p-3">
           <UInput icon="ph:magnifying-glass" placeholder="Search registration..." class="flex-1 min-w-60 lg:max-w-60" />
 
-          <UButton icon="ph:plus" label="Add registration" class="lg:ml-auto" @click="rsvpForm.open({ event })" />
+          <UButton icon="ph:plus" label="Add registration" class="lg:ml-auto" @click="rsvpForm.open({ type: 'new', event })" />
           <USelect v-model="status" :items="statuses" value-key="value" />
         </div>
-        <UTable :data="rsvps" empty="No registrations yet." />
+        <OfficeEventRsvpTable v-if="rsvps" :event="event" :rsvps="rsvps" />
       </UCard>
     </template>
   </UDashboardPanel>
