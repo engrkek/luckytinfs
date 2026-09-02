@@ -1,9 +1,10 @@
+shellEmulator: true
+
+trustPolicy: false
+
 allowBuilds:
   '@parcel/watcher': false
-  '@prisma/client': false
-  '@prisma/engines': false
   esbuild: false
-  prisma: false
   sharp: true
   unrs-resolver: false
   vue-demi: false
