@@ -10,6 +10,7 @@ export default withNuxt(
     ignores: ['server/db/migrations/*'],
   }, {
     rules: {
+      'pnpm/yaml-enforce-settings': 'off',
       'no-console': 'off',
       'node/prefer-global/process': 'off',
       'vue/max-attributes-per-line': ['error', { singleline: 4 }],
