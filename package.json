@@ -12,7 +12,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "nuxt typecheck",
-    "deploy": "wrangler deploy --env=preview"
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "@nuxt/image": "2.0.0",
