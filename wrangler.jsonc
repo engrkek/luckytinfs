@@ -23,18 +23,5 @@
   ],
   "vars": {
     "NUXT_PUBLIC_SITE_URL": "https://luckytinfs.com"
-  },
-  "env": {
-    "preview": {
-      "routes": [
-        {
-          "pattern": "preview.luckytinfs.com",
-          "custom_domain": true
-        }
-      ],
-      "vars": {
-        "NUXT_PUBLIC_SITE_URL": "https://preview.luckytinfs.com"
-      }
-    }
   }
 }
