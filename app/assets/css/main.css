@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
+@import './letters.css';
+
+/* Letter font class names live in shared/ (FONT_STYLES) — scan so utilities emit */
+@source '../../../shared';
 
 @theme static {
   --color-paper: #f7f4ee;
@@ -8,7 +12,19 @@
   --font-display: 'Fraunces', serif;
   --font-type: 'Courier Prime', monospace;
   --font-hand: 'Playpen Sans', cursive;
-  --font-script: 'Cedarville Cursive', cursive;
+  --font-script: 'Nice Gourmet Script Trial', cursive;
+  /* Family must match Nuxt local slug (filename strips trailing .Noncommercial) */
+  --font-casual: 'A.Casual.Handwritten.Pen', cursive;
+  --font-seine: 'Au Bord de la Seine', cursive;
+  --font-crayon: 'DK Crayon Crumble', cursive;
+  --font-bloom: 'Elegant Bloom', cursive;
+  --font-handflair: 'Handflair', cursive;
+  --font-lazy: 'Lazy Dog', cursive;
+  --font-jardin: 'Le Jardin du Bonheur', cursive;
+  --font-privilege: 'Privilege People', cursive;
+  --font-salmon: 'Salmon Bake', cursive;
+  --font-summer: 'Summer Nyumer', cursive;
+  --font-nanti: 'Tentang Nanti Demo', cursive;
 
   --font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 
