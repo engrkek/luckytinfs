@@ -46,6 +46,6 @@
     "eslint": "^10.9.1",
     "typescript": "^6.0.3",
     "unstorage": "^1.17.5",
-    "wrangler": "^4.126.0"
+    "wrangler": "^4.127.1"
   }
 }
