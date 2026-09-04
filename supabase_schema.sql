@@ -49,7 +49,13 @@ for insert
 to anon, authenticated, public
 with check (true);
 
--- 5. Create admin Select policies (allows authorized admin users to read submissions)
+-- 5. Create Select policies
+create policy "Allow public anonymous selects on registrations"
+on public.block_screening_registrations
+for select
+to anon, authenticated, public
+using (true);
+
 create policy "Allow authenticated admins to read submissions"
 on public.block_screening_registrations
 for select

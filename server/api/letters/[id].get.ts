@@ -2,6 +2,7 @@ import type { PublicLetter } from '#shared/letters/public'
 import type { LetterDesign, LetterRecipient } from '#shared/letters/types'
 import { letter } from '@nuxthub/db/schema'
 import { and, eq } from 'drizzle-orm'
+
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
   if (!id) {

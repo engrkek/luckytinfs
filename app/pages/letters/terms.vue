@@ -32,9 +32,13 @@ useHead({
       <div class="mt-10 space-y-8 text-sm leading-relaxed text-[#5c4f35]/90">
         <p class="text-pretty">
           These terms cover
-          <strong class="font-medium text-[#2c2416]">Letters for Luckytin &amp; BINI</strong>
+          <strong class="font-medium text-[#2c2416]">
+            Letters for Luckytin &amp; BINI
+          </strong>
           (the “Service”), a free fan project run by
-          <strong class="font-medium text-[#2c2416]">Luckytin Fan Support</strong>.
+          <strong class="font-medium text-[#2c2416]">
+            Luckytin Fan Support
+          </strong>.
           By using the Service, you agree to them. If you don’t agree, please don’t send or use letters here.
         </p>
 
@@ -45,7 +49,9 @@ useHead({
           <p class="mt-2 text-pretty">
             This is an unofficial fan project by Lumities for Maloi, Jhoanna, BINI, and Blooms.
             It is
-            <strong class="font-medium text-[#2c2416]">not affiliated with, endorsed by, or connected to</strong>
+            <strong class="font-medium text-[#2c2416]">
+              not affiliated with, endorsed by, or connected to
+            </strong>
             BINI, Star Music, ABS-CBN, or any of their partners. Member names and related marks belong to their rightful owners.
           </p>
         </section>
@@ -98,7 +104,9 @@ useHead({
           </h2>
           <p class="mt-2 text-pretty">
             To keep the mailboxes fair, you may send
-            <strong class="font-medium text-[#2c2416]">one letter per mailbox per tour stop</strong>
+            <strong class="font-medium text-[#2c2416]">
+              one letter per mailbox per tour stop
+            </strong>
             from the same browser. Limits are enforced with an anonymous cookie — they are an honesty check, not a perfect identity system.
           </p>
         </section>
@@ -121,9 +129,13 @@ useHead({
           </h2>
           <p class="mt-2 text-pretty">
             Some stickers and characters (including
-            <strong class="font-medium text-[#2c2416]">Chicka</strong>
+            <strong class="font-medium text-[#2c2416]">
+              Chicka
+            </strong>
             of Jhoanna Fan Support and
-            <strong class="font-medium text-[#2c2416]">Luca</strong>
+            <strong class="font-medium text-[#2c2416]">
+              Luca
+            </strong>
             of Maloi Fan Support) are used with permission from those fan projects.
             That permission does not transfer ownership to you, and it does not mean those groups run this Service.
           </p>

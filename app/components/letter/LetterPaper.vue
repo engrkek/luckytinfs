@@ -74,7 +74,6 @@ const paperStyle = computed(() => {
   }
   return base
 })
-
 </script>
 
 <template>
