@@ -15,9 +15,9 @@ export default defineNuxtRouteMiddleware((to) => {
     return
 
   if (
-    to.path === '/letters' 
-    || to.path.startsWith('/letters/') 
-    || to.path === '/mailbox' 
+    to.path === '/letters'
+    || to.path.startsWith('/letters/')
+    || to.path === '/mailbox'
     || to.path.startsWith('/mailbox/')
     || to.path === '/blockscreening'
     || to.path.startsWith('/blockscreening/')

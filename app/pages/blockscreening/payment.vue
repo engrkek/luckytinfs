@@ -267,7 +267,7 @@ async function handleSubmit() {
                     ⚠️ Please note that your ticket purchase undergoes <strong>transaction verification</strong>.
                   </p>
                   <p>
-                    📩 Once verified and approved, an official <strong>Seat Confirmation &amp; E-Ticket Email</strong> will be dispatched to your inbox.
+                    📩 Once verified and approved, an official <strong>Confirmation &amp; E-Ticket Email</strong> will be dispatched to your inbox.
                   </p>
                   <p>
                     📌 Please allow up to 24–48 hours for the verification process.
@@ -286,9 +286,9 @@ async function handleSubmit() {
                 <div class="font-script text-xl text-secondary-700">
                   with love, LTFS 💛💙
                 </div>
-                <NuxtLink to="/blockscreening" class="font-type text-[10px] text-secondary-900/60 hover:text-secondary-900 underline uppercase tracking-wider">
+                <!-- <NuxtLink to="/blockscreening" class="font-type text-[10px] text-secondary-900/60 hover:text-secondary-900 underline uppercase tracking-wider">
                   Back to Registration
-                </NuxtLink>
+                </NuxtLink> -->
               </div>
             </div>
 
@@ -322,6 +322,71 @@ async function handleSubmit() {
                 alt="Kit Inclusions Reference Poster"
                 class="w-full h-auto object-cover rounded-lg shadow-inner"
               >
+            </div>
+
+            <!-- PAYMENT CHANNELS SECTION -->
+            <div class="mb-8 p-5 rounded-2xl border border-[#ebdcb3] bg-white/50 space-y-6 shadow-sm">
+              <div class="flex items-center gap-2 border-b border-[#ebdcb3] pb-2">
+                <UIcon name="ph:qr-code-bold" class="size-5 text-secondary-700" />
+                <h3 class="font-display text-lg font-bold text-secondary-900">
+                  Payment Channels
+                </h3>
+              </div>
+
+              <!-- Bank Transfer Channel -->
+              <div class="space-y-3">
+                <div class="flex items-center gap-1.5">
+                  <span class="inline-block size-2 rounded-full bg-secondary-700" />
+                  <h4 class="font-semibold text-sm text-secondary-900">
+                    Bank Transfer (GoTyme - Name: GGJ)
+                  </h4>
+                </div>
+                <div class="max-w-xs mx-auto bg-white p-3 rounded-xl border border-[#ebdcb3] shadow-inner text-center">
+                  <img
+                    src="/images/payment-bank-transfer.png"
+                    alt="GoTyme Bank Transfer QR"
+                    class="w-full h-auto object-contain rounded-lg"
+                  >
+                  <p class="text-[11px] text-secondary-700/80 font-medium mt-2">
+                    Scan via any InstaPay-supported banking app
+                  </p>
+                </div>
+              </div>
+
+              <!-- GCash Channels -->
+              <div class="space-y-3 pt-2 border-t border-[#ebdcb3]/60">
+                <div class="flex items-center gap-1.5">
+                  <span class="inline-block size-2 rounded-full bg-blue-600" />
+                  <h4 class="font-semibold text-sm text-secondary-900">
+                    GCash
+                  </h4>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- GCash QR 1 -->
+                  <div class="bg-white p-3 rounded-xl border border-[#ebdcb3] shadow-inner text-center flex flex-col justify-between">
+                    <img
+                      src="/images/payment-gcash-1.png"
+                      alt="GCash QR Code Option 1"
+                      class="w-full h-auto object-contain rounded-lg"
+                    >
+                    <p class="text-[11px] text-secondary-700/80 font-medium mt-2">
+                      GCash Channel 1 (Name: GGJ)
+                    </p>
+                  </div>
+
+                  <!-- GCash QR 2 -->
+                  <div class="bg-white p-3 rounded-xl border border-[#ebdcb3] shadow-inner text-center flex flex-col justify-between">
+                    <img
+                      src="/images/payment-gcash-2.png"
+                      alt="GCash QR Code Option 2"
+                      class="w-full h-auto object-contain rounded-lg"
+                    >
+                    <p class="text-[11px] text-secondary-700/80 font-medium mt-2">
+                      GCash Channel 2 (Name: PAT)
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <form class="space-y-6 text-sm" @submit.prevent="handleSubmit">
@@ -415,9 +480,9 @@ async function handleSubmit() {
 
               <!-- SUBMIT BUTTON -->
               <div class="pt-4 border-t border-[#ebdcb3] flex justify-between items-center gap-4">
-                <NuxtLink to="/blockscreening" class="text-secondary-600 hover:text-secondary-900 text-xs font-semibold uppercase tracking-wider underline">
+                <!-- <NuxtLink to="/blockscreening" class="text-secondary-600 hover:text-secondary-900 text-xs font-semibold uppercase tracking-wider underline">
                   Back to Register
-                </NuxtLink>
+                </NuxtLink> -->
 
                 <UButton
                   type="submit"

@@ -30,6 +30,10 @@ interface Registration {
   minorName: string
   relationship: string
   paid: boolean
+  paymentReference: string | null
+  paymentMode: string | null
+  paymentAmount?: number | null
+  hasPaymentEntry?: boolean
   createdAt: string
 }
 
@@ -117,7 +121,7 @@ const paymentFilter = ref('all')
 // Filtered Registrations
 const filteredRegistrations = computed(() => {
   return registrations.value.filter((r) => {
-    // 1. Text Search matches multiple fields
+    // 1. Text Search matches multiple fields including payment details
     const query = searchQuery.value.toLowerCase().trim()
     const textMatch = !query || [
       r.id,
@@ -128,6 +132,8 @@ const filteredRegistrations = computed(() => {
       r.primaryUsername,
       r.otherUsername,
       r.minorName,
+      r.paymentReference || '',
+      r.paymentMode || '',
     ].some(field => (field || '').toLowerCase().includes(query))
 
     // 2. Social Platform Filter
@@ -189,10 +195,19 @@ async function togglePaymentStatus(registration: Registration) {
   }
 }
 
+// Email Dispatch Tracking
+const sentPaymentEmails = ref<Set<string>>(new Set())
+const sentConfirmations = ref<Set<string>>(new Set())
+
 // Send Email Action
 const sendingEmailId = ref<string | null>(null)
 
 async function sendPaymentEmail(registration: Registration) {
+  if (registration.paid) {
+    showToast('Payment instructions email is blocked because this registrant has already paid.', 'error')
+    return
+  }
+
   // eslint-disable-next-line no-alert
   const confirmSend = confirm(`Send payment instructions email to ${registration.fullName} (${registration.email})?`)
   if (!confirmSend)
@@ -208,11 +223,13 @@ async function sendPaymentEmail(registration: Registration) {
         'X-Admin-Password': pwd,
       },
       body: {
+        id: registration.id,
         email: registration.email,
         nickname: registration.nickname,
         fullName: registration.fullName,
       },
     })
+    sentPaymentEmails.value.add(registration.id)
     showToast(`Payment instructions email dispatched to ${registration.email}!`, 'success')
   }
   catch (err: any) {
@@ -221,6 +238,51 @@ async function sendPaymentEmail(registration: Registration) {
   }
   finally {
     sendingEmailId.value = null
+  }
+}
+
+// Send Payment Confirmation Email Action
+const sendingConfirmationId = ref<string | null>(null)
+
+async function sendConfirmationEmail(registration: Registration) {
+  if (!registration.paid) {
+    showToast('Confirmation pass email is blocked because this registrant is not marked as PAID.', 'error')
+    return
+  }
+
+  // eslint-disable-next-line no-alert
+  const confirmSend = confirm(`Send verified payment confirmation & admission pass to ${registration.fullName} (${registration.email})?`)
+  if (!confirmSend)
+    return
+
+  sendingConfirmationId.value = registration.id
+  const pwd = enteredPassword.value || (import.meta.client ? sessionStorage.getItem('blockscreening_admin_password') : null) || ''
+
+  try {
+    await $fetch('/api/blockscreening/send-confirmation-email', {
+      method: 'POST',
+      headers: {
+        'X-Admin-Password': pwd,
+      },
+      body: {
+        id: registration.id,
+        email: registration.email,
+        fullName: registration.fullName,
+        nickname: registration.nickname,
+        childRegistration: registration.childRegistration,
+        minorName: registration.minorName,
+        relationship: registration.relationship,
+      },
+    })
+    sentConfirmations.value.add(registration.id)
+    showToast(`Payment confirmation pass dispatched to ${registration.email}!`, 'success')
+  }
+  catch (err: any) {
+    console.error('Failed to send confirmation email:', err)
+    showToast(err.data?.statusMessage || 'Failed to send confirmation email.', 'error')
+  }
+  finally {
+    sendingConfirmationId.value = null
   }
 }
 
@@ -244,6 +306,8 @@ function exportToCSV() {
     'Email Address',
     'Mobile Number',
     'Payment Status',
+    'Payment Mode',
+    'Payment Reference',
     'Primary Platform',
     'Primary Username',
     'Other Platform',
@@ -261,6 +325,8 @@ function exportToCSV() {
     r.email,
     r.mobile,
     r.paid ? 'PAID' : 'PENDING PAYMENT',
+    r.paymentMode || 'None',
+    r.paymentReference || 'None',
     r.primaryPlatform,
     r.primaryUsername,
     r.otherPlatform || 'None',
@@ -412,6 +478,17 @@ function formatDate(dateStr: string) {
               Registration Form
             </UButton>
           </NuxtLink>
+          <NuxtLink to="/office">
+            <UButton
+              color="secondary"
+              variant="subtle"
+              size="md"
+              icon="ph:star-four-fill"
+              class="rounded-lg"
+            >
+              LTFS Office Home
+            </UButton>
+          </NuxtLink>
         </div>
       </header>
 
@@ -504,7 +581,7 @@ function formatDate(dateStr: string) {
           <div class="relative w-full sm:max-w-xs">
             <UInput
               v-model="searchQuery"
-              placeholder="Search name, email, handle..."
+              placeholder="Search name, email, ref, handle..."
               size="md"
               icon="ph:magnifying-glass"
               class="w-full text-secondary-950 bg-white/5 border border-primary-100/10 rounded-lg text-sm"
@@ -601,7 +678,7 @@ function formatDate(dateStr: string) {
       </section>
 
       <!-- REGISTRATIONS CONTENT AREA -->
-      <section class="flex-1 flex flex-col min-h-[400px]">
+      <section class="flex-1 flex flex-col min-h-100">
         <!-- Dynamic loading overlay -->
         <div v-if="isPending" class="flex-1 flex flex-col items-center justify-center py-20 text-primary-200/50 gap-3">
           <UIcon name="ph:circle-notch" class="size-8 animate-spin text-primary-300" />
@@ -679,6 +756,12 @@ function formatDate(dateStr: string) {
                       Payment Status
                     </th>
                     <th class="py-4 px-4 font-semibold">
+                      Payment Mode
+                    </th>
+                    <th class="py-4 px-4 font-semibold">
+                      Payment Ref
+                    </th>
+                    <th class="py-4 px-4 font-semibold">
                       Registered At
                     </th>
                     <th class="py-4 px-4 font-semibold text-right">
@@ -737,7 +820,7 @@ function formatDate(dateStr: string) {
                     </td>
 
                     <!-- Social accounts -->
-                    <td class="py-4 px-4 max-w-[200px] truncate">
+                    <td class="py-4 px-4 max-w-50 truncate">
                       <div class="flex items-center gap-1">
                         <span class="inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary-100/10 text-primary-300">{{ r.primaryPlatform }}</span>
                         <span class="font-medium truncate text-primary-100" :title="r.primaryUsername">{{ r.primaryUsername }}</span>
@@ -781,6 +864,37 @@ function formatDate(dateStr: string) {
                       </button>
                     </td>
 
+                    <!-- Payment Mode -->
+                    <td class="py-4 px-4 whitespace-nowrap">
+                      <span
+                        v-if="r.paymentMode"
+                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-primary-100/10 text-primary-200 border border-primary-100/15"
+                      >
+                        <UIcon name="ph:credit-card" class="size-3 text-primary-300" />
+                        {{ r.paymentMode }}
+                      </span>
+                      <span v-else class="text-primary-100/30 font-mono text-xs italic">
+                        None
+                      </span>
+                    </td>
+
+                    <!-- Payment Reference -->
+                    <td class="py-4 px-4 whitespace-nowrap">
+                      <div v-if="r.paymentReference" class="flex items-center gap-1.5 font-mono text-xs">
+                        <span class="text-primary-100 bg-secondary-900/80 px-2 py-0.5 rounded border border-primary-100/10">{{ r.paymentReference }}</span>
+                        <button
+                          class="hover:text-primary-300 transition-colors p-0.5 text-primary-100/30"
+                          title="Copy Reference"
+                          @click="copyToClipboard(`${r.id}-ref`, r.paymentReference)"
+                        >
+                          <UIcon :name="copiedId === `${r.id}-ref` ? 'ph:check-bold' : 'ph:copy'" class="size-3" />
+                        </button>
+                      </div>
+                      <span v-else class="text-primary-100/30 font-mono text-xs italic">
+                        None
+                      </span>
+                    </td>
+
                     <!-- Created At -->
                     <td class="py-4 px-4 whitespace-nowrap text-primary-200/60 font-mono">
                       {{ formatDate(r.createdAt) }}
@@ -788,16 +902,34 @@ function formatDate(dateStr: string) {
 
                     <!-- Actions -->
                     <td class="py-4 px-4 text-right whitespace-nowrap">
-                      <UButton
-                        size="xs"
-                        variant="subtle"
-                        color="primary"
-                        icon="ph:paper-plane-tilt"
-                        :loading="sendingEmailId === r.id"
-                        @click="sendPaymentEmail(r)"
-                      >
-                        Send Email
-                      </UButton>
+                      <div class="flex items-center justify-end gap-1.5">
+                        <UButton
+                          size="xs"
+                          variant="subtle"
+                          color="primary"
+                          icon="ph:paper-plane-tilt"
+                          :disabled="r.paid || sendingEmailId === r.id"
+                          :loading="sendingEmailId === r.id"
+                          :class="r.paid && 'opacity-25 cursor-not-allowed pointer-events-none'"
+                          :title="r.paid ? 'Payment already completed (Payment link blocked)' : (sentPaymentEmails.has(r.id) ? 'Payment link sent' : 'Send payment link instructions email')"
+                          @click="sendPaymentEmail(r)"
+                        >
+                          {{ sentPaymentEmails.has(r.id) ? 'Sent ✓' : 'Payment' }}
+                        </UButton>
+                        <UButton
+                          size="xs"
+                          variant="subtle"
+                          color="emerald"
+                          icon="ph:seal-check-fill"
+                          :disabled="!r.paid || sendingConfirmationId === r.id || sentConfirmations.has(r.id)"
+                          :loading="sendingConfirmationId === r.id"
+                          :class="(!r.paid || sentConfirmations.has(r.id)) && 'opacity-25 cursor-not-allowed pointer-events-none'"
+                          :title="!r.paid ? 'Mark as PAID to unlock confirmation email' : (sentConfirmations.has(r.id) ? 'Confirmation pass already sent' : 'Send verified payment and event admission ticket email')"
+                          @click="sendConfirmationEmail(r)"
+                        >
+                          {{ sentConfirmations.has(r.id) ? 'Sent ✓' : 'Confirm' }}
+                        </UButton>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -879,8 +1011,33 @@ function formatDate(dateStr: string) {
                   </div>
                 </div>
 
-                <!-- Row 4: Payment Toggle and Send Email Button -->
-                <div class="pt-2 border-t border-[#ebdcb3]/60 flex items-center justify-between gap-2">
+                <!-- Row 4: Payment Submission Details -->
+                <div class="bg-[#ebdcb3]/20 border border-[#ebdcb3]/40 p-2.5 rounded-lg text-xs space-y-1">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-[9px] uppercase tracking-wider text-secondary-500">Payment Submission</span>
+                    <span v-if="r.paymentMode" class="font-mono text-[10px] font-bold bg-[#ebdcb3]/40 px-1.5 py-0.5 rounded text-secondary-900">
+                      {{ r.paymentMode }}
+                    </span>
+                    <span v-else class="text-[10px] text-secondary-400 italic">None</span>
+                  </div>
+
+                  <div class="flex items-center justify-between pt-1">
+                    <span class="text-[10px] text-secondary-600">Reference:</span>
+                    <div v-if="r.paymentReference" class="flex items-center gap-1 font-mono text-xs font-semibold text-secondary-900">
+                      <span>{{ r.paymentReference }}</span>
+                      <button
+                        class="text-secondary-400 hover:text-secondary-600 p-0.5"
+                        @click="copyToClipboard(`${r.id}-mob-ref`, r.paymentReference)"
+                      >
+                        <UIcon :name="copiedId === `${r.id}-mob-ref` ? 'ph:check-bold' : 'ph:copy'" class="size-3" />
+                      </button>
+                    </div>
+                    <span v-else class="text-[10px] text-secondary-400 italic">None</span>
+                  </div>
+                </div>
+
+                <!-- Row 5: Payment Toggle and Send Email Buttons -->
+                <div class="pt-2 border-t border-[#ebdcb3]/60 flex flex-wrap items-center justify-between gap-2">
                   <button
                     class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border transition-all cursor-pointer"
                     :class="r.paid ? 'bg-emerald-50 text-emerald-800 border-emerald-300' : 'bg-rose-50 text-rose-800 border-rose-300'"
@@ -892,16 +1049,34 @@ function formatDate(dateStr: string) {
                     <span>{{ r.paid ? 'PAID 💳' : 'UNPAID ⏳' }}</span>
                   </button>
 
-                  <UButton
-                    size="xs"
-                    color="primary"
-                    icon="ph:paper-plane-tilt"
-                    class="text-secondary-950 font-bold"
-                    :loading="sendingEmailId === r.id"
-                    @click="sendPaymentEmail(r)"
-                  >
-                    Send Email
-                  </UButton>
+                  <div class="flex items-center gap-1.5">
+                    <UButton
+                      size="xs"
+                      color="primary"
+                      icon="ph:paper-plane-tilt"
+                      class="text-secondary-950 font-bold"
+                      :disabled="r.paid || sendingEmailId === r.id"
+                      :loading="sendingEmailId === r.id"
+                      :class="r.paid && 'opacity-30 cursor-not-allowed pointer-events-none'"
+                      :title="r.paid ? 'Payment already completed (Payment link blocked)' : 'Send Payment Link Email'"
+                      @click="sendPaymentEmail(r)"
+                    >
+                      {{ sentPaymentEmails.has(r.id) ? 'Sent ✓' : 'Payment' }}
+                    </UButton>
+                    <UButton
+                      size="xs"
+                      color="emerald"
+                      icon="ph:seal-check-fill"
+                      class="font-bold text-white"
+                      :disabled="!r.paid || sendingConfirmationId === r.id || sentConfirmations.has(r.id)"
+                      :loading="sendingConfirmationId === r.id"
+                      :class="(!r.paid || sentConfirmations.has(r.id)) && 'opacity-30 cursor-not-allowed pointer-events-none'"
+                      :title="!r.paid ? 'Mark as PAID to unlock confirmation pass' : (sentConfirmations.has(r.id) ? 'Confirmation pass sent' : 'Send Payment Confirmation & Pass Email')"
+                      @click="sendConfirmationEmail(r)"
+                    >
+                      {{ sentConfirmations.has(r.id) ? 'Sent ✓' : 'Confirm' }}
+                    </UButton>
+                  </div>
                 </div>
               </div>
             </div>

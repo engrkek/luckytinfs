@@ -17,54 +17,84 @@ export default defineEventHandler(async (event) => {
   const supabaseUrl = process.env.NUXT_SUPABASE_URL || 'https://yqaforptbwlyfavadaky.supabase.co'
   // Use service key if available, fallback to the standard key
   const supabaseKey = process.env.NUXT_SUPABASE_SERVICE_KEY || process.env.NUXT_SUPABASE_KEY || 'sb_publishable_hHmRNH_QDvA8b05DmRaWpQ_TJVcQLtj'
-  const tableName = process.env.NUXT_SUPABASE_TABLE_NAME || 'block_screening_registrations'
+  const registrationsTable = process.env.NUXT_SUPABASE_TABLE_NAME || 'block_screening_registrations'
+  const paymentsTable = process.env.NUXT_SUPABASE_PAYMENTS_TABLE_NAME || 'block_screening_payments'
+
+  const headers = {
+    'apikey': supabaseKey,
+    'Authorization': `Bearer ${supabaseKey}`,
+    'Content-Type': 'application/json',
+  }
 
   try {
-    const response = await fetch(`${supabaseUrl}/rest/v1/${tableName}?select=*&order=created_at.desc`, {
-      method: 'GET',
-      headers: {
-        'apikey': supabaseKey,
-        'Authorization': `Bearer ${supabaseKey}`,
-        'Content-Type': 'application/json',
-      },
-    })
+    // Fetch registrations and payments in parallel
+    const [regResponse, payResponse] = await Promise.all([
+      fetch(`${supabaseUrl}/rest/v1/${registrationsTable}?select=*&order=created_at.desc`, {
+        method: 'GET',
+        headers,
+      }),
+      fetch(`${supabaseUrl}/rest/v1/${paymentsTable}?select=*`, {
+        method: 'GET',
+        headers,
+      }).catch(() => null),
+    ])
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
+    if (!regResponse.ok) {
+      const errorData = await regResponse.json().catch(() => ({}))
       console.error('Supabase DB Error Response (GET registrations):', errorData)
 
-      if (response.status === 404) {
+      if (regResponse.status === 404) {
         throw createError({
           statusCode: 404,
-          statusMessage: `Table '${tableName}' not found in your Supabase database. Please ensure migrations/schemas are fully applied.`,
+          statusMessage: `Table '${registrationsTable}' not found in your Supabase database. Please ensure migrations/schemas are fully applied.`,
         })
       }
 
       throw createError({
-        statusCode: response.status,
+        statusCode: regResponse.status,
         statusMessage: errorData.message || 'Failed to fetch registrations from Supabase database.',
       })
     }
 
-    const data = await response.json()
+    const regData = await regResponse.json()
+    const payData = (payResponse && payResponse.ok) ? await payResponse.json().catch(() => []) : []
 
-    // Map lower_snake_case columns to camelCase matching blockscreening.vue form
-    const registrations = data.map((row: any) => ({
-      id: row.id,
-      fullName: row.full_name,
-      nickname: row.nickname,
-      email: row.email,
-      mobile: row.mobile,
-      primaryPlatform: row.primary_platform,
-      primaryUsername: row.primary_username,
-      otherPlatform: row.other_platform || '',
-      otherUsername: row.other_username || '',
-      childRegistration: row.child_registration,
-      minorName: row.minor_name || '',
-      relationship: row.relationship || '',
-      paid: Boolean(row.paid),
-      createdAt: row.created_at,
-    }))
+    // Build a payment lookup map indexed by registration ID
+    const paymentsMap = new Map<string, any>()
+    if (Array.isArray(payData)) {
+      payData.forEach((pay: any) => {
+        const matchKey = pay.registration_id || pay.registrationId || pay.id || pay.pass_id
+        if (matchKey) {
+          paymentsMap.set(String(matchKey).trim(), pay)
+        }
+      })
+    }
+
+    // Map fields and merge matching payment details
+    const registrations = regData.map((row: any) => {
+      const matchedPayment = paymentsMap.get(String(row.id).trim())
+
+      return {
+        id: row.id,
+        fullName: row.full_name,
+        nickname: row.nickname,
+        email: row.email,
+        mobile: row.mobile,
+        primaryPlatform: row.primary_platform,
+        primaryUsername: row.primary_username,
+        otherPlatform: row.other_platform || '',
+        otherUsername: row.other_username || '',
+        childRegistration: row.child_registration,
+        minorName: row.minor_name || '',
+        relationship: row.relationship || '',
+        paid: Boolean(row.paid),
+        paymentReference: matchedPayment ? (matchedPayment.payment_reference || matchedPayment.reference_number || matchedPayment.reference || null) : null,
+        paymentMode: matchedPayment ? (matchedPayment.payment_mode || matchedPayment.mode || matchedPayment.payment_method || null) : null,
+        paymentAmount: matchedPayment?.amount || null,
+        hasPaymentEntry: Boolean(matchedPayment),
+        createdAt: row.created_at,
+      }
+    })
 
     return { registrations }
   }

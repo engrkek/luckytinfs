@@ -28,13 +28,15 @@ export default defineEventHandler(async (event) => {
 
   // Supabase Database Credentials (with environment variable override support)
   const supabaseUrl = process.env.NUXT_SUPABASE_URL || 'https://yqaforptbwlyfavadaky.supabase.co'
-  const supabaseKey = process.env.NUXT_SUPABASE_KEY || 'sb_publishable_hHmRNH_QDvA8b05DmRaWpQ_TJVcQLtj'
+  const supabaseKey = process.env.NUXT_SUPABASE_SERVICE_KEY || process.env.NUXT_SUPABASE_KEY || 'sb_publishable_hHmRNH_QDvA8b05DmRaWpQ_TJVcQLtj'
   const registrationsTable = process.env.NUXT_SUPABASE_TABLE_NAME || 'block_screening_registrations'
   const paymentsTable = 'block_screening_payments'
 
   try {
-    // 1. Validate if the Registration/Pass ID exists in registrations table
-    const checkResponse = await fetch(`${supabaseUrl}/rest/v1/${registrationsTable}?id=eq.${encodeURIComponent(id)}&select=id,full_name,nickname`, {
+    const formattedId = id.trim()
+
+    // 1. Explicitly validate that the Registration/Pass ID exists on the block_screening_registrations table
+    const checkResponse = await fetch(`${supabaseUrl}/rest/v1/${registrationsTable}?id=ilike.${encodeURIComponent(formattedId)}&select=id,full_name,nickname`, {
       method: 'GET',
       headers: {
         'apikey': supabaseKey,
@@ -56,15 +58,15 @@ export default defineEventHandler(async (event) => {
     if (!rows || rows.length === 0) {
       throw createError({
         statusCode: 404,
-        statusMessage: `Registration/Pass ID '${id}' was not found. Please double-check your ID or register first.`,
+        statusMessage: `Registration/Pass ID '${formattedId}' was not found in the registration database. Please verify your ID or complete registration first.`,
       })
     }
 
     const registrant = rows[0]
 
-    // 2. Perform upsert into the new block_screening_payments table
+    // 2. Perform insert/upsert into the separate block_screening_payments table
     const payload = {
-      id: id.trim().toUpperCase(),
+      id: registrant.id,
       payment_mode: paymentMode.join(', '),
       payment_reference: paymentReference.trim(),
     }
