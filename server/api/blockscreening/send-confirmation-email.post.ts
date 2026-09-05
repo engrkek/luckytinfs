@@ -15,7 +15,10 @@ export default defineEventHandler(async (event) => {
   const senderEmail = process.env.MAIL_FROM || 'Luckytin Fan Support <noreply@luckytinfs.com>'
 
   let seatOptionLabel = 'Sponsor a child (Bahay Tuluyan) 🐥'
-  if (childRegistration === 'bring') {
+  if (childRegistration === 'sponsor_two' || childRegistration === 'sponsor_2') {
+    seatOptionLabel = 'Sponsor two children (Bahay Tuluyan) 🐥🐥'
+  }
+  else if (childRegistration === 'bring') {
     seatOptionLabel = `Bring own child (${minorName || 'Child'}${relationship ? ` - ${relationship}` : ''}) 🎒`
   }
 
@@ -185,7 +188,7 @@ export default defineEventHandler(async (event) => {
                   <strong style="color: #9fbbe5;">• Slot Transfer:</strong> If you can no longer attend, please notify Luckytin Fan Support on or before <strong>September 27, 2026</strong>. Slots can only be transferred once, subject to LTFS approval. Requests done after the deadline would not be accomodated, except for genuine emergency situations.
                 </p>
                 <p style="margin: 0;">
-                  <strong style="color: #9fbbe5;">• Free seating:</strong> This is strictly a free-seating event. If you are bringing a child, please make sure that you are sitting together at all times. For those sponsoring a children, you don't have to sit with your sponsored child as they have designated seats prepared for them.
+                  <strong style="color: #9fbbe5;">• Free seating:</strong> This is strictly a free-seating event. If you are bringing a child, please make sure that you are sitting together at all times. For those sponsoring children, you don't have to sit with your sponsored child as they have designated seats prepared for them.
                 </p>
               </div>
 
