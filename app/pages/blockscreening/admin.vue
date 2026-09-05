@@ -143,6 +143,9 @@ const filteredRegistrations = computed(() => {
 
     // 3. Child Seat Filter
     const childMatch = childFilter.value === 'all'
+      || (childFilter.value === 'sponsor' && (r.childRegistration === 'sponsor' || r.childRegistration === 'sponsor_one'))
+      || (childFilter.value === 'sponsor_two' && (r.childRegistration === 'sponsor_two' || r.childRegistration === 'sponsor_2'))
+      || (childFilter.value === 'bring' && r.childRegistration === 'bring')
       || r.childRegistration === childFilter.value
 
     // 4. Payment Status Filter
@@ -158,7 +161,28 @@ const filteredRegistrations = computed(() => {
 const totalSlots = computed(() => registrations.value.length)
 const paidSlotsCount = computed(() => registrations.value.filter(r => r.paid).length)
 const unpaidSlotsCount = computed(() => registrations.value.filter(r => !r.paid).length)
-const sponsoredCount = computed(() => registrations.value.filter(r => r.childRegistration === 'sponsor').length)
+const sponsoredKidsCount = computed(() => {
+  return registrations.value.reduce((total, r) => {
+    if (r.childRegistration === 'sponsor_two' || r.childRegistration === 'sponsor_2') {
+      return total + 2
+    }
+    if (r.childRegistration === 'sponsor' || r.childRegistration === 'sponsor_one') {
+      return total + 1
+    }
+    return total
+  }, 0)
+})
+const filteredSponsoredKidsCount = computed(() => {
+  return filteredRegistrations.value.reduce((total, r) => {
+    if (r.childRegistration === 'sponsor_two' || r.childRegistration === 'sponsor_2') {
+      return total + 2
+    }
+    if (r.childRegistration === 'sponsor' || r.childRegistration === 'sponsor_one') {
+      return total + 1
+    }
+    return total
+  }, 0)
+})
 const collectedRevenue = computed(() => paidSlotsCount.value * 1500)
 
 const filteredTotalSlots = computed(() => filteredRegistrations.value.length)
@@ -192,6 +216,47 @@ async function togglePaymentStatus(registration: Registration) {
   }
   finally {
     isTogglingPayment.value = null
+  }
+}
+
+// Seat Option Update Action
+const isUpdatingSeatOption = ref<string | null>(null)
+
+async function updateSeatOption(registration: Registration, newOption: string) {
+  const previousOption = registration.childRegistration
+  if (previousOption === newOption)
+    return
+
+  isUpdatingSeatOption.value = registration.id
+  registration.childRegistration = newOption
+
+  const pwd = enteredPassword.value || (import.meta.client ? sessionStorage.getItem('blockscreening_admin_password') : null) || ''
+
+  try {
+    await $fetch('/api/blockscreening/seat-option', {
+      method: 'POST',
+      headers: {
+        'X-Admin-Password': pwd,
+      },
+      body: {
+        id: registration.id,
+        childRegistration: newOption,
+      },
+    })
+    const labelMap: Record<string, string> = {
+      sponsor: 'Sponsor 1 child 🐥',
+      sponsor_two: 'Sponsor 2 children 🐥🐥',
+      bring: 'Bring own child 🎒',
+    }
+    showToast(`Updated seat option for ${registration.fullName} to: ${labelMap[newOption] || newOption}`, 'success')
+  }
+  catch (err: any) {
+    console.error('Failed to update seat option:', err)
+    registration.childRegistration = previousOption
+    showToast(err.data?.statusMessage || 'Failed to update seat option.', 'error')
+  }
+  finally {
+    isUpdatingSeatOption.value = null
   }
 }
 
@@ -330,8 +395,11 @@ function exportToCSV() {
     r.primaryPlatform,
     r.primaryUsername,
     r.otherPlatform || 'None',
-    r.otherUsername || 'None',
-    r.childRegistration === 'sponsor' ? 'Sponsoring a charity child' : 'Bringing own child',
+    r.childRegistration === 'sponsor_two'
+      ? 'Sponsoring two charity children'
+      : (r.childRegistration === 'sponsor' || r.childRegistration === 'sponsor_one')
+          ? 'Sponsoring a charity child'
+          : 'Bringing own child',
     r.minorName || 'N/A',
     r.relationship || 'N/A',
     new Date(r.createdAt).toLocaleString(),
@@ -564,7 +632,13 @@ function formatDate(dateStr: string) {
               Bahay Tuluyan Kids
             </p>
             <div class="flex items-baseline gap-1.5">
-              <span class="text-2xl font-bold font-mono text-primary-100">{{ sponsoredCount }}</span>
+              <span class="text-2xl font-bold font-mono text-primary-100">{{ sponsoredKidsCount }}</span>
+              <span
+                v-if="searchQuery || platformFilter !== 'all' || childFilter !== 'all' || paymentFilter !== 'all'"
+                class="text-xs text-primary-300/80"
+              >
+                ({{ filteredSponsoredKidsCount }} filtered)
+              </span>
               <span class="text-xs text-primary-300/70">
                 sponsored
               </span>
@@ -643,7 +717,10 @@ function formatDate(dateStr: string) {
                 All Inclusions
               </option>
               <option value="sponsor">
-                Sponsor Charity Kid 🐥
+                Sponsor 1 Child 🐥
+              </option>
+              <option value="sponsor_two">
+                Sponsor 2 Children 🐥🐥
               </option>
               <option value="bring">
                 Bring Own Child 🎒
@@ -831,22 +908,41 @@ function formatDate(dateStr: string) {
                       </div>
                     </td>
 
-                    <!-- Child Selection -->
+                    <!-- Child / Seat Option Selection Dropdown -->
                     <td class="py-4 px-4 whitespace-nowrap">
-                      <span
-                        v-if="r.childRegistration === 'sponsor'"
-                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
-                      >
-                        <span class="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        Sponsor Child
-                      </span>
-                      <span
-                        v-else
-                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20"
-                      >
-                        <span class="size-1.5 rounded-full bg-amber-400" />
-                        Bring Own Child
-                      </span>
+                      <div class="relative inline-block">
+                        <select
+                          :value="r.childRegistration"
+                          :disabled="isUpdatingSeatOption === r.id"
+                          class="appearance-none font-sans text-xs font-semibold rounded-lg pl-2.5 pr-7 py-1.5 border transition-all cursor-pointer focus:outline-none focus:ring-1"
+                          :class="[
+                            (r.childRegistration === 'sponsor_two' || r.childRegistration === 'sponsor_2')
+                              ? 'bg-amber-500/15 text-amber-300 border-amber-500/30 focus:ring-amber-400'
+                              : (r.childRegistration === 'sponsor' || r.childRegistration === 'sponsor_one')
+                                ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30 focus:ring-emerald-400'
+                                : 'bg-blue-500/15 text-blue-300 border-blue-500/30 focus:ring-blue-400',
+                            isUpdatingSeatOption === r.id && 'opacity-50 cursor-wait',
+                          ]"
+                          @change="updateSeatOption(r, ($event.target as HTMLSelectElement).value)"
+                        >
+                          <option value="sponsor" class="bg-secondary-950 text-primary-100">
+                            🐥 Sponsor 1 child
+                          </option>
+                          <option value="sponsor_two" class="bg-secondary-950 text-primary-100">
+                            🐥🐥 Sponsor 2 children
+                          </option>
+                          <option value="bring" class="bg-secondary-950 text-primary-100">
+                            🎒 Bring own child
+                          </option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-primary-200/50">
+                          <UIcon v-if="isUpdatingSeatOption === r.id" name="ph:circle-notch" class="size-3 animate-spin text-primary-300" />
+                          <UIcon v-else name="ph:caret-down-bold" class="size-2.5" />
+                        </div>
+                      </div>
+                      <div v-if="r.childRegistration === 'bring' && r.minorName" class="text-[10px] text-primary-200/50 mt-1 truncate max-w-[140px]" :title="`${r.minorName} (${r.relationship || 'Child'})`">
+                        Child: {{ r.minorName }}
+                      </div>
                     </td>
 
                     <!-- Payment Status (Toggleable) -->
@@ -994,20 +1090,39 @@ function formatDate(dateStr: string) {
 
                   <div>
                     <span class="font-bold text-[9px] uppercase tracking-wider text-secondary-500 block mb-1">Pass Inclusion</span>
-                    <span
-                      v-if="r.childRegistration === 'sponsor'"
-                      class="inline-block px-1.5 py-0.5 rounded font-bold text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-200"
-                    >
-                      Sponsor Child 🐥
-                    </span>
-                    <div v-else class="space-y-0.5">
-                      <span class="inline-block px-1.5 py-0.5 rounded font-bold text-[10px] bg-amber-50 text-amber-800 border border-amber-200">
-                        Bring Child 🎒
-                      </span>
-                      <span class="block text-[10px] text-secondary-600 font-medium truncate" :title="r.minorName">
-                        {{ r.minorName }} ({{ r.relationship }})
-                      </span>
+                    <div class="relative inline-block w-full">
+                      <select
+                        :value="r.childRegistration"
+                        :disabled="isUpdatingSeatOption === r.id"
+                        class="w-full appearance-none font-sans text-xs font-bold rounded-lg pl-2 pr-6 py-1 border transition-all cursor-pointer focus:outline-none"
+                        :class="[
+                          (r.childRegistration === 'sponsor_two' || r.childRegistration === 'sponsor_2')
+                            ? 'bg-amber-50 text-amber-900 border-amber-300'
+                            : (r.childRegistration === 'sponsor' || r.childRegistration === 'sponsor_one')
+                              ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
+                              : 'bg-blue-50 text-blue-900 border-blue-300',
+                          isUpdatingSeatOption === r.id && 'opacity-50 cursor-wait',
+                        ]"
+                        @change="updateSeatOption(r, ($event.target as HTMLSelectElement).value)"
+                      >
+                        <option value="sponsor">
+                          🐥 Sponsor 1 child
+                        </option>
+                        <option value="sponsor_two">
+                          🐥🐥 Sponsor 2 children
+                        </option>
+                        <option value="bring">
+                          🎒 Bring own child
+                        </option>
+                      </select>
+                      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-secondary-600">
+                        <UIcon v-if="isUpdatingSeatOption === r.id" name="ph:circle-notch" class="size-3 animate-spin text-secondary-700" />
+                        <UIcon v-else name="ph:caret-down-bold" class="size-2.5" />
+                      </div>
                     </div>
+                    <span v-if="r.childRegistration === 'bring' && r.minorName" class="block text-[10px] text-secondary-600 font-medium mt-1 truncate" :title="r.minorName">
+                      {{ r.minorName }} ({{ r.relationship || 'Child' }})
+                    </span>
                   </div>
                 </div>
 
