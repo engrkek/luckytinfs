@@ -33,10 +33,10 @@ export default defineEventHandler(async (event) => {
         method: 'GET',
         headers,
       }),
-      fetch(`${supabaseUrl}/rest/v1/${paymentsTable}?select=*`, {
+      fetch(`${supabaseUrl}/rest/v1/${paymentsTable}?select=id,payment_mode,payment_reference,payment_receiver`, {
         method: 'GET',
         headers,
-      }).catch(() => null),
+      }),
     ])
 
     if (!regResponse.ok) {
@@ -56,16 +56,24 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const regData = await regResponse.json()
-    const payData = (payResponse && payResponse.ok) ? await payResponse.json().catch(() => []) : []
+    if (!payResponse.ok) {
+      const errorData = await payResponse.json().catch(() => ({}))
+      console.error('Supabase DB Error Response (GET payments):', errorData)
+      throw createError({
+        statusCode: payResponse.status,
+        statusMessage: errorData.message || 'Failed to fetch payment details from Supabase database.',
+      })
+    }
 
-    // Build a payment lookup map indexed by registration ID
+    const regData = await regResponse.json()
+    const payData = await payResponse.json()
+
+    // Payments use the registration ID as their primary key, so only join on payment.id.
     const paymentsMap = new Map<string, any>()
     if (Array.isArray(payData)) {
       payData.forEach((pay: any) => {
-        const matchKey = pay.registration_id || pay.registrationId || pay.id || pay.pass_id
-        if (matchKey) {
-          paymentsMap.set(String(matchKey).trim(), pay)
+        if (pay.id) {
+          paymentsMap.set(String(pay.id).trim(), pay)
         }
       })
     }
@@ -88,8 +96,8 @@ export default defineEventHandler(async (event) => {
         minorName: row.minor_name || '',
         relationship: row.relationship || '',
         paid: Boolean(row.paid),
-        paymentReference: matchedPayment ? (matchedPayment.payment_reference || matchedPayment.reference_number || matchedPayment.reference || null) : null,
-        paymentMode: matchedPayment ? (matchedPayment.payment_mode || matchedPayment.mode || matchedPayment.payment_method || null) : null,
+        paymentReference: matchedPayment?.payment_reference || null,
+        paymentMode: matchedPayment?.payment_mode || null,
         paymentReceiver: matchedPayment?.payment_receiver || null,
         paymentAmount: matchedPayment?.amount || null,
         hasPaymentEntry: Boolean(matchedPayment),
