@@ -261,6 +261,42 @@ async function updateSeatOption(registration: Registration, newOption: string) {
   }
 }
 
+// Payment Receiver Update Action
+const isUpdatingPaymentReceiver = ref<string | null>(null)
+
+async function updatePaymentReceiver(registration: Registration, newReceiver: string) {
+  const previousReceiver = registration.paymentReceiver
+  if (previousReceiver === newReceiver)
+    return
+
+  isUpdatingPaymentReceiver.value = registration.id
+  registration.paymentReceiver = newReceiver || null
+
+  const pwd = enteredPassword.value || (import.meta.client ? sessionStorage.getItem('blockscreening_admin_password') : null) || ''
+
+  try {
+    await $fetch('/api/blockscreening/payment-receiver', {
+      method: 'POST',
+      headers: {
+        'X-Admin-Password': pwd,
+      },
+      body: {
+        id: registration.id,
+        paymentReceiver: newReceiver || null,
+      },
+    })
+    showToast(`Updated payment receiver for ${registration.fullName} to: ${newReceiver || 'None'}`, 'success')
+  }
+  catch (err: any) {
+    console.error('Failed to update payment receiver:', err)
+    registration.paymentReceiver = previousReceiver
+    showToast(err.data?.statusMessage || 'Failed to update payment receiver.', 'error')
+  }
+  finally {
+    isUpdatingPaymentReceiver.value = null
+  }
+}
+
 // Email Dispatch Tracking
 const sentPaymentEmails = ref<Set<string>>(new Set())
 const sentConfirmations = ref<Set<string>>(new Set())
@@ -997,12 +1033,30 @@ function formatDate(dateStr: string) {
 
                     <!-- Payment Receiver -->
                     <td class="py-4 px-4 whitespace-nowrap">
-                      <span v-if="r.paymentReceiver" class="text-primary-200">
-                        {{ r.paymentReceiver }}
-                      </span>
-                      <span v-else class="text-primary-100/30 font-mono text-xs italic">
-                        None
-                      </span>
+                      <div class="relative inline-block">
+                        <select
+                          :value="r.paymentReceiver || ''"
+                          :disabled="isUpdatingPaymentReceiver === r.id || !r.hasPaymentEntry"
+                          class="appearance-none font-sans text-xs font-semibold rounded-lg pl-2.5 pr-7 py-1.5 border transition-all cursor-pointer focus:outline-none focus:ring-1 bg-primary-100/10 text-primary-200 border-primary-100/15 focus:ring-primary-300"
+                          :class="isUpdatingPaymentReceiver === r.id && 'opacity-50 cursor-wait'"
+                          :title="r.hasPaymentEntry ? 'Select payment receiver' : 'No payment record exists for this ID'"
+                          @change="updatePaymentReceiver(r, ($event.target as HTMLSelectElement).value)"
+                        >
+                          <option value="" class="bg-secondary-950 text-primary-100">
+                            None
+                          </option>
+                          <option value="Kek" class="bg-secondary-950 text-primary-100">
+                            Kek
+                          </option>
+                          <option value="Min" class="bg-secondary-950 text-primary-100">
+                            Min
+                          </option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-primary-200/50">
+                          <UIcon v-if="isUpdatingPaymentReceiver === r.id" name="ph:circle-notch" class="size-3 animate-spin text-primary-300" />
+                          <UIcon v-else name="ph:caret-down-bold" class="size-2.5" />
+                        </div>
+                      </div>
                     </td>
 
                     <!-- Created At -->
@@ -1162,6 +1216,34 @@ function formatDate(dateStr: string) {
                       </button>
                     </div>
                     <span v-else class="text-[10px] text-secondary-400 italic">None</span>
+                  </div>
+
+                  <div class="flex items-center justify-between pt-1">
+                    <span class="text-[10px] text-secondary-600">Receiver:</span>
+                    <div class="relative inline-block">
+                      <select
+                        :value="r.paymentReceiver || ''"
+                        :disabled="isUpdatingPaymentReceiver === r.id || !r.hasPaymentEntry"
+                        class="appearance-none font-sans text-[10px] font-bold rounded-lg pl-2 pr-6 py-1 border transition-all cursor-pointer focus:outline-none bg-[#ebdcb3]/40 text-secondary-900 border-[#ebdcb3] focus:ring-1 focus:ring-secondary-500"
+                        :class="isUpdatingPaymentReceiver === r.id && 'opacity-50 cursor-wait'"
+                        :title="r.hasPaymentEntry ? 'Select payment receiver' : 'No payment record exists for this ID'"
+                        @change="updatePaymentReceiver(r, ($event.target as HTMLSelectElement).value)"
+                      >
+                        <option value="">
+                          None
+                        </option>
+                        <option value="Kek">
+                          Kek
+                        </option>
+                        <option value="Min">
+                          Min
+                        </option>
+                      </select>
+                      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1 text-secondary-600">
+                        <UIcon v-if="isUpdatingPaymentReceiver === r.id" name="ph:circle-notch" class="size-3 animate-spin text-secondary-700" />
+                        <UIcon v-else name="ph:caret-down-bold" class="size-2" />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
