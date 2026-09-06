@@ -90,6 +90,7 @@ export default defineEventHandler(async (event) => {
         paid: Boolean(row.paid),
         paymentReference: matchedPayment ? (matchedPayment.payment_reference || matchedPayment.reference_number || matchedPayment.reference || null) : null,
         paymentMode: matchedPayment ? (matchedPayment.payment_mode || matchedPayment.mode || matchedPayment.payment_method || null) : null,
+        paymentReceiver: matchedPayment?.payment_receiver || null,
         paymentAmount: matchedPayment?.amount || null,
         hasPaymentEntry: Boolean(matchedPayment),
         createdAt: row.created_at,
