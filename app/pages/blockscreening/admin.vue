@@ -32,6 +32,7 @@ interface Registration {
   paid: boolean
   paymentReference: string | null
   paymentMode: string | null
+  paymentReceiver: string | null
   paymentAmount?: number | null
   hasPaymentEntry?: boolean
   createdAt: string
@@ -839,6 +840,9 @@ function formatDate(dateStr: string) {
                       Payment Ref
                     </th>
                     <th class="py-4 px-4 font-semibold">
+                      Payment Receiver
+                    </th>
+                    <th class="py-4 px-4 font-semibold">
                       Registered At
                     </th>
                     <th class="py-4 px-4 font-semibold text-right">
@@ -986,6 +990,16 @@ function formatDate(dateStr: string) {
                           <UIcon :name="copiedId === `${r.id}-ref` ? 'ph:check-bold' : 'ph:copy'" class="size-3" />
                         </button>
                       </div>
+                      <span v-else class="text-primary-100/30 font-mono text-xs italic">
+                        None
+                      </span>
+                    </td>
+
+                    <!-- Payment Receiver -->
+                    <td class="py-4 px-4 whitespace-nowrap">
+                      <span v-if="r.paymentReceiver" class="text-primary-200">
+                        {{ r.paymentReceiver }}
+                      </span>
                       <span v-else class="text-primary-100/30 font-mono text-xs italic">
                         None
                       </span>
