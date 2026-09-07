@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
       console.error('Supabase DB Update Error (PATCH paid):', errorData)
       throw createError({
         statusCode: response.status,
-        statusMessage: errorData.message || 'Failed to update payment status in Supabase database.',
+        statusMessage: errorData.message || 'Failed to update payment status in database.',
       })
     }
 

@@ -29,10 +29,10 @@ export default defineEventHandler(async (event) => {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      console.error('Supabase DB Update Error (PATCH child_registration):', errorData)
+      console.error('DB Update Error (PATCH child_registration):', errorData)
       throw createError({
         statusCode: response.status,
-        statusMessage: errorData.message || 'Failed to update seat option in Supabase database.',
+        statusMessage: errorData.message || 'Failed to update seat option in database.',
       })
     }
 

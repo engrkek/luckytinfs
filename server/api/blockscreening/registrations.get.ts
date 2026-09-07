@@ -41,27 +41,27 @@ export default defineEventHandler(async (event) => {
 
     if (!regResponse.ok) {
       const errorData = await regResponse.json().catch(() => ({}))
-      console.error('Supabase DB Error Response (GET registrations):', errorData)
+      console.error('DB Error Response (GET registrations):', errorData)
 
       if (regResponse.status === 404) {
         throw createError({
           statusCode: 404,
-          statusMessage: `Table '${registrationsTable}' not found in your Supabase database. Please ensure migrations/schemas are fully applied.`,
+          statusMessage: `Table '${registrationsTable}' not found in your database.`,
         })
       }
 
       throw createError({
         statusCode: regResponse.status,
-        statusMessage: errorData.message || 'Failed to fetch registrations from Supabase database.',
+        statusMessage: errorData.message || 'Failed to fetch registrations from database.',
       })
     }
 
     if (!payResponse.ok) {
       const errorData = await payResponse.json().catch(() => ({}))
-      console.error('Supabase DB Error Response (GET payments):', errorData)
+      console.error('DB Error Response (GET payments):', errorData)
       throw createError({
         statusCode: payResponse.status,
-        statusMessage: errorData.message || 'Failed to fetch payment details from Supabase database.',
+        statusMessage: errorData.message || 'Failed to fetch payment details from database.',
       })
     }
 
