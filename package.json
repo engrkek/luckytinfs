@@ -15,7 +15,9 @@
     "db:generate": "nuxt db generate",
     "db:migrate": "nuxt db migrate",
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
-    "deploy": "wrangler deploy --env=preview"
+    "db:migrate:remote:dev": "wrangler d1 migrations apply DB --remote --env=preview",
+    "deploy": "wrangler deploy",
+    "deploy:dev": "wrangler deploy --env=preview"
   },
   "dependencies": {
     "@internationalized/date": "^3.12.2",
