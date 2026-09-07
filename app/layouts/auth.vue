@@ -1,8 +1,4 @@
 <script setup lang="ts">
-definePageMeta({
-  colorMode: 'light',
-})
-
 useHead({
   meta: [
     { charset: 'utf-8' },
