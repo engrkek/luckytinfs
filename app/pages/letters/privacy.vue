@@ -32,9 +32,13 @@ useHead({
       <div class="mt-10 space-y-8 text-sm leading-relaxed text-[#5c4f35]/90">
         <p class="text-pretty">
           This policy explains what
-          <strong class="font-medium text-[#2c2416]">Luckytin Fan Support</strong>
+          <strong class="font-medium text-[#2c2416]">
+            Luckytin Fan Support
+          </strong>
           collects when you use
-          <strong class="font-medium text-[#2c2416]">Letters for Luckytin &amp; BINI</strong>
+          <strong class="font-medium text-[#2c2416]">
+            Letters for Luckytin &amp; BINI
+          </strong>
           (the “Service”), and why.
           We keep it simple: we only collect what we need to run the mailboxes, and we don’t sell your information.
         </p>
@@ -58,33 +62,49 @@ useHead({
           </p>
           <ul class="mt-3 list-disc space-y-2 pl-5">
             <li>
-              <strong class="font-medium text-[#2c2416]">Letter content</strong>
+              <strong class="font-medium text-[#2c2416]">
+                Letter content
+              </strong>
               — your message, design choices (paper, stickers, seal, music link, and so on), and any postcard photo you upload.
             </li>
             <li>
-              <strong class="font-medium text-[#2c2416]">Display name</strong>
+              <strong class="font-medium text-[#2c2416]">
+                Display name
+              </strong>
               — optional. If you leave it blank, the letter may show as Anonymous.
             </li>
             <li>
-              <strong class="font-medium text-[#2c2416]">Email</strong>
+              <strong class="font-medium text-[#2c2416]">
+                Email
+              </strong>
               — optional, for contact only. It is
-              <strong class="font-medium text-[#2c2416]">never shown</strong>
+              <strong class="font-medium text-[#2c2416]">
+                never shown
+              </strong>
               on public letters or to other fans.
             </li>
             <li>
-              <strong class="font-medium text-[#2c2416]">Mailbox, tour stop, and visibility</strong>
+              <strong class="font-medium text-[#2c2416]">
+                Mailbox, tour stop, and visibility
+              </strong>
               — who the letter is for, which show it travels with, and whether it is public or private.
             </li>
             <li>
-              <strong class="font-medium text-[#2c2416]">Anonymous sender id</strong>
+              <strong class="font-medium text-[#2c2416]">
+                Anonymous sender id
+              </strong>
               — a random id stored in a cookie so we can enforce “one letter per mailbox per stop” without accounts.
             </li>
             <li>
-              <strong class="font-medium text-[#2c2416]">Drafts on your device</strong>
+              <strong class="font-medium text-[#2c2416]">
+                Drafts on your device
+              </strong>
               — unfinished letters may be saved in your browser’s local storage until you send or clear them. That stays on your device.
             </li>
             <li>
-              <strong class="font-medium text-[#2c2416]">Technical data</strong>
+              <strong class="font-medium text-[#2c2416]">
+                Technical data
+              </strong>
               — standard server or hosting logs (for example IP address, browser type, and request times) used for security, abuse prevention, and keeping the site online.
             </li>
           </ul>
@@ -103,7 +123,9 @@ useHead({
           </ul>
           <p class="mt-3 text-pretty">
             We do
-            <strong class="font-medium text-[#2c2416]">not</strong>
+            <strong class="font-medium text-[#2c2416]">
+              not
+            </strong>
             sell your personal information, and we do not use it for targeted advertising.
           </p>
         </section>
@@ -113,12 +135,16 @@ useHead({
             4. Public vs private letters
           </h2>
           <p class="mt-2 text-pretty">
-            <strong class="font-medium text-[#2c2416]">Public</strong>
+            <strong class="font-medium text-[#2c2416]">
+              Public
+            </strong>
             letters may appear in the community feed and be readable by other visitors after approval.
             Don’t put anything in a public letter that you wouldn’t want strangers to see.
           </p>
           <p class="mt-2 text-pretty">
-            <strong class="font-medium text-[#2c2416]">Private</strong>
+            <strong class="font-medium text-[#2c2416]">
+              Private
+            </strong>
             letters are intended only for the recipient and the people who review submissions.
             Still avoid sensitive personal data — moderation is human, and no system is perfectly sealed.
           </p>
@@ -130,7 +156,9 @@ useHead({
           </h2>
           <ul class="mt-2 list-disc space-y-1.5 pl-5">
             <li>
-              <code class="rounded bg-[#2c2416]/6 px-1 py-0.5 font-type text-[0.7rem]">luckytin-sender</code>
+              <code class="rounded bg-[#2c2416]/6 px-1 py-0.5 font-type text-[0.7rem]">
+                luckytin-sender
+              </code>
               — anonymous browser id for send limits.
             </li>
             <li>

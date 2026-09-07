@@ -1,0 +1,117 @@
+import { createError, defineEventHandler, getHeader, getQuery } from 'h3'
+
+export default defineEventHandler(async (event) => {
+  const adminPassword = process.env.BLOCKSCREENING_ADMIN_PASSWORD || 'luckytin02'
+  const headerPassword = getHeader(event, 'x-admin-password')
+  const query = getQuery(event)
+  const queryPassword = query.password as string
+
+  if (headerPassword !== adminPassword && queryPassword !== adminPassword) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized. Please provide a valid block screening admin password.',
+    })
+  }
+
+  // Supabase Database Credentials (with environment variable override support)
+  const supabaseUrl = process.env.NUXT_SUPABASE_URL || 'https://yqaforptbwlyfavadaky.supabase.co'
+  // Use service key if available, fallback to the standard key
+  const supabaseKey = process.env.NUXT_SUPABASE_SERVICE_KEY || process.env.NUXT_SUPABASE_KEY || 'sb_publishable_hHmRNH_QDvA8b05DmRaWpQ_TJVcQLtj'
+  const registrationsTable = process.env.NUXT_SUPABASE_TABLE_NAME || 'block_screening_registrations'
+  const paymentsTable = process.env.NUXT_SUPABASE_PAYMENTS_TABLE_NAME || 'block_screening_payments'
+
+  const headers = {
+    'apikey': supabaseKey,
+    'Authorization': `Bearer ${supabaseKey}`,
+    'Content-Type': 'application/json',
+  }
+
+  try {
+    // Fetch registrations and payments in parallel
+    const [regResponse, payResponse] = await Promise.all([
+      fetch(`${supabaseUrl}/rest/v1/${registrationsTable}?select=*&order=created_at.desc`, {
+        method: 'GET',
+        headers,
+      }),
+      fetch(`${supabaseUrl}/rest/v1/${paymentsTable}?select=id,payment_mode,payment_reference,payment_receiver`, {
+        method: 'GET',
+        headers,
+      }),
+    ])
+
+    if (!regResponse.ok) {
+      const errorData = await regResponse.json().catch(() => ({}))
+      console.error('DB Error Response (GET registrations):', errorData)
+
+      if (regResponse.status === 404) {
+        throw createError({
+          statusCode: 404,
+          statusMessage: `Table '${registrationsTable}' not found in your database.`,
+        })
+      }
+
+      throw createError({
+        statusCode: regResponse.status,
+        statusMessage: errorData.message || 'Failed to fetch registrations from database.',
+      })
+    }
+
+    if (!payResponse.ok) {
+      const errorData = await payResponse.json().catch(() => ({}))
+      console.error('DB Error Response (GET payments):', errorData)
+      throw createError({
+        statusCode: payResponse.status,
+        statusMessage: errorData.message || 'Failed to fetch payment details from database.',
+      })
+    }
+
+    const regData = await regResponse.json()
+    const payData = await payResponse.json()
+
+    // Payments use the registration ID as their primary key, so only join on payment.id.
+    const paymentsMap = new Map<string, any>()
+    if (Array.isArray(payData)) {
+      payData.forEach((pay: any) => {
+        if (pay.id) {
+          paymentsMap.set(String(pay.id).trim(), pay)
+        }
+      })
+    }
+
+    // Map fields and merge matching payment details
+    const registrations = regData.map((row: any) => {
+      const matchedPayment = paymentsMap.get(String(row.id).trim())
+
+      return {
+        id: row.id,
+        fullName: row.full_name,
+        nickname: row.nickname,
+        email: row.email,
+        mobile: row.mobile,
+        primaryPlatform: row.primary_platform,
+        primaryUsername: row.primary_username,
+        otherPlatform: row.other_platform || '',
+        otherUsername: row.other_username || '',
+        childRegistration: row.child_registration,
+        minorName: row.minor_name || '',
+        relationship: row.relationship || '',
+        paid: Boolean(row.paid),
+        paymentReference: matchedPayment?.payment_reference || null,
+        paymentMode: matchedPayment?.payment_mode || null,
+        paymentReceiver: matchedPayment?.payment_receiver || null,
+        paymentAmount: matchedPayment?.amount || null,
+        hasPaymentEntry: Boolean(matchedPayment),
+        createdAt: row.created_at,
+      }
+    })
+
+    return { registrations }
+  }
+  catch (error: any) {
+    console.error('Registrations GET API Error:', error)
+    throw createError({
+      statusCode: error.statusCode || 500,
+      statusMessage: error.statusMessage || 'An unexpected error occurred while fetching registrations.',
+    })
+  }
+})

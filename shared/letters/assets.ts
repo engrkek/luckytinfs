@@ -155,7 +155,7 @@ export const LETTER_STICKERS: LetterAssetOption[] = [
   { id: 'sticker-51', label: 'Fluffy cat', preview: letterImageUrl('stickers', 51) },
   { id: 'sticker-52', label: 'Keep going', preview: letterImageUrl('stickers', 52) },
   { id: 'sticker-53', label: 'Protect your peace', preview: letterImageUrl('stickers', 53) },
-  { id: 'sticker-54', label: "Bad days don't stay", preview: letterImageUrl('stickers', 54) },
+  { id: 'sticker-54', label: 'Bad days don\'t stay', preview: letterImageUrl('stickers', 54) },
   { id: 'sticker-55', label: 'Make yourself a priority', preview: letterImageUrl('stickers', 55) },
   { id: 'sticker-56', label: 'Dream big', preview: letterImageUrl('stickers', 56) },
   { id: 'sticker-57', label: 'Keep moving forward', preview: letterImageUrl('stickers', 57) },
