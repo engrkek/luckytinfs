@@ -1,18 +1,10 @@
-import { createError, defineEventHandler, getHeader, readBody } from 'h3'
-
 export default defineEventHandler(async (event) => {
-  const adminPassword = process.env.BLOCKSCREENING_ADMIN_PASSWORD || 'luckytin02'
-  if (getHeader(event, 'x-admin-password') !== adminPassword) {
-    throw createError({ statusCode: 401, statusMessage: 'Unauthorized. Please provide valid admin credentials.' })
-  }
+  requireBlockscreeningAdmin(event)
 
   const { id, email, nickname } = await readBody(event)
   if (!email || !nickname) {
     throw createError({ statusCode: 400, statusMessage: 'Recipient email and nickname are required.' })
   }
-
-  const resendApiKey = process.env.RESEND_API_KEY
-  const senderEmail = process.env.MAIL_FROM || 'Luckytin Fan Support <noreply@luckytinfs.com>'
 
   const idBadge = id
     ? `<div style="margin-bottom: 20px;">
@@ -112,42 +104,11 @@ export default defineEventHandler(async (event) => {
 </html>
   `
 
-  if (resendApiKey) {
-    try {
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: senderEmail,
-          to: [email],
-          subject: `Complete your Block Screening Payment ${id ? `[${id}] ` : ''}- Forgotten Island`,
-          html: htmlContent,
-        }),
-      })
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        console.error('Resend API Error:', err)
-        throw createError({
-          statusCode: res.status,
-          statusMessage: err.message || 'Failed to dispatch email via Resend API.',
-        })
-      }
-    }
-    catch (error: any) {
-      console.error('Email dispatch error:', error)
-      throw createError({
-        statusCode: error.statusCode || 500,
-        statusMessage: error.statusMessage || 'Failed to send payment email.',
-      })
-    }
-  }
-  else {
-    console.log(`[Email Dispatch - Key Not Configured] Sent payment link email with ID ${id} to ${email} for registrant ${nickname}`)
-  }
+  await sendBlockscreeningEmail({
+    to: email,
+    subject: `Complete your Block Screening Payment ${id ? `[${id}] ` : ''}- Forgotten Island`,
+    html: htmlContent,
+  })
 
   return { success: true, id, email, nickname }
 })

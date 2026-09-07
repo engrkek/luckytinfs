@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     '@pinia/colada-nuxt',
     '@vueuse/nuxt',
     'motion-v/nuxt',
+    'nuxt-skill-hub',
   ],
 
   $production: {

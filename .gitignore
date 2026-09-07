@@ -19,6 +19,10 @@ logs
 .fleet
 .idea
 
+# Local Claude Code runtime state (per-machine, not shared)
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
 # Local env files
 .env
 .env.*

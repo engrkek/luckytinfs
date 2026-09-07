@@ -1,18 +1,10 @@
-import { createError, defineEventHandler, getHeader, readBody } from 'h3'
-
 export default defineEventHandler(async (event) => {
-  const adminPassword = process.env.BLOCKSCREENING_ADMIN_PASSWORD || 'luckytin02'
-  if (getHeader(event, 'x-admin-password') !== adminPassword) {
-    throw createError({ statusCode: 401, statusMessage: 'Unauthorized. Please provide valid admin credentials.' })
-  }
+  requireBlockscreeningAdmin(event)
 
   const { id, email, fullName, nickname, childRegistration, minorName, relationship } = await readBody(event)
   if (!email || !fullName) {
     throw createError({ statusCode: 400, statusMessage: 'Recipient email and full name are required.' })
   }
-
-  const resendApiKey = process.env.RESEND_API_KEY
-  const senderEmail = process.env.MAIL_FROM || 'Luckytin Fan Support <noreply@luckytinfs.com>'
 
   let seatOptionLabel = 'Sponsor a child (Bahay Tuluyan) 🐥'
   if (childRegistration === 'sponsor_two' || childRegistration === 'sponsor_2') {
@@ -219,42 +211,11 @@ export default defineEventHandler(async (event) => {
 </html>
   `
 
-  if (resendApiKey) {
-    try {
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: senderEmail,
-          to: [email],
-          subject: `Payment Confirmed & Admission Pass [${id || 'LTFS'}] - Forgotten Island Block Screening`,
-          html: htmlContent,
-        }),
-      })
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        console.error('Resend API Error (Confirmation):', err)
-        throw createError({
-          statusCode: res.status,
-          statusMessage: err.message || 'Failed to dispatch confirmation email via Resend API.',
-        })
-      }
-    }
-    catch (error: any) {
-      console.error('Confirmation email error:', error)
-      throw createError({
-        statusCode: error.statusCode || 500,
-        statusMessage: error.statusMessage || 'Failed to send confirmation email.',
-      })
-    }
-  }
-  else {
-    console.log(`[Email Dispatch - Key Not Configured] Sent payment confirmation email with Ticket to ${email} for registrant ${fullName} (${id})`)
-  }
+  await sendBlockscreeningEmail({
+    to: email,
+    subject: `Payment Confirmed & Admission Pass [${id || 'LTFS'}] - Forgotten Island Block Screening`,
+    html: htmlContent,
+  })
 
   return { success: true, id, email, fullName }
 })

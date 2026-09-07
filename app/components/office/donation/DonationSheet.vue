@@ -247,7 +247,7 @@ async function handleDelete() {
       <div class="w-full flex flex-col lg:flex-row lg:items-center lg:justify-end gap-2">
         <UButton
           v-if="donation.status !== 'approved'"
-          icon="tabler:circle-check"
+          icon="ph:check-circle"
           label="Approve"
           color="success"
           :loading="isLoading"
@@ -257,7 +257,7 @@ async function handleDelete() {
         />
         <UButton
           v-if="donation.status !== 'invalid'"
-          icon="tabler:cancel"
+          icon="ph:x-circle"
           label="Invalid"
           color="error"
           size="xl"
