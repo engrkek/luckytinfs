@@ -9,6 +9,7 @@ export function sortableColumn<T>(accessorKey: keyof T, label: string): TableCol
 
       return h(UButton, {
         variant: 'link',
+        color: 'neutral',
         label,
         trailingIcon: isSorted
           ? isSorted === 'asc'
