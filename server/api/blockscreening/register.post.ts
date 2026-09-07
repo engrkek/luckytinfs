@@ -38,19 +38,19 @@ export default defineEventHandler(async (event) => {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      console.error('Supabase DB Error Response:', errorData)
+      console.error('DB Error Response:', errorData)
 
       // Gracefully handle "Table Not Found" 404 errors by referring to the SQL schema file
       if (response.status === 404) {
         throw createError({
           statusCode: 404,
-          statusMessage: `Table '${tableName}' not found in your Supabase database. Please initialize the database schema by executing the 'supabase_schema.sql' file found at the root of your project repository within your Supabase SQL Editor.`,
+          statusMessage: `Table '${tableName}' not found in your database.`,
         })
       }
 
       throw createError({
         statusCode: response.status,
-        statusMessage: errorData.message || 'Failed to save registration to Supabase database.',
+        statusMessage: errorData.message || 'Failed to save registration to database.',
       })
     }
 

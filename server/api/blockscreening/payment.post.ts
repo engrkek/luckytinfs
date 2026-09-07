@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
 
     if (!checkResponse.ok) {
       const errorData = await checkResponse.json().catch(() => ({}))
-      console.error('Supabase registration verification failed:', errorData)
+      console.error('Registration verification failed:', errorData)
       throw createError({
         statusCode: checkResponse.status,
         statusMessage: errorData.message || 'Failed to verify the registration ID.',
@@ -84,7 +84,7 @@ export default defineEventHandler(async (event) => {
 
     if (!updateResponse.ok) {
       const errorData = await updateResponse.json().catch(() => ({}))
-      console.error('Supabase payment insert/upsert failed:', errorData)
+      console.error('Payment registration insert/upsert failed:', errorData)
       throw createError({
         statusCode: updateResponse.status,
         statusMessage: errorData.message || 'Failed to register the payment reference in the database.',

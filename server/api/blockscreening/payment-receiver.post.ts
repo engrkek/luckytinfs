@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
       console.error('Supabase DB Error (GET payment record):', errorData)
       throw createError({
         statusCode: existingResponse.status,
-        statusMessage: errorData.message || 'Failed to find payment record in Supabase database.',
+        statusMessage: errorData.message || 'Failed to find payment record in Database.',
       })
     }
 
@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
     if (!Array.isArray(existingRows) || existingRows.length === 0) {
       throw createError({
         statusCode: 404,
-        statusMessage: `Payment record '${paymentId}' was not found in Supabase database.`,
+        statusMessage: `Payment record '${paymentId}' was not found in Database.`,
       })
     }
 
@@ -55,10 +55,10 @@ export default defineEventHandler(async (event) => {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      console.error('Supabase DB Update Error (PATCH payment_receiver):', errorData)
+      console.error('DB Update Error (PATCH payment_receiver):', errorData)
       throw createError({
         statusCode: response.status,
-        statusMessage: errorData.message || 'Failed to update payment receiver in Supabase database.',
+        statusMessage: errorData.message || 'Failed to update payment receiver in database.',
       })
     }
 
@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
       console.error('Supabase DB Error (GET updated payment record):', errorData)
       throw createError({
         statusCode: updatedResponse.status,
-        statusMessage: errorData.message || 'Failed to verify payment receiver update in Supabase database.',
+        statusMessage: errorData.message || 'Failed to verify payment receiver update in the database.',
       })
     }
 
