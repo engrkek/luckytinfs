@@ -36,10 +36,6 @@ export default defineNuxtConfig({
     memberMailboxKeys: {
       bini: 'SuIGnhhSexYZ_MYbRyXxlL3C',
     },
-    public: {
-      networkName: 'LuckyTinFS_Guest',
-      sitePassword: 'luckytin02',
-    },
   },
 
   routeRules: {
