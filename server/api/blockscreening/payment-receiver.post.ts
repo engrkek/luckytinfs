@@ -16,16 +16,40 @@ export default defineEventHandler(async (event) => {
   const supabaseUrl = process.env.NUXT_SUPABASE_URL || 'https://yqaforptbwlyfavadaky.supabase.co'
   const supabaseKey = process.env.NUXT_SUPABASE_SERVICE_KEY || process.env.NUXT_SUPABASE_KEY || 'sb_publishable_hHmRNH_QDvA8b05DmRaWpQ_TJVcQLtj'
   const paymentsTable = process.env.NUXT_SUPABASE_PAYMENTS_TABLE_NAME || 'block_screening_payments'
+  const paymentId = id.trim()
+  const paymentUrl = `${supabaseUrl}/rest/v1/${paymentsTable}?id=eq.${encodeURIComponent(paymentId)}`
+  const headers = {
+    'apikey': supabaseKey,
+    'Authorization': `******`,
+    'Content-Type': 'application/json',
+  }
 
   try {
-    const response = await fetch(`${supabaseUrl}/rest/v1/${paymentsTable}?id=eq.${encodeURIComponent(id.trim())}`, {
+    const existingResponse = await fetch(`${paymentUrl}&select=id`, {
+      method: 'GET',
+      headers,
+    })
+
+    if (!existingResponse.ok) {
+      const errorData = await existingResponse.json().catch(() => ({}))
+      console.error('Supabase DB Error (GET payment record):', errorData)
+      throw createError({
+        statusCode: existingResponse.status,
+        statusMessage: errorData.message || 'Failed to find payment record in Supabase database.',
+      })
+    }
+
+    const existingRows = await existingResponse.json()
+    if (!Array.isArray(existingRows) || existingRows.length === 0) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: `Payment record '${paymentId}' was not found in Supabase database.`,
+      })
+    }
+
+    const response = await fetch(paymentUrl, {
       method: 'PATCH',
-      headers: {
-        'apikey': supabaseKey,
-        'Authorization': `******`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation',
-      },
+      headers: { ...headers, Prefer: 'return=minimal' },
       body: JSON.stringify({ payment_receiver: paymentReceiver }),
     })
 
@@ -38,15 +62,28 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const updatedRows = await response.json()
-    if (!Array.isArray(updatedRows) || updatedRows.length === 0) {
+    const updatedResponse = await fetch(`${paymentUrl}&select=id,payment_receiver`, {
+      method: 'GET',
+      headers,
+    })
+    if (!updatedResponse.ok) {
+      const errorData = await updatedResponse.json().catch(() => ({}))
+      console.error('Supabase DB Error (GET updated payment record):', errorData)
       throw createError({
-        statusCode: 404,
-        statusMessage: `Payment record '${id.trim()}' was not found in Supabase database.`,
+        statusCode: updatedResponse.status,
+        statusMessage: errorData.message || 'Failed to verify payment receiver update in Supabase database.',
       })
     }
 
-    return { success: true, id: id.trim(), paymentReceiver }
+    const updatedRows = await updatedResponse.json()
+    if (!Array.isArray(updatedRows) || updatedRows.length === 0 || updatedRows[0].payment_receiver !== paymentReceiver) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Supabase did not persist the payment receiver update.',
+      })
+    }
+
+    return { success: true, id: paymentId, paymentReceiver }
   }
   catch (error: any) {
     console.error('Payment receiver update error:', error)
