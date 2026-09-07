@@ -8,7 +8,8 @@
 @theme static {
   --color-paper: #f7f4ee;
 
-  --font-sans: 'General Sans', sans-serif;
+  --font-sans: 'Karla', sans-serif;
+  --font-mono: 'Geist Mono', monospace;
   --font-display: 'Fraunces', serif;
   --font-type: 'Courier Prime', monospace;
   --font-hand: 'Playpen Sans', cursive;
@@ -32,23 +33,23 @@
   --color-maloi-300: #f9e390;
   --color-maloi-400: #f7da69;
   --color-maloi-500: #f5d042;
-  --color-maloi-600: #edbf0d;
-  --color-maloi-700: #b39009;
-  --color-maloi-800: #745d06;
-  --color-maloi-900: #3a2f03;
-  --color-maloi-950: #1d1702;
+  --color-maloi-600: #e0b420;
+  --color-maloi-700: #b38c12;
+  --color-maloi-800: #8f6d0f;
+  --color-maloi-900: #755a12;
+  --color-maloi-950: #443307;
 
-  --color-jhoanna-50: #dbe1fa;
-  --color-jhoanna-100: #b2bff5;
-  --color-jhoanna-200: #6a83ec;
-  --color-jhoanna-300: #1d43e2;
-  --color-jhoanna-400: #142d9a;
-  --color-jhoanna-500: #0a174e;
-  --color-jhoanna-600: #08133f;
-  --color-jhoanna-700: #060d2d;
-  --color-jhoanna-800: #040920;
-  --color-jhoanna-900: #02040e;
-  --color-jhoanna-950: #010309;
+  --color-jhoanna-50: #f1f5fb;
+  --color-jhoanna-100: #e2eaf6;
+  --color-jhoanna-200: #c3d3ec;
+  --color-jhoanna-300: #9ab4dd;
+  --color-jhoanna-400: #6c8fc9;
+  --color-jhoanna-500: #4a6fae;
+  --color-jhoanna-600: #34558b; /* banner blue */
+  --color-jhoanna-700: #2b4674;
+  --color-jhoanna-800: #24395e;
+  --color-jhoanna-900: #1d2c49;
+  --color-jhoanna-950: #0f2038; /* luckytinfs.com theme */
 
   --color-bini-50: #ebf8fa;
   --color-bini-100: #d7f2f4;

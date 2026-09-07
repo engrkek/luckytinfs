@@ -11,19 +11,19 @@ const columns = [{
 </script>
 
 <template>
-  <UFooter class="text-secondary">
+  <UFooter class="bg-secondary-600 text-white">
     <template #top>
       <UContainer>
         <UFooterColumns
           :columns
           :ui="{
             label: 'font-display font-bold uppercase',
-            link: 'text-secondary hover:text-secondary-100',
+            link: 'text-primary-200 hover:text-primary',
           }"
         >
           <template #left>
-            <div class="size-30 bg-secondary text-secondary-100 [mask:url(/images/logos/logo-square.png)_center/contain_no-repeat]" />
-            <p class="text-sm">
+            <div class="size-30 bg-white [mask:url(/images/logos/logo-square.png)_center/contain_no-repeat]" />
+            <p>
               A dedicated fan support team for BINI Maloi & BINI Jhoanna.
             </p>
           </template>
@@ -32,7 +32,7 @@ const columns = [{
     </template>
 
     <template #left>
-      <p class="text-xs uppercase text-pretty text-center lg:text-left">
+      <p class="text-sm text-pretty text-center lg:text-left">
         Crafted with 💛💙 by Lumities for Maloi, Jhoanna, BINI & Blooms.<br>Not affiliated with BINI, Star Music or ABS-CBN.
       </p>
     </template>

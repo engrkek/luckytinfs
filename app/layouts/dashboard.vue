@@ -31,7 +31,7 @@ const isDesktop = useMediaQuery('(min-width: 768px)', { ssrWidth: 767 })
         },
       }"
     >
-      <UContainer class="flex-1 h-[calc(100dvh-77px)] lg:h-dvh overflow-x-hidden overflow-y-auto">
+      <UContainer class="flex-1 h-[calc(100svh-79px)] lg:h-svh overflow-x-hidden overflow-y-auto">
         <slot />
       </UContainer>
     </UTheme>
