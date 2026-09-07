@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   const supabaseKey = process.env.NUXT_SUPABASE_SERVICE_KEY || process.env.NUXT_SUPABASE_KEY || 'sb_publishable_hHmRNH_QDvA8b05DmRaWpQ_TJVcQLtj'
   const paymentsTable = process.env.NUXT_SUPABASE_PAYMENTS_TABLE_NAME || 'block_screening_payments'
   const paymentId = id.trim()
-  const paymentUrl = `${supabaseUrl}/rest/v1/${paymentsTable}?id=eq.${encodeURIComponent(paymentId)}`
+  const paymentsUrl = `${supabaseUrl}/rest/v1/${paymentsTable}`
   const headers = {
     'apikey': supabaseKey,
     'Authorization': `******`,
@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const existingResponse = await fetch(`${paymentUrl}&select=id`, {
+    const existingResponse = await fetch(`${paymentsUrl}?select=id,payment_receiver`, {
       method: 'GET',
       headers,
     })
@@ -40,13 +40,20 @@ export default defineEventHandler(async (event) => {
     }
 
     const existingRows = await existingResponse.json()
-    if (!Array.isArray(existingRows) || existingRows.length === 0) {
+    const paymentIdNormalized = paymentId.toLowerCase()
+    const existingPayment = Array.isArray(existingRows)
+      ? existingRows.find((row: any) => String(row.id).trim().toLowerCase() === paymentIdNormalized)
+      : null
+
+    if (!existingPayment) {
       throw createError({
         statusCode: 404,
         statusMessage: `Payment record '${paymentId}' was not found in Database.`,
       })
     }
 
+    const storedPaymentId = String(existingPayment.id)
+    const paymentUrl = `${paymentsUrl}?id=eq.${encodeURIComponent(storedPaymentId)}`
     const response = await fetch(paymentUrl, {
       method: 'PATCH',
       headers: { ...headers, Prefer: 'return=minimal' },
@@ -83,7 +90,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    return { success: true, id: paymentId, paymentReceiver }
+    return { success: true, id: storedPaymentId, paymentReceiver }
   }
   catch (error: any) {
     console.error('Payment receiver update error:', error)
