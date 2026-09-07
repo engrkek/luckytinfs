@@ -40,7 +40,7 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/office/**': { auth: { user: { role: ['admin', 'moderator'] } }, appLayout: 'dashboard' },
+    '/office/**': { auth: { user: { role: ['admin', 'moderator'] } }, appLayout: 'office' },
     '/api/office/**': { auth: { user: { role: ['admin', 'moderator'] } } },
   },
 
@@ -67,10 +67,6 @@ export default defineNuxtConfig({
         'vue-advanced-cropper',
       ],
     },
-  },
-
-  auth: {
-    hubSecondaryStorage: true,
   },
 
   eslint: {
@@ -118,4 +114,8 @@ export default defineNuxtConfig({
   },
 
   image: { provider: 'none' },
+
+  skillHub: {
+    targets: ['claude-code'],
+  },
 })
