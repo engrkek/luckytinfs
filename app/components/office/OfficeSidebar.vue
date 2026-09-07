@@ -7,7 +7,7 @@ const tabs: NavigationMenuItem[] = officeNavTabs
 
 const userMenu: DropdownMenuItem[] = [
   {
-    icon: 'tabler:logout',
+    icon: 'ph:sign-out',
     label: 'Logout',
     color: 'error',
     onSelect: () => { signOut() },

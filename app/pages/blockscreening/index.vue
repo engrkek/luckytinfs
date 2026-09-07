@@ -1,16 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-useHead({
-  title: 'Block Screening Registration',
-  meta: [
-    { key: 'theme-color', name: 'theme-color', content: '#0f2038' },
-  ],
-  bodyAttrs: {
-    class: 'overflow-x-hidden bg-secondary-950 text-primary-100 selection:bg-primary-300 selection:text-secondary-950',
-  },
-})
-
 useSeoMeta({
   title: 'Block Screening Registration',
   description: 'Register for Luckytin Fan Support\'s \'Forgotten Island\' Block Screening event. Join us for a special movie screening!',
@@ -26,7 +16,7 @@ const form = ref({
   primaryUsername: '',
   otherPlatform: '',
   otherUsername: '',
-  childRegistration: 'sponsor', // 'sponsor' or 'bring'
+  childRegistration: 'sponsor', // 'sponsor', 'sponsor_two', or 'bring'
   minorName: '',
   relationship: '',
   ack1: false,
@@ -212,7 +202,7 @@ function copyToClipboard(text: string) {
 </script>
 
 <template>
-  <div class="min-h-dvh flex flex-col justify-between bg-secondary-900 bg-[url('/images/textures/06.jpg')] bg-blend-screen bg-cover bg-center overflow-x-hidden relative">
+  <div class="min-h-dvh flex flex-col justify-between bg-secondary-600 bg-[url('/images/textures/06.jpg')] bg-blend-screen overflow-x-hidden relative">
     <!-- Background overlay elements representing island breeze/vibe -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden select-none z-0">
       <div class="absolute -top-12 -left-12 opacity-10 text-9xl">
@@ -230,7 +220,7 @@ function copyToClipboard(text: string) {
     </div>
 
     <!-- MAIN CONTAINER -->
-    <div class="relative z-10 w-full max-w-2xl mx-auto px-4 py-8 sm:py-12 flex-1 flex flex-col justify-center">
+    <div class="relative z-10 w-full max-w-2xl mx-auto px-4 py-20 flex-1 flex flex-col justify-center">
       <!-- HERO BANNER -->
       <header class="text-center mb-8 flex flex-col items-center">
         <NuxtLink to="/blockscreening" class="hover:scale-105 transition-transform duration-300">
@@ -348,7 +338,11 @@ function copyToClipboard(text: string) {
                   <div class="grid grid-cols-3 pb-1">
                     <span class="font-semibold text-secondary-900/60 uppercase">Child Seat</span>
                     <span class="col-span-2 text-secondary-900 font-medium">
-                      {{ form.childRegistration === 'sponsor' ? 'Sponsoring a charity child 🐥' : `Bringing own child 🐼: ${form.minorName} (${form.relationship})` }}
+                      {{ form.childRegistration === 'sponsor'
+                        ? 'Sponsoring a charity child 🐥'
+                        : form.childRegistration === 'sponsor_two'
+                          ? 'Sponsoring two charity children 🐥🐥'
+                          : `Bringing own child 🐼: ${form.minorName} (${form.relationship})` }}
                     </span>
                   </div>
                 </div>
@@ -627,7 +621,7 @@ function copyToClipboard(text: string) {
                     Will you be sponsoring or bringing a child? <span class="text-red-500">*</span>
                   </label>
 
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1">
                     <!-- Option 1: Sponsor -->
                     <label
                       class="flex items-center gap-3 p-3 rounded-xl border border-[#ebdcb3] bg-white/40 cursor-pointer hover:bg-maloi-50/10 transition-colors"
@@ -645,7 +639,24 @@ function copyToClipboard(text: string) {
                       </div>
                     </label>
 
-                    <!-- Option 2: Bring own -->
+                    <!-- Option 2: Sponsor two -->
+                    <label
+                      class="flex items-center gap-3 p-3 rounded-xl border border-[#ebdcb3] bg-white/40 cursor-pointer hover:bg-maloi-50/10 transition-colors"
+                      :class="form.childRegistration === 'sponsor_two' && 'border-secondary-500 bg-jhoanna-50 ring-1 ring-secondary-500'"
+                    >
+                      <input
+                        v-model="form.childRegistration"
+                        type="radio"
+                        value="sponsor_two"
+                        class="size-4 text-secondary-600 focus:ring-secondary-500"
+                      >
+                      <div class="space-y-0.5">
+                        <span class="block font-semibold text-secondary-900 text-xs">Sponsor 2 children 🐥🐥</span>
+                        <span class="block text-[11px] text-secondary-900/60">I will be sponsoring two children</span>
+                      </div>
+                    </label>
+
+                    <!-- Option 3: Bring own -->
                     <label
                       class="flex items-center gap-3 p-3 rounded-xl border border-[#ebdcb3] bg-white/40 cursor-pointer hover:bg-maloi-50/10 transition-colors"
                       :class="form.childRegistration === 'bring' && 'border-secondary-500 bg-jhoanna-50 ring-1 ring-secondary-500'"
@@ -666,7 +677,7 @@ function copyToClipboard(text: string) {
 
                 <!-- Conditional Sponsor Child Info -->
                 <Transition name="fade-slide">
-                  <div v-if="form.childRegistration === 'sponsor'" class="border border-[#ebdcb3] bg-maloi-50/10 p-4 rounded-xl space-y-4 mt-2 flex flex-col sm:flex-row items-center gap-4">
+                  <div v-if="form.childRegistration === 'sponsor' || form.childRegistration === 'sponsor_two'" class="border border-[#ebdcb3] bg-maloi-50/10 p-4 rounded-xl space-y-4 mt-2 flex flex-col sm:flex-row items-center gap-4">
                     <div class="shrink-0 w-28 flex justify-center p-2 bg-white rounded-lg shadow-sm border border-[#ebdcb3]/60">
                       <NuxtImg
                         src="/images/bahay-tuluyan.jpg"
@@ -679,7 +690,10 @@ function copyToClipboard(text: string) {
                       <p class="font-bold text-secondary-900">
                         Charity Sponsorship:
                       </p>
-                      <p>
+                      <p v-if="form.childRegistration === 'sponsor_two'">
+                        Your ticket purchase will enable <strong>two children</strong> from <strong>BAHAY TULUYAN</strong> to experience the same magic you would have in the cinemas. Your purchase also entails the child goodies and inclusions that would benefit them in and beyond the block screening.
+                      </p>
+                      <p v-else>
                         If you choose to sponsor a child, your ticket purchase will enable a child from <strong>BAHAY TULUYAN</strong> to experience the same magic you would have in the cinemas. Your purchase also entails the child goodies and inclusions that would benefit them in and beyond the block screening.
                       </p>
                     </div>
@@ -852,15 +866,6 @@ function copyToClipboard(text: string) {
         </div>
       </Transition>
     </div>
-
-    <!-- FOOTER -->
-    <footer class="relative z-10 border-t border-primary-100/10 px-4 py-5 bg-secondary-950/60 backdrop-blur-md">
-      <p class="font-type text-[10px] sm:text-xs uppercase tracking-wide text-primary-100/80 text-center text-pretty max-w-xl mx-auto leading-relaxed">
-        Crafted with 💛💙 by Lumities for Maloi, Jhoanna, BINI &amp; Blooms.
-        <br>
-        Not affiliated with BINI, Star Music, Abs-Cbn, or Dreamworks.
-      </p>
-    </footer>
   </div>
 </template>
 

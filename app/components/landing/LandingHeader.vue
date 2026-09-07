@@ -27,7 +27,7 @@ const links: ButtonProps[] = [
         </div>
 
         <UButton label="Donate" to="/donate" size="xl" class="text-secondary-900 px-4" />
-        <UButton icon="tabler:menu-4" variant="ghost" class="lg:hidden" @click="landingMenu.open({ links })" />
+        <UButton icon="ph:list" variant="ghost" class="lg:hidden" @click="landingMenu.open({ links })" />
       </div>
     </UContainer>
   </header>

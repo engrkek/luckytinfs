@@ -1,12 +1,22 @@
-import { createError, defineEventHandler, readBody } from 'h3'
+import { z } from 'zod'
+
+const registerSchema = z.object({
+  id: z.string().min(1),
+  fullName: z.string().trim().min(1),
+  nickname: z.string().trim().min(1),
+  email: z.email(),
+  mobile: z.string().trim().min(1),
+  primaryPlatform: z.string().trim().min(1),
+  primaryUsername: z.string().trim().min(1),
+  otherPlatform: z.string().trim().optional(),
+  otherUsername: z.string().trim().optional(),
+  childRegistration: z.enum(['sponsor', 'sponsor_two', 'bring']),
+  minorName: z.string().trim().optional(),
+  relationship: z.string().trim().optional(),
+})
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-
-  // Supabase Database Credentials (with environment variable override support)
-  const supabaseUrl = process.env.NUXT_SUPABASE_URL || 'https://yqaforptbwlyfavadaky.supabase.co'
-  const supabaseKey = process.env.NUXT_SUPABASE_KEY || 'sb_publishable_hHmRNH_QDvA8b05DmRaWpQ_TJVcQLtj'
-  const tableName = process.env.NUXT_SUPABASE_TABLE_NAME || 'block_screening_registrations'
+  const body = await readValidatedBody(event, registerSchema.parse)
 
   // Map camelCase form body to lower_snake_case database columns
   const payload = {
@@ -24,44 +34,19 @@ export default defineEventHandler(async (event) => {
     relationship: body.relationship || null,
   }
 
-  try {
-    const response = await fetch(`${supabaseUrl}/rest/v1/${tableName}`, {
-      method: 'POST',
-      headers: {
-        'apikey': supabaseKey,
-        'Authorization': `Bearer ${supabaseKey}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal',
-      },
-      body: JSON.stringify(payload),
-    })
+  const response = await blockscreeningSupabaseFetch(BLOCKSCREENING_REGISTRATIONS_TABLE, {
+    useServiceKey: false,
+    method: 'POST',
+    headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify(payload),
+  })
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      console.error('DB Error Response:', errorData)
-
-      // Gracefully handle "Table Not Found" 404 errors by referring to the SQL schema file
-      if (response.status === 404) {
-        throw createError({
-          statusCode: 404,
-          statusMessage: `Table '${tableName}' not found in your database.`,
-        })
-      }
-
-      throw createError({
-        statusCode: response.status,
-        statusMessage: errorData.message || 'Failed to save registration to database.',
-      })
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw createError({ statusCode: 404, statusMessage: `Table '${BLOCKSCREENING_REGISTRATIONS_TABLE}' not found in your database.` })
     }
+    await throwSupabaseError(response, 'Failed to save registration to database.', 'Registration DB Error:')
+  }
 
-    return { success: true }
-  }
-  catch (error: any) {
-    console.error('Registration API Error:', error)
-    throw createError({
-      statusCode: error.statusCode || 500,
-      statusMessage: error.statusMessage || 'An unexpected error occurred during database registration.',
-      data: error.data,
-    })
-  }
+  return { success: true }
 })
