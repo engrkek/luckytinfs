@@ -13,6 +13,7 @@ export const donation = sqliteTable('donation', {
   display: text().notNull(), // handle_only, name_only, both, anon — per donation, so going public later never unmasks an old anonymous donation
   amount: integer().notNull(), // stored as cents
   channelId: text().references(() => channel.id).notNull(),
+  refNo: text(), // payment reference number
   proofUrl: text(), // file upload url
   status: text().default('pending').notNull(), // pending, approved, invalid
   donorNotes: text(), // idk if it should be shown publicly
