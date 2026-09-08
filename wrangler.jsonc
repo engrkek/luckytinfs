@@ -47,6 +47,7 @@
   ],
   "env": {
     "preview": {
+      "name": "luckytinfs-preview",
       "routes": [
         {
           "pattern": "preview.luckytinfs.com",
