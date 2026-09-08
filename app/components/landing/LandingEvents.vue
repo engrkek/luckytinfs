@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { motion } from 'motion-v'
+import { scrollMotion, staggerMotion } from '~/utils/motion'
+
 const events = [
   {
     key: 'forgotten-island',
@@ -43,49 +46,53 @@ const events = [
 <template>
   <UPageSection id="events" class="scroll-mt-10">
     <div class="space-y-10">
-      <div>
+      <motion.div v-bind="scrollMotion()">
         <h2 class="font-display font-medium text-3xl lg:text-5xl tracking-tight text-pretty">
           What we've been up to
         </h2>
-      </div>
+      </motion.div>
 
       <div class="grid md:grid-cols-2 gap-8">
-        <div
-          v-for="event in events"
+        <motion.div
+          v-for="(event, index) in events"
           :key="event.key"
-          class="bg-white text-neutral-900 drop-shadow-xl px-6 py-6"
-          :class="event.rotate"
+          v-bind="staggerMotion(index)"
         >
-          <div class="flex items-center justify-between gap-2">
-            <span class="inline-block rounded-full px-3 py-1 font-type text-[11px] uppercase tracking-wide" :class="event.statusClass">
-              {{ event.status }}
-            </span>
-            <span class="font-type text-xs text-neutral-400">{{ event.when }}</span>
+          <div
+            class="bg-white text-neutral-900 drop-shadow-xl px-6 py-6"
+            :class="event.rotate"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="inline-block rounded-full px-3 py-1 font-type text-[11px] uppercase tracking-wide" :class="event.statusClass">
+                {{ event.status }}
+              </span>
+              <span class="font-type text-xs text-neutral-400">{{ event.when }}</span>
+            </div>
+
+            <h3 class="mt-4 font-display font-medium text-2xl tracking-tight">
+              {{ event.title }}
+            </h3>
+            <p class="font-script italic text-lg text-neutral-500 -mt-1">
+              {{ event.subtitle }}
+            </p>
+
+            <div class="w-full h-px border-b border-dashed border-neutral-300 my-4" />
+
+            <p class="flex items-center gap-1.5 font-type text-xs uppercase tracking-wide text-neutral-500">
+              <UIcon name="ph:map-pin" class="size-3.5" />
+              {{ event.where }}
+            </p>
+            <p class="mt-3 text-neutral-700 text-pretty">
+              {{ event.body }}
+            </p>
+
+            <UButton v-if="event.cta" :label="event.cta.label" :to="event.cta.to" class="mt-5 text-secondary-900" />
+            <p v-else class="mt-5 flex items-center gap-1.5 text-sm font-medium text-secondary-700">
+              <UIcon :name="event.icon" class="size-4" />
+              {{ event.iconLabel }}
+            </p>
           </div>
-
-          <h3 class="mt-4 font-display font-medium text-2xl tracking-tight">
-            {{ event.title }}
-          </h3>
-          <p class="font-script italic text-lg text-neutral-500 -mt-1">
-            {{ event.subtitle }}
-          </p>
-
-          <div class="w-full h-px border-b border-dashed border-neutral-300 my-4" />
-
-          <p class="flex items-center gap-1.5 font-type text-xs uppercase tracking-wide text-neutral-500">
-            <UIcon name="ph:map-pin" class="size-3.5" />
-            {{ event.where }}
-          </p>
-          <p class="mt-3 text-neutral-700 text-pretty">
-            {{ event.body }}
-          </p>
-
-          <UButton v-if="event.cta" :label="event.cta.label" :to="event.cta.to" class="mt-5 text-secondary-900" />
-          <p v-else class="mt-5 flex items-center gap-1.5 text-sm font-medium text-secondary-700">
-            <UIcon :name="event.icon" class="size-4" />
-            {{ event.iconLabel }}
-          </p>
-        </div>
+        </motion.div>
       </div>
     </div>
   </UPageSection>

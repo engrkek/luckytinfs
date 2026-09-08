@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { motion } from 'motion-v'
+import { enterMotion } from '~/utils/motion'
+
 useSeoMeta({
   titleTemplate: 'Luckytin Fan Support',
   description: 'A dedicated fan support team for BINI Maloi & BINI Jhoanna',
@@ -14,13 +17,13 @@ useSeoMeta({
 
       <UContainer class="relative py-20">
         <div class="min-h-[calc(100svh-219px)] flex flex-col justify-center lg:flex-row lg:items-center lg:justify-start gap-x-6 gap-y-10">
-          <div class="space-y-4">
+          <motion.div class="space-y-4" v-bind="enterMotion()">
             <div class="space-y-2">
               <h1 class="font-display font-medium text-5xl lg:text-7xl tracking-tight text-pretty">
                 A shared journal for <span class="italic text-primary-400">Lucky</span> <span class="font-script">&</span> <span class="italic text-secondary-300">Tintin</span>
               </h1>
               <p class="text-xl lg:text-2xl text-white/90 text-pretty">
-                The official fan support team for BINI Maloi & BINI Jhoanna.
+                A fan support space by Lumities for BINI Maloi and Jhoanna.
               </p>
             </div>
 
@@ -34,22 +37,34 @@ useSeoMeta({
                 class="text-lg px-5 py-3"
               />
             </div>
-          </div>
+          </motion.div>
 
           <div class="min-w-0 sm:min-w-90 lg:min-w-150 flex items-center justify-center">
-            <div class="-ml-4 lg:ml-0 w-40 sm:w-50 lg:w-75 bg-white text-neutral-950 shadow-xl p-2 lg:p-4 rotate-4">
-              <NuxtImg src="/images/luckytin-0.jpeg" />
-              <div class="py-2 lg:py-4 font-summer font-bold lg:text-2xl text-center">
-                <p>forever 💛💙</p>
+            <motion.div
+              :initial="{ opacity: 0, y: 24, x: -20 }"
+              :animate="{ opacity: 1, y: 0, x: 0 }"
+              :transition="{ duration: 0.7, delay: 0.25, ease: [0.16, 1, 0.3, 1] }"
+            >
+              <div class="-ml-4 lg:ml-0 w-40 sm:w-50 lg:w-75 bg-white text-neutral-950 shadow-xl p-2 lg:p-4 rotate-4">
+                <NuxtImg src="/images/luckytin-0.jpeg" />
+                <div class="py-2 lg:py-4 font-summer font-bold lg:text-2xl text-center">
+                  <p>forever 💛💙</p>
+                </div>
               </div>
-            </div>
+            </motion.div>
 
-            <div class="-ml-4 w-40 sm:w-50 lg:w-75 bg-white text-neutral-950 shadow-xl p-2 lg:p-4 -rotate-6">
-              <NuxtImg src="/images/luckytin-76.png" class="w-full aspect-square object-cover object-top" />
-              <div class="py-2 lg:py-4 font-summer font-bold lg:text-2xl text-center">
-                <p>🍀 lucky & tintin 🦋</p>
+            <motion.div
+              :initial="{ opacity: 0, y: 24, x: 20 }"
+              :animate="{ opacity: 1, y: 0, x: 0 }"
+              :transition="{ duration: 0.7, delay: 0.38, ease: [0.16, 1, 0.3, 1] }"
+            >
+              <div class="-ml-4 w-40 sm:w-50 lg:w-75 bg-white text-neutral-950 shadow-xl p-2 lg:p-4 -rotate-6">
+                <NuxtImg src="/images/luckytin-76.png" class="w-full aspect-square object-cover object-top" />
+                <div class="py-2 lg:py-4 font-summer font-bold lg:text-2xl text-center">
+                  <p>🍀 lucky & tintin 🦋</p>
+                </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </UContainer>
