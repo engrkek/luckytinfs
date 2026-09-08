@@ -7,6 +7,12 @@ const columns = [{
     { label: 'Reports', to: '/#reports' },
     { label: 'Login', to: '/login' },
   ],
+}, {
+  label: 'Legal',
+  children: [
+    { label: 'Terms of Service', to: '/terms' },
+    { label: 'Privacy Policy', to: '/privacy' },
+  ],
 }]
 </script>
 
