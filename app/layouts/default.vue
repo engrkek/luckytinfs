@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { MotionConfig } from 'motion-v'
+
 useHead({
   meta: [
     { charset: 'utf-8' },
@@ -25,10 +27,12 @@ useHead({
       },
     }"
   >
-    <div>
-      <LandingHeader />
-      <slot />
-      <LandingFooter />
-    </div>
+    <MotionConfig reduced-motion="user">
+      <div>
+        <LandingHeader />
+        <slot />
+        <LandingFooter />
+      </div>
+    </MotionConfig>
   </UTheme>
 </template>
