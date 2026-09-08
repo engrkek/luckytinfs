@@ -38,8 +38,8 @@ const socialItems: SelectItem[] = [
 ]
 
 const campaignItems = computed<SelectItem[]>(() => [
-  { value: '__general', label: 'Wherever it\'s needed most' },
   ...(campaigns.value ?? []).map(c => ({ value: c.id, label: c.title })),
+  { value: '__general', label: 'Wherever it\'s needed most' },
 ])
 
 const channelItems = computed<SelectItem[]>(() => (channels.value ?? []).map(c => ({
@@ -60,6 +60,9 @@ const schema = z.object({
   donorEmail: z.email('Enter a valid email'),
   donorNotes: z.string().optional(),
   adminNotes: z.string().optional(),
+}).refine(data => (data.display !== 'both' && data.display !== 'name_only') || !!data.donorName?.trim(), {
+  message: 'Enter a name, or choose a different credit option',
+  path: ['donorName'],
 })
 type Schema = z.output<typeof schema>
 
