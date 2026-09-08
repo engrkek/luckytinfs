@@ -8,12 +8,13 @@
 @theme static {
   --color-paper: #f7f4ee;
 
-  --font-sans: 'Geist', sans-serif;
+  --font-sans: 'Karla', sans-serif;
+  --font-mono: 'Geist Mono', monospace;
   --font-display: 'Fraunces', serif;
   --font-type: 'Courier Prime', monospace;
   --font-hand: 'Playpen Sans', cursive;
   --font-script: 'Nice Gourmet Script Trial', cursive;
-  /* Family must match Nuxt local slug (filename strips trailing .Noncommercial) */
+  /* Family must match Nuxt local slug */
   --font-casual: 'A.Casual.Handwritten.Pen', cursive;
   --font-seine: 'Au Bord de la Seine', cursive;
   --font-crayon: 'DK Crayon Crumble', cursive;
@@ -26,31 +27,29 @@
   --font-summer: 'Summer Nyumer', cursive;
   --font-nanti: 'Tentang Nanti Demo', cursive;
 
-  --font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  --color-maloi-50: #fefaec;
+  --color-maloi-100: #fdf5d8;
+  --color-maloi-200: #fbecb2;
+  --color-maloi-300: #f9e390;
+  --color-maloi-400: #f7da69;
+  --color-maloi-500: #f5d042;
+  --color-maloi-600: #e0b420;
+  --color-maloi-700: #b38c12;
+  --color-maloi-800: #8f6d0f;
+  --color-maloi-900: #755a12;
+  --color-maloi-950: #443307;
 
-  --color-jhoanna-50: #eff4fb;
-  --color-jhoanna-100: #dfe8f6;
-  --color-jhoanna-200: #bfd1ee;
-  --color-jhoanna-300: #9fbbe5;
-  --color-jhoanna-400: #7fa4dc;
-  --color-jhoanna-500: #5f8dd3;
-  --color-jhoanna-600: #3f76cb;
-  --color-jhoanna-700: #3063b0;
-  --color-jhoanna-800: #275190;
-  --color-jhoanna-900: #1f4072;
-  --color-jhoanna-950: #0f2038;
-
-  --color-maloi-50: #fff9c2;
-  --color-maloi-100: #fff384;
-  --color-maloi-200: #ffef57;
-  --color-maloi-300: #ffeb2e;
-  --color-maloi-400: #ffe705;
-  --color-maloi-500: #d6c100;
-  --color-maloi-600: #ad9c00;
-  --color-maloi-700: #807300;
-  --color-maloi-800: #574e00;
-  --color-maloi-900: #292500;
-  --color-maloi-950: #141200;
+  --color-jhoanna-50: #f1f5fb;
+  --color-jhoanna-100: #e2eaf6;
+  --color-jhoanna-200: #c3d3ec;
+  --color-jhoanna-300: #9ab4dd;
+  --color-jhoanna-400: #6c8fc9;
+  --color-jhoanna-500: #4a6fae;
+  --color-jhoanna-600: #34558b; /* banner blue */
+  --color-jhoanna-700: #2b4674;
+  --color-jhoanna-800: #24395e;
+  --color-jhoanna-900: #1d2c49;
+  --color-jhoanna-950: #0f2038; /* luckytinfs.com theme */
 
   --color-bini-50: #ebf8fa;
   --color-bini-100: #d7f2f4;
@@ -79,11 +78,11 @@
   background-color: var(--color-maloi-50);
   background-image: linear-gradient(
       90deg,
-      color-mix(in srgb, var(--color-maloi-400) 45%, transparent) 50%,
+      color-mix(in srgb, var(--color-maloi-300) 45%, transparent) 50%,
       transparent 50%
     ),
     linear-gradient(
-      color-mix(in srgb, var(--color-maloi-400) 45%, transparent) 50%,
+      color-mix(in srgb, var(--color-maloi-300) 45%, transparent) 50%,
       transparent 50%
     );
   background-size: var(--gingham-size) var(--gingham-size);
@@ -94,11 +93,11 @@
   background-color: var(--color-jhoanna-50);
   background-image: linear-gradient(
       90deg,
-      color-mix(in srgb, var(--color-jhoanna-400) 40%, transparent) 50%,
+      color-mix(in srgb, var(--color-jhoanna-300) 40%, transparent) 50%,
       transparent 50%
     ),
     linear-gradient(
-      color-mix(in srgb, var(--color-jhoanna-400) 40%, transparent) 50%,
+      color-mix(in srgb, var(--color-jhoanna-300) 40%, transparent) 50%,
       transparent 50%
     );
   background-size: var(--gingham-size) var(--gingham-size);

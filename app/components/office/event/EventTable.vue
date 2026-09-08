@@ -1,0 +1,30 @@
+<script setup lang="ts">
+import type { TableColumn, TableRow } from '@nuxt/ui'
+import type { CEvent } from '#shared/types'
+
+defineProps<{ events: CEvent[] }>()
+
+const columns: TableColumn<CEvent>[] = [
+  sortableColumn<CEvent>('name', 'Name'),
+  sortableColumn<CEvent>('capacity', 'Capacity'),
+]
+
+function onSelect(e: Event, row: TableRow<CEvent>) {
+  navigateTo(`/office/events/${row.original.id}`)
+}
+</script>
+
+<template>
+  <div class="border-t border-default">
+    <UTable :data="events" :columns empty="No events yet." @select="onSelect">
+      <template #name-cell="{ row }">
+        <p class="font-bold text-highlighted">
+          {{ row.original.name }}
+        </p>
+        <p class="text-muted">
+          {{ row.original.venue }}
+        </p>
+      </template>
+    </UTable>
+  </div>
+</template>

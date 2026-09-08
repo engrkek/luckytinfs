@@ -1,0 +1,1 @@
+ALTER TABLE `campaign` ADD `status` text DEFAULT 'open' NOT NULL;

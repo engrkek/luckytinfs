@@ -3,15 +3,24 @@ const props = withDefaults(defineProps<{
   src: string
   alt: string
   class?: any
+  imgClass?: any
 }>(), {
   class: 'size-40',
 })
 </script>
 
 <template>
-  <div class="stamp overflow-hidden" :class="props.class">
-    <div class="stamp__matte">
-      <NuxtImg :src :alt draggable="false" class="w-full h-full object-cover object-center" />
+  <div :class="props.class">
+    <div class="stamp overflow-hidden w-full h-full">
+      <div class="stamp__matte">
+        <NuxtImg
+          :src
+          :alt
+          draggable="false"
+          class="w-full h-full object-cover object-center"
+          :class="props.imgClass"
+        />
+      </div>
     </div>
   </div>
 </template>

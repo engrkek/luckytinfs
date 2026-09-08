@@ -5,5 +5,3 @@
     Page: office/settings
   </div>
 </template>
-
-<style scoped></style>

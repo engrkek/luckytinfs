@@ -5,12 +5,24 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxt/image',
     '@nuxthub/core',
-    '@onmax/nuxt-better-auth',
+    '@nuxtjs/better-auth',
     '@pinia/nuxt',
     '@pinia/colada-nuxt',
     '@vueuse/nuxt',
     'motion-v/nuxt',
+    'nuxt-skill-hub',
   ],
+
+  $production: {
+    nitro: {
+      preset: 'cloudflare_module',
+    },
+
+    image: {
+      provider: 'cloudflare',
+    },
+  },
+
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
 
@@ -29,15 +41,13 @@ export default defineNuxtConfig({
     memberMailboxKeys: {
       bini: 'SuIGnhhSexYZ_MYbRyXxlL3C',
     },
-    public: {
-      networkName: 'LuckyTinFS_Guest',
-      sitePassword: 'luckytin02',
-    },
   },
 
   routeRules: {
-    '/office/**': { auth: { user: { role: ['admin', 'moderator'] } }, appLayout: 'dashboard' },
+    '/office/**': { auth: { user: { role: ['admin', 'moderator'] } }, appLayout: 'office' },
     '/api/office/**': { auth: { user: { role: ['admin', 'moderator'] } } },
+    '/letters/**': { appLayout: false },
+    '/mailbox/**': { appLayout: false },
   },
 
   compatibilityDate: '2025-07-15',
@@ -59,10 +69,6 @@ export default defineNuxtConfig({
         'vue-advanced-cropper',
       ],
     },
-  },
-
-  auth: {
-    hubSecondaryStorage: true,
   },
 
   eslint: {
@@ -109,7 +115,9 @@ export default defineNuxtConfig({
     provider: 'iconify',
   },
 
-  image: {
-    provider: 'none',
+  image: { provider: 'none' },
+
+  skillHub: {
+    targets: ['claude-code'],
   },
 })

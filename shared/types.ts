@@ -5,8 +5,7 @@ import type {
   donation,
   donor,
   event,
-  eventRegistration,
-  eventTier,
+  eventRsvp,
   expense,
   fulfillment,
   letter,
@@ -24,8 +23,7 @@ export type Category = typeof category.$inferSelect
 export type Channel = typeof channel.$inferSelect
 export type Donation = typeof donation.$inferSelect
 export type Donor = typeof donor.$inferSelect
-export type EventRegistration = typeof eventRegistration.$inferSelect
-export type EventTier = typeof eventTier.$inferSelect
+export type EventRsvp = typeof eventRsvp.$inferSelect
 export type Expense = typeof expense.$inferSelect
 export type Fulfillment = typeof fulfillment.$inferSelect
 export type Letter = typeof letter.$inferSelect
@@ -41,8 +39,7 @@ export type NewCategory = typeof category.$inferInsert
 export type NewChannel = typeof channel.$inferInsert
 export type NewDonation = typeof donation.$inferInsert
 export type NewDonor = typeof donor.$inferInsert
-export type NewEventRegistration = typeof eventRegistration.$inferInsert
-export type NewEventTier = typeof eventTier.$inferInsert
+export type NewEventRsvp = typeof eventRsvp.$inferInsert
 export type NewExpense = typeof expense.$inferInsert
 export type NewFulfillment = typeof fulfillment.$inferInsert
 export type NewLetter = typeof letter.$inferInsert

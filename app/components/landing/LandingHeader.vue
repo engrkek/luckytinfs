@@ -1,13 +1,41 @@
+<script setup lang="ts">
+import type { ButtonProps } from '@nuxt/ui'
+import { LazyLandingMenu } from '#components'
+
+const overlay = useOverlay()
+const landingMenu = overlay.create(LazyLandingMenu)
+
+const links: ButtonProps[] = [
+  { label: 'About', to: '/#about' },
+  { label: 'Fan Projects', to: '/#fan-projects' },
+  { label: 'Events', to: '/#events' },
+  { label: 'Reports', to: '/#reports' },
+]
+</script>
+
 <template>
-  <header class="sticky top-0 inset-x-0 z-50 bg-secondary-900/95 text-primary-100 backdrop-blur-sm">
+  <header class="sticky top-0 inset-x-0 z-50 bg-secondary-600 text-white">
     <UContainer class="flex items-center justify-between gap-2 py-4">
-      <NuxtLink to="/" class="flex items-center gap-2" aria-label="Luckytin Fan Support home">
-        <UIcon name="custom:ltcon" class="text-xl" />
+      <NuxtLink to="/">
+        <NuxtImg src="/images/logos/logo-hr-white.png" class="h-5" />
       </NuxtLink>
 
-      <p class="font-type text-xs uppercase tracking-[0.2em] text-primary-300/80">
-        Coming soon
-      </p>
+      <div class="flex items-center gap-4">
+        <div class="hidden lg:flex items-center gap-4">
+          <NuxtLink v-for="(link, index) in links" :key="index" :to="link.to" class="font-extrabold uppercase hover:text-primary">
+            {{ link.label }}
+          </NuxtLink>
+        </div>
+
+        <UButton label="Donate" to="/donate" size="xl" class="text-secondary-900 px-4" />
+        <UButton
+          icon="ph:list"
+          aria-label="Open menu"
+          variant="ghost"
+          class="lg:hidden"
+          @click="landingMenu.open({ links })"
+        />
+      </div>
     </UContainer>
   </header>
 </template>
