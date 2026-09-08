@@ -42,6 +42,8 @@ export default defineNuxtConfig({
   routeRules: {
     '/office/**': { auth: { user: { role: ['admin', 'moderator'] } }, appLayout: 'office' },
     '/api/office/**': { auth: { user: { role: ['admin', 'moderator'] } } },
+    '/letters/**': { appLayout: false },
+    '/mailbox/**': { appLayout: false },
   },
 
   compatibilityDate: '2025-07-15',
