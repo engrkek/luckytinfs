@@ -16,7 +16,13 @@ const open = defineModel<boolean>('open', { default: false })
     </template>
     <template #body>
       <div class="grid gap-2 text-center">
-        <NuxtLink v-for="(link, index) in links" :key="index" :to="link.to" class="font-extrabold text-lg uppercase hover:text-primary">
+        <NuxtLink
+          v-for="(link, index) in links"
+          :key="index"
+          :to="link.to"
+          class="font-extrabold text-lg uppercase hover:text-primary"
+          @click="open = !open"
+        >
           {{ link.label }}
         </NuxtLink>
       </div>
