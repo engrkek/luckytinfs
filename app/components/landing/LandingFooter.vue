@@ -4,6 +4,7 @@ const columns = [{
   children: [
     { label: 'About', to: '/#about' },
     { label: 'Fan Projects', to: '/#fan-projects' },
+    { label: 'Events', to: '/#events' },
     { label: 'Reports', to: '/#reports' },
     { label: 'Login', to: '/login' },
   ],

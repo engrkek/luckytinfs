@@ -12,7 +12,7 @@ const open = defineModel<boolean>('open', { default: false })
       <NuxtImg src="/images/logos/logo-hr-white.png" class="h-5" />
     </template>
     <template #close>
-      <UButton icon="ph:x" variant="ghost" class="ml-auto" />
+      <UButton icon="ph:x" aria-label="Close menu" variant="ghost" class="ml-auto" />
     </template>
     <template #body>
       <div class="grid gap-2 text-center">

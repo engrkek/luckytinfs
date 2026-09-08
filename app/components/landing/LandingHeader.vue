@@ -6,9 +6,10 @@ const overlay = useOverlay()
 const landingMenu = overlay.create(LazyLandingMenu)
 
 const links: ButtonProps[] = [
-  { label: 'About', to: '#about' },
-  { label: 'Fan Projects', to: '#fan-projects' },
-  { label: 'Reports', to: '#reports' },
+  { label: 'About', to: '/#about' },
+  { label: 'Fan Projects', to: '/#fan-projects' },
+  { label: 'Events', to: '/#events' },
+  { label: 'Reports', to: '/#reports' },
 ]
 </script>
 
@@ -27,7 +28,13 @@ const links: ButtonProps[] = [
         </div>
 
         <UButton label="Donate" to="/donate" size="xl" class="text-secondary-900 px-4" />
-        <UButton icon="ph:list" variant="ghost" class="lg:hidden" @click="landingMenu.open({ links })" />
+        <UButton
+          icon="ph:list"
+          aria-label="Open menu"
+          variant="ghost"
+          class="lg:hidden"
+          @click="landingMenu.open({ links })"
+        />
       </div>
     </UContainer>
   </header>
