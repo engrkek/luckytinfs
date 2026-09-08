@@ -23,18 +23,5 @@ useSeoMeta({
 
       <DonateForm />
     </UContainer>
-
-    <UContainer class="max-w-3xl py-20 space-y-6 text-center">
-      <div class="space-y-2">
-        <h2 class="font-display text-3xl tracking-tight">
-          donations & expenses
-        </h2>
-        <p class="text-white/70">
-          Every peso accounted for.
-        </p>
-      </div>
-
-      <ReportsLedger />
-    </UContainer>
   </div>
 </template>
