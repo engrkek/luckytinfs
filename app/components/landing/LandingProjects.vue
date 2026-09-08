@@ -7,27 +7,34 @@ const freebies = [
 </script>
 
 <template>
-  <UPageSection id="fan-projects" class="scroll-mt-10">
-    <div class="grid xl:grid-cols-2 gap-8">
-      <div>
-        <h2 class="text-3xl font-display tracking-tighter">
-          current fan project
+  <UPageSection id="fan-projects" class="scroll-mt-10 bg-gingham-yellow text-neutral-900">
+    <div class="grid lg:grid-cols-2 gap-8">
+      <div class="lg:col-span-2 space-y-2 max-w-lg w-full">
+        <h2 class="font-display font-medium text-3xl lg:text-5xl tracking-tight text-pretty">
+          Fan Projects
         </h2>
+        <p class="text-lg text-neutral-700">
+          Little ways we can show up for Maloi and Jhoanna, from fan-made freebies to bigger projects we build together.
+        </p>
+      </div>
 
-        <div class="mt-10 flex flex-col xl:flex-row items-center justify-center">
-          <Stamp src="/images/projects/HMoAYULbwAE-l9R.jpeg" alt="photocard fan support" class="rotate-6 w-40 xl:w-70" />
-          <Stamp src="/images/projects/HMoAYySbkAA2kmP.jpeg" alt="handbanner fan support" class="-rotate-12 w-40 xl:w-70" />
+      <div class="mt-10 flex flex-col lg:flex-row items-center justify-center">
+        <div class="rotate-6 max-w-sm lg:w-70 aspect-square">
+          <Stamp src="/images/projects/pc.jpeg" alt="photocard fan support" class="w-full h-full drop-shadow-lg" />
+        </div>
+        <div class="-rotate-12 max-w-sm lg:w-70 aspect-square">
+          <Stamp src="/images/projects/hand-banner.jpeg" alt="handbanner fan support" class="w-full h-full drop-shadow-lg" />
         </div>
       </div>
 
       <div>
-        <div class="relative max-w-md w-full mx-auto mt-8 xl:mt-0 bg-linear-to-br from-white to-primary-50 text-default -rotate-3 drop-shadow-xl px-6 py-8">
-          <div class="absolute top-0 left-1/2 -translate-1/2 w-50 h-10 bg-gingham-yellow opacity-90 drop-shadow" />
+        <div class="relative max-w-md w-full mx-auto mt-8 xl:mt-0 bg-linear-to-br from-white to-primary-50 text-default -rotate-3 drop-shadow-lg px-6 py-8">
+          <div class="absolute top-0 left-1/2 -translate-1/2 w-50 h-10 bg-secondary opacity-80 drop-shadow-md" />
 
           <h3 class="text-2xl font-display tracking-tighter text-balance">
             Signals World Tour / <i>Cebu Freebies</i>
           </h3>
-          <p class="mt-2 text-sm font-type uppercase tracking-wideest">
+          <p class="mt-2 text-sm font-type uppercase tracking-widest">
             SM Seaside Cebu Arena
           </p>
           <div class="w-full h-px border-b border-dashed border-neutral-700 my-4" />
