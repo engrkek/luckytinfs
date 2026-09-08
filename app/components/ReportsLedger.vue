@@ -30,7 +30,7 @@ function short(iso: string) {
           Luckytin Fan Support
         </h3>
         <p class="text-sm font-bold">
-          Donations // Income
+          Donations // In
         </p>
       </div>
 
@@ -50,8 +50,8 @@ function short(iso: string) {
 
       <USeparator type="dashed" class="my-2" :ui="{ border: 'border-neutral-900' }" />
 
-      <div class="flex items-baseline justify-between text-sm font-bold">
-        <span>Total</span>
+      <div class="flex items-baseline justify-between font-bold">
+        <span class="uppercase">Total</span>
         <span>{{ money(totalIn) }}</span>
       </div>
     </div>
@@ -82,8 +82,8 @@ function short(iso: string) {
 
       <USeparator type="dashed" class="my-2" :ui="{ border: 'border-neutral-900' }" />
 
-      <div class="flex items-baseline justify-between text-sm font-bold">
-        <span>Total</span>
+      <div class="flex items-baseline justify-between font-bold">
+        <span class="uppercase">Total</span>
         <span>{{ money(totalOut) }}</span>
       </div>
     </div>
