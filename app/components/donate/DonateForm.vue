@@ -49,8 +49,8 @@ type Schema = z.output<typeof schema>
 const state = reactive<Partial<Schema>>({ display: 'both' })
 
 const causeItems = computed(() => [
+  ...(campaigns.value ?? []).filter(c => c.status === 'open').map(c => ({ value: c.id, label: c.title, description: c.description ?? undefined, image: c.imageUrls?.[0] })),
   { value: '__general', label: 'Wherever it\'s needed most', description: 'We\'ll route it to whatever\'s next on the list.' },
-  ...(campaigns.value ?? []).map(c => ({ value: c.id, label: c.title, description: c.description ?? undefined, image: c.imageUrls?.[0] })),
 ])
 const causeValue = computed({
   get: () => state.campaignId ?? '__general',
@@ -63,12 +63,49 @@ const amountPreset = computed({
   set: (v: string) => { state.amount = Number(v) },
 })
 
+const CHANNEL_TYPE_LABELS: Record<string, string> = {
+  gcash: 'GCash',
+  maya: 'Maya',
+  gotyme: 'GoTyme',
+  bank: 'Bank',
+  other: 'Other',
+}
+function channelTypeLabel(type: string) {
+  return CHANNEL_TYPE_LABELS[type] ?? type
+}
+
 const channelItems = computed(() => (channels.value ?? []).map(c => ({
   value: c.id,
-  label: c.nickname ? `${c.nickname} (${c.accountName})` : `${c.type} (${c.accountName})`,
-  description: c.accountIdentifier,
+  label: channelTypeLabel(c.type),
 })))
 const selectedChannel = computed(() => channels.value?.find(c => c.id === state.channelId))
+
+const revealed = ref(false)
+watch(selectedChannel, () => {
+  revealed.value = false
+})
+
+const { copy: copyAccountName, copied: accountNameCopied } = useClipboard()
+const { copy: copyAccountIdentifier, copied: accountIdentifierCopied } = useClipboard()
+
+function mask(value: string) {
+  if (value.length <= 4)
+    return '•'.repeat(value.length)
+  return `${value.slice(0, 2)}${'•'.repeat(Math.min(value.length - 4, 10))}${value.slice(-2)}`
+}
+
+// Masks a wallet account name, e.g. "First Name Last" -> "Fi**t Na*e L."
+// keeps the first 2 and last 1 chars of each word, reduces the surname to an initial.
+function maskName(name: string) {
+  const words = name.trim().split(/\s+/)
+  return words.map((word, i) => {
+    if (i === words.length - 1)
+      return `${word[0]}.`
+    if (word.length <= 3)
+      return word
+    return `${word.slice(0, 2)}${'*'.repeat(word.length - 3)}${word.slice(-1)}`
+  }).join(' ')
+}
 
 const step = ref(0)
 const form = useTemplateRef('form')
@@ -124,6 +161,17 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     })
   }
 }
+
+function donateAgain() {
+  state.amount = undefined
+  state.campaignId = undefined
+  state.refNo = undefined
+  state.donorNotes = undefined
+  proof.value = null
+  proofError.value = ''
+  step.value = 0
+  submitted.value = false
+}
 </script>
 
 <template>
@@ -157,7 +205,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           <p class="text-secondary-900/70 mx-auto max-w-sm text-pretty">
             Your ₱{{ (state.amount ?? 0).toLocaleString() }} donation is in the queue for review — we'll update the reports page once it's confirmed.
           </p>
-          <UButton label="Back home" to="/" variant="soft" color="secondary" />
+          <div class="flex items-center justify-center gap-2">
+            <UButton label="Back home" to="/" variant="soft" color="secondary" />
+            <UButton label="Donate again" color="secondary" @click="donateAgain" />
+          </div>
         </div>
         <UForm
           v-else
@@ -269,13 +320,46 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               />
             </UFormField>
             <div v-if="selectedChannel" class="border-secondary-900/15 bg-secondary-50 flex items-center gap-4 rounded-md border p-4">
-              <NuxtImg v-if="selectedChannel.qrUrl" :src="selectedChannel.qrUrl" class="size-24 shrink-0 rounded object-cover" />
-              <div class="space-y-0.5 text-sm">
-                <p class="font-bold text-highlighted">
-                  {{ selectedChannel.accountName }}
-                </p>
-                <p class="text-secondary-900/70">
-                  {{ selectedChannel.accountIdentifier }}
+              <NuxtImg v-if="selectedChannel.qrUrl" :src="selectedChannel.qrUrl" class="size-36 shrink-0 rounded object-cover" />
+              <div
+                class="flex-1 cursor-pointer space-y-1 text-sm select-none"
+                role="button"
+                tabindex="0"
+                :aria-pressed="revealed"
+                aria-label="Toggle account details visibility"
+                @click="revealed = !revealed"
+                @keydown.enter="revealed = !revealed"
+                @keydown.space.prevent="revealed = !revealed"
+              >
+                <div class="flex items-center gap-1">
+                  <p class="font-bold text-highlighted tabular-nums uppercase">
+                    {{ revealed ? selectedChannel.accountName : maskName(selectedChannel.accountName) }}
+                  </p>
+                  <UButton
+                    :icon="accountNameCopied ? 'ph:check' : 'ph:copy'"
+                    size="xs"
+                    color="neutral"
+                    variant="ghost"
+                    aria-label="Copy account name"
+                    @click.stop="copyAccountName(selectedChannel!.accountName)"
+                  />
+                </div>
+                <div class="flex items-center gap-1">
+                  <p class="text-secondary-900/70 tabular-nums">
+                    {{ revealed ? selectedChannel.accountIdentifier : mask(selectedChannel.accountIdentifier) }}
+                  </p>
+                  <UButton
+                    :icon="accountIdentifierCopied ? 'ph:check' : 'ph:copy'"
+                    size="xs"
+                    color="neutral"
+                    variant="ghost"
+                    aria-label="Copy account number"
+                    @click.stop="copyAccountIdentifier(selectedChannel!.accountIdentifier)"
+                  />
+                </div>
+                <p class="flex items-center gap-1 text-xs text-secondary-900/50">
+                  <UIcon :name="revealed ? 'ph:eye-slash' : 'ph:eye'" class="size-3.5" />
+                  {{ revealed ? 'Tap to hide' : 'Tap to reveal' }}
                 </p>
               </div>
             </div>
