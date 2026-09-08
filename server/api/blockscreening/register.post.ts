@@ -34,7 +34,8 @@ export default defineEventHandler(async (event) => {
     relationship: body.relationship || null,
   }
 
-  const response = await blockscreeningSupabaseFetch(BLOCKSCREENING_REGISTRATIONS_TABLE, {
+  const { registrations } = blockscreeningTables(event)
+  const response = await blockscreeningSupabaseFetch(event, registrations, {
     useServiceKey: false,
     method: 'POST',
     headers: { Prefer: 'return=minimal' },
@@ -43,7 +44,7 @@ export default defineEventHandler(async (event) => {
 
   if (!response.ok) {
     if (response.status === 404) {
-      throw createError({ statusCode: 404, statusMessage: `Table '${BLOCKSCREENING_REGISTRATIONS_TABLE}' not found in your database.` })
+      throw createError({ statusCode: 404, statusMessage: `Table '${registrations}' not found in your database.` })
     }
     await throwSupabaseError(response, 'Failed to save registration to database.', 'Registration DB Error:')
   }

@@ -10,9 +10,12 @@ export default defineEventHandler(async (event) => {
   const { id, paymentMode, paymentReference } = await readValidatedBody(event, paymentSchema.parse)
   const formattedId = id.trim()
 
+  const { registrations, payments } = blockscreeningTables(event)
+
   // Explicitly validate that the Registration/Pass ID exists on the registrations table
   const checkResponse = await blockscreeningSupabaseFetch(
-    `${BLOCKSCREENING_REGISTRATIONS_TABLE}?id=ilike.${encodeURIComponent(formattedId)}&select=id,full_name,nickname`,
+    event,
+    `${registrations}?id=ilike.${encodeURIComponent(formattedId)}&select=id,full_name,nickname`,
   )
   if (!checkResponse.ok) {
     await throwSupabaseError(checkResponse, 'Failed to verify the registration ID.', 'Registration verification failed:')
@@ -29,7 +32,7 @@ export default defineEventHandler(async (event) => {
   const registrant = rows[0]
 
   // Insert/upsert into the separate payments table
-  const updateResponse = await blockscreeningSupabaseFetch(BLOCKSCREENING_PAYMENTS_TABLE, {
+  const updateResponse = await blockscreeningSupabaseFetch(event, payments, {
     method: 'POST',
     headers: { Prefer: 'resolution=merge-duplicates' },
     body: JSON.stringify({

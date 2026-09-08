@@ -9,9 +9,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const paymentId = id.trim()
-  const paymentsPath = BLOCKSCREENING_PAYMENTS_TABLE
+  const { payments: paymentsPath } = blockscreeningTables(event)
 
-  const existingResponse = await blockscreeningSupabaseFetch(`${paymentsPath}?select=id,payment_receiver`)
+  const existingResponse = await blockscreeningSupabaseFetch(event, `${paymentsPath}?select=id,payment_receiver`)
   if (!existingResponse.ok) {
     await throwSupabaseError(existingResponse, 'Failed to find payment record in Database.', 'Supabase DB Error (GET payment record):')
   }
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
   const storedPaymentId = String(existingPayment.id)
   const recordPath = `${paymentsPath}?id=eq.${encodeURIComponent(storedPaymentId)}`
 
-  const response = await blockscreeningSupabaseFetch(recordPath, {
+  const response = await blockscreeningSupabaseFetch(event, recordPath, {
     method: 'PATCH',
     headers: { Prefer: 'return=minimal' },
     body: JSON.stringify({ payment_receiver: paymentReceiver }),
@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
     await throwSupabaseError(response, 'Failed to update payment receiver in database.', 'DB Update Error (PATCH payment_receiver):')
   }
 
-  const updatedResponse = await blockscreeningSupabaseFetch(`${recordPath}&select=id,payment_receiver`)
+  const updatedResponse = await blockscreeningSupabaseFetch(event, `${recordPath}&select=id,payment_receiver`)
   if (!updatedResponse.ok) {
     await throwSupabaseError(updatedResponse, 'Failed to verify payment receiver update in the database.', 'Supabase DB Error (GET updated payment record):')
   }

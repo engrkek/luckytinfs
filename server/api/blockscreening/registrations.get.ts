@@ -1,14 +1,15 @@
 export default defineEventHandler(async (event) => {
   requireBlockscreeningAdmin(event)
 
+  const { registrations: registrationsTable, payments: paymentsTable } = blockscreeningTables(event)
   const [regResponse, payResponse] = await Promise.all([
-    blockscreeningSupabaseFetch(`${BLOCKSCREENING_REGISTRATIONS_TABLE}?select=*&order=created_at.desc`),
-    blockscreeningSupabaseFetch(`${BLOCKSCREENING_PAYMENTS_TABLE}?select=id,payment_mode,payment_reference,payment_receiver`),
+    blockscreeningSupabaseFetch(event, `${registrationsTable}?select=*&order=created_at.desc`),
+    blockscreeningSupabaseFetch(event, `${paymentsTable}?select=id,payment_mode,payment_reference,payment_receiver`),
   ])
 
   if (!regResponse.ok) {
     if (regResponse.status === 404) {
-      throw createError({ statusCode: 404, statusMessage: `Table '${BLOCKSCREENING_REGISTRATIONS_TABLE}' not found in your database.` })
+      throw createError({ statusCode: 404, statusMessage: `Table '${registrationsTable}' not found in your database.` })
     }
     await throwSupabaseError(regResponse, 'Failed to fetch registrations from database.', 'DB Error Response (GET registrations):')
   }

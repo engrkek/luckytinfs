@@ -41,6 +41,13 @@ export default defineNuxtConfig({
     memberMailboxKeys: {
       bini: 'SuIGnhhSexYZ_MYbRyXxlL3C',
     },
+
+    // Block screening Supabase project (separate from this app's own D1 database)
+    supabaseUrl: '',
+    supabaseKey: '',
+    supabaseServiceKey: '',
+    supabaseTableName: 'block_screening_registrations',
+    supabasePaymentsTableName: 'block_screening_payments',
   },
 
   routeRules: {

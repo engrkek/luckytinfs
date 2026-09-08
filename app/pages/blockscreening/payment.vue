@@ -134,7 +134,7 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="min-h-dvh flex flex-col justify-between bg-secondary-900 bg-[url('/images/textures/06.jpg')] bg-blend-screen bg-cover bg-center overflow-x-hidden relative">
+  <div class="min-h-dvh flex flex-col justify-between bg-secondary-600 bg-[url('/images/textures/06.jpg')] bg-blend-screen overflow-x-hidden relative">
     <!-- Background overlay elements representing island breeze/vibe -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden select-none z-0">
       <div class="absolute -top-12 -left-12 opacity-10 text-9xl">

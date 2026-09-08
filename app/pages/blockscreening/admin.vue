@@ -156,7 +156,7 @@ function exportToCSV() {
 </script>
 
 <template>
-  <div class="min-h-dvh flex flex-col justify-between bg-secondary-900 bg-[url('/images/textures/06.jpg')] bg-blend-screen bg-cover bg-center overflow-x-hidden relative">
+  <div class="min-h-dvh flex flex-col justify-between bg-secondary-600 bg-[url('/images/textures/06.jpg')] bg-blend-screen overflow-x-hidden relative">
     <!-- Breeze palm backdrop decorations -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden select-none z-0 opacity-10">
       <div class="absolute top-12 -left-12 text-9xl">

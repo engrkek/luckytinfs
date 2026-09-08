@@ -5,16 +5,21 @@ interface SupabaseRequestOptions extends RequestInit {
   useServiceKey?: boolean
 }
 
-function requireEnv(name: string): string {
-  const value = process.env[name]
+function requireEnv(name: string, value = process.env[name]): string {
   if (!value) {
     throw createError({ statusCode: 500, statusMessage: `Block screening is misconfigured: missing ${name}.` })
   }
   return value
 }
 
-export const BLOCKSCREENING_REGISTRATIONS_TABLE = process.env.NUXT_SUPABASE_TABLE_NAME || 'block_screening_registrations'
-export const BLOCKSCREENING_PAYMENTS_TABLE = process.env.NUXT_SUPABASE_PAYMENTS_TABLE_NAME || 'block_screening_payments'
+/** Table names for the block screening Supabase project, read from runtimeConfig. */
+export function blockscreeningTables(event: H3Event) {
+  const config = useRuntimeConfig(event)
+  return {
+    registrations: config.supabaseTableName,
+    payments: config.supabasePaymentsTableName,
+  }
+}
 
 /** Checks the shared admin passcode sent by the office console, via header or query param. */
 export function requireBlockscreeningAdmin(event: H3Event) {
@@ -27,10 +32,11 @@ export function requireBlockscreeningAdmin(event: H3Event) {
 }
 
 /** Direct PostgREST call against the block screening Supabase project (kept separate from this app's own D1 database). */
-export async function blockscreeningSupabaseFetch(path: string, options: SupabaseRequestOptions = {}) {
+export async function blockscreeningSupabaseFetch(event: H3Event, path: string, options: SupabaseRequestOptions = {}) {
   const { useServiceKey = true, headers, ...init } = options
-  const url = requireEnv('NUXT_SUPABASE_URL')
-  const key = (useServiceKey && process.env.NUXT_SUPABASE_SERVICE_KEY) || requireEnv('NUXT_SUPABASE_KEY')
+  const config = useRuntimeConfig(event)
+  const url = requireEnv('NUXT_SUPABASE_URL', config.supabaseUrl)
+  const key = (useServiceKey && config.supabaseServiceKey) || requireEnv('NUXT_SUPABASE_KEY', config.supabaseKey)
 
   return fetch(`${url}/rest/v1/${path}`, {
     ...init,

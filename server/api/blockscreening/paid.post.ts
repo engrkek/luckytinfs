@@ -6,7 +6,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Missing or invalid id / paid status in request payload.' })
   }
 
-  const response = await blockscreeningSupabaseFetch(`${BLOCKSCREENING_REGISTRATIONS_TABLE}?id=eq.${id}`, {
+  const { registrations } = blockscreeningTables(event)
+  const response = await blockscreeningSupabaseFetch(event, `${registrations}?id=eq.${id}`, {
     method: 'PATCH',
     headers: { Prefer: 'return=minimal' },
     body: JSON.stringify({ paid }),
