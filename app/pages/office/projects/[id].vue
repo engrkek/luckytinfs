@@ -15,6 +15,8 @@ const { data: project } = useFetch<Campaign>(`/api/office/projects/${id}`, { key
 const { donations } = useOfficeDonations()
 const { data: allTiers, refresh: refreshTiers } = useFetch<Tier[]>('/api/office/tiers', { key: 'office-tiers' })
 
+const title = computed(() => project.value?.title)
+
 const projectDonations = computed(() => donations.value.filter(d => d.campaignId === id))
 const tiers = computed(() => (allTiers.value ?? [])
   .filter(t => t.campaignId === id)
@@ -66,7 +68,10 @@ async function toggleStatus() {
 
   const status = project.value.status === 'open' ? 'closed' : 'open'
   try {
-    project.value = await $fetch(`/api/office/projects/${id}`, { method: 'PATCH', body: { status } })
+    project.value = await $fetch(`/api/office/projects/${id}`, {
+      method: 'PATCH',
+      body: { status },
+    })
     await refreshNuxtData('office-projects')
   }
   catch (err) {
@@ -104,6 +109,10 @@ async function deleteProject() {
     })
   }
 }
+
+useHead({
+  title,
+})
 </script>
 
 <template>
