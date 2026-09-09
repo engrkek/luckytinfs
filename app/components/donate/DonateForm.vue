@@ -11,7 +11,7 @@ const STEPS = [
   { title: 'Your Info', fields: ['handle', 'social', 'email', 'name'] as const, disabled: true },
   { title: 'Payment', fields: ['channelId'] as const, disabled: true },
 ]
-const AMOUNT_PRESETS = [100, 300, 500, 1000]
+const AMOUNT_PRESETS = [100, 300, 500, 1000].map(value => ({ value: String(value), label: String(value) }))
 
 const socials: SelectItem[] = [
   { value: 'x', label: 'X / Twitter' },
@@ -29,16 +29,21 @@ const displayOptions = [
   { value: 'anon', label: 'Anonymous' },
 ]
 
+// preprocess required strings to '' so a missing value fails .min() (a normal issue) instead of
+// invalid_type (a fatal one) — a fatal issue on any field aborts the whole schema and skips .refine below,
+// which would silently swallow the name-required check whenever a later step's field is still empty
+const required = (message: string) => z.preprocess(v => v ?? '', z.string().min(1, message))
+
 const schema = z.object({
   campaignId: z.string().optional(),
   amount: z.number('Enter an amount').positive('Enter an amount above ₱0'),
   name: z.string().optional(),
-  handle: z.string('Enter a handle or name').min(1, 'Enter a handle or name we can reach you by'),
-  social: z.string('Choose where').min(1, 'Choose where we can find you'),
-  email: z.email('Enter a valid email'),
+  handle: required('Enter a handle or name we can reach you by'),
+  social: required('Choose where we can find you'),
+  email: z.preprocess(v => v ?? '', z.email('Enter a valid email')),
   display: z.enum(['both', 'handle_only', 'name_only', 'anon']),
-  channelId: z.string('Choose a payment method').min(1, 'Choose a payment method'),
-  refNo: z.string('Enter your reference number').min(1, 'Enter your reference number'),
+  channelId: required('Choose a payment method'),
+  refNo: required('Enter your reference number'),
   donorNotes: z.string().optional(),
 }).refine(data => (data.display !== 'both' && data.display !== 'name_only') || !!data.name?.trim(), {
   message: 'Enter your name, or choose a different credit option',
@@ -49,15 +54,24 @@ type Schema = z.output<typeof schema>
 const state = reactive<Partial<Schema>>({ display: 'both' })
 
 const causeItems = computed(() => [
-  ...(campaigns.value ?? []).filter(c => c.status === 'open').map(c => ({ value: c.id, label: c.title, description: c.description ?? undefined, image: c.imageUrls?.[0] })),
-  { value: '__general', label: 'Wherever it\'s needed most', description: 'We\'ll route it to whatever\'s next on the list.' },
+  ...(campaigns.value ?? []).filter(c => c.status === 'open').map(c => ({
+    value: c.id,
+    label: c.title,
+    description: c.description ?? undefined,
+    image: c.imageUrls?.[0],
+  })),
+  {
+    value: 'general',
+    label: 'Wherever it\'s needed most',
+    description: 'We\'ll direct it to whichever project needs it most right now.',
+    image: undefined,
+  },
 ])
 const causeValue = computed({
-  get: () => state.campaignId ?? '__general',
-  set: (v: string) => { state.campaignId = v === '__general' ? undefined : v },
+  get: () => state.campaignId ?? causeItems.value[0]!.value,
+  set: (v: string) => { state.campaignId = v === 'general' ? undefined : v },
 })
 
-// URadioGroup stringifies primitive items (AMOUNT_PRESETS), but state.amount must stay a number for the schema
 const amountPreset = computed({
   get: () => state.amount != null ? String(state.amount) : undefined,
   set: (v: string) => { state.amount = Number(v) },
@@ -67,7 +81,9 @@ const CHANNEL_TYPE_LABELS: Record<string, string> = {
   gcash: 'GCash',
   maya: 'Maya',
   gotyme: 'GoTyme',
-  bank: 'Bank',
+  bdo: 'BDO',
+  bpi: 'BPI',
+  maribank: 'MariBank',
   other: 'Other',
 }
 function channelTypeLabel(type: string) {
@@ -156,7 +172,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     toast.add({
       icon: 'ph:x-circle',
       title: 'Couldn\'t send that',
-      description: e.data?.statusMessage ?? e.message ?? 'Something went wrong — try again.',
+      description: e.data?.statusMessage ?? e.message ?? 'Something went wrong. Try again.',
       color: 'error',
     })
   }
@@ -203,13 +219,14 @@ function donateAgain() {
             Thank you, {{ state.name || state.handle }}!
           </h2>
           <p class="text-secondary-900/70 mx-auto max-w-sm text-pretty">
-            Your ₱{{ (state.amount ?? 0).toLocaleString() }} donation is in the queue for review — we'll update the reports page once it's confirmed.
+            Your ₱{{ (state.amount ?? 0).toLocaleString() }} donation is in the queue for review. We'll update the reports page once it's confirmed.
           </p>
           <div class="flex items-center justify-center gap-2">
             <UButton label="Back home" to="/" variant="soft" color="secondary" />
             <UButton label="Donate again" color="secondary" @click="donateAgain" />
           </div>
         </div>
+
         <UForm
           v-else
           ref="form"
@@ -268,6 +285,7 @@ function donateAgain() {
               @click="next"
             />
           </div>
+
           <div v-show="step === 1" class="space-y-6">
             <UFormField name="name" label="Name" description="Only used if you choose to be credited by name below.">
               <UInput v-model="state.name" placeholder="e.g. Juana dela Cruz" />
@@ -309,6 +327,7 @@ function donateAgain() {
               />
             </div>
           </div>
+
           <div v-show="step === 2" class="space-y-6">
             <UFormField name="channelId" label="Pay to">
               <URadioGroup
@@ -320,7 +339,7 @@ function donateAgain() {
               />
             </UFormField>
             <div v-if="selectedChannel" class="border-secondary-900/15 bg-secondary-50 flex items-center gap-4 rounded-md border p-4">
-              <NuxtImg v-if="selectedChannel.qrUrl" :src="selectedChannel.qrUrl" class="size-36 shrink-0 rounded object-cover" />
+              <NuxtImg v-if="selectedChannel.qrUrl" :src="selectedChannel.qrUrl" class="size-40 shrink-0 rounded object-cover" />
               <div
                 class="flex-1 cursor-pointer space-y-1 text-sm select-none"
                 role="button"
@@ -331,8 +350,11 @@ function donateAgain() {
                 @keydown.enter="revealed = !revealed"
                 @keydown.space.prevent="revealed = !revealed"
               >
+                <p class="font-semibold text-sm text-muted uppercase">
+                  Account name
+                </p>
                 <div class="flex items-center gap-1">
-                  <p class="font-bold text-highlighted tabular-nums uppercase">
+                  <p class="font-bold text-xl text-highlighted tracking-tighter text-pretty uppercase">
                     {{ revealed ? selectedChannel.accountName : maskName(selectedChannel.accountName) }}
                   </p>
                   <UButton
@@ -341,11 +363,15 @@ function donateAgain() {
                     color="neutral"
                     variant="ghost"
                     aria-label="Copy account name"
+                    class="px-2 py-1"
                     @click.stop="copyAccountName(selectedChannel!.accountName)"
                   />
                 </div>
+                <p class="mt-2 font-semibold text-sm text-muted uppercase">
+                  Account number
+                </p>
                 <div class="flex items-center gap-1">
-                  <p class="text-secondary-900/70 tabular-nums">
+                  <p class="font-mono text-lg text-secondary-900/70 tabular-nums tracking-tight">
                     {{ revealed ? selectedChannel.accountIdentifier : mask(selectedChannel.accountIdentifier) }}
                   </p>
                   <UButton
@@ -354,10 +380,11 @@ function donateAgain() {
                     color="neutral"
                     variant="ghost"
                     aria-label="Copy account number"
+                    class="px-2 py-1"
                     @click.stop="copyAccountIdentifier(selectedChannel!.accountIdentifier)"
                   />
                 </div>
-                <p class="flex items-center gap-1 text-xs text-secondary-900/50">
+                <p class="mt-2 flex items-center gap-1 text-sm text-secondary-900/50">
                   <UIcon :name="revealed ? 'ph:eye-slash' : 'ph:eye'" class="size-3.5" />
                   {{ revealed ? 'Tap to hide' : 'Tap to reveal' }}
                 </p>
@@ -367,7 +394,13 @@ function donateAgain() {
               <UInput v-model="state.refNo" placeholder="From your payment confirmation" class="w-full" />
             </UFormField>
             <UFormField label="Payment screenshot" required :error="proofError || undefined">
-              <UFileUpload v-model="proof" accept="image/*,.pdf" label="Drop your screenshot here" @update:model-value="proofError = ''" />
+              <UFileUpload
+                v-model="proof"
+                accept="image/*,.pdf"
+                label="Drop your screenshot here"
+                class="aspect-square"
+                @update:model-value="proofError = ''"
+              />
             </UFormField>
             <UFormField name="donorNotes" label="Notes" hint="Optional">
               <UTextarea v-model="state.donorNotes" placeholder="Anything we should know?" class="w-full" />
