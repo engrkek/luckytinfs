@@ -1,0 +1,1 @@
+ALTER TABLE `channel` ADD `is_enabled` integer DEFAULT true NOT NULL;

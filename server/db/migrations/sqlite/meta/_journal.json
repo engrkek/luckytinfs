@@ -127,6 +127,13 @@
       "when": 1788845806058,
       "tag": "0017_fancy_spiral",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1789440386771,
+      "tag": "0018_thin_wilson_fisk",
+      "breakpoints": true
     }
   ]
 }

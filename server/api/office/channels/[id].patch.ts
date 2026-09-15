@@ -8,6 +8,7 @@ const patchSchema = z.object({
   accountName: z.string().trim().min(1).optional(),
   accountIdentifier: z.string().trim().min(1).optional(),
   qrUrl: z.string().optional(),
+  isEnabled: z.boolean().optional(),
 })
 
 export default defineEventHandler(async (event) => {

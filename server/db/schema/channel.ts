@@ -11,6 +11,7 @@ export const channel = sqliteTable('channel', {
   accountName: text().notNull(),
   accountIdentifier: text().notNull(), // e.g. phone number, account number, email
   qrUrl: text(), // file upload url
+  isEnabled: integer({ mode: 'boolean' }).default(true).notNull(), // shown on the public donation form
   createdAt: integer({ mode: 'timestamp_ms' })
     .$default(() => new Date())
     .notNull(),

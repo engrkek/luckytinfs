@@ -1,5 +1,5 @@
 import { campaign, channel, donation, donor } from '@nuxthub/db/schema'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 const postSchema = z.object({
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const [existingChannel] = await db.select({ id: channel.id }).from(channel).where(eq(channel.id, data.channelId)).limit(1)
+  const [existingChannel] = await db.select({ id: channel.id }).from(channel).where(and(eq(channel.id, data.channelId), eq(channel.isEnabled, true))).limit(1)
   if (!existingChannel) {
     throw createError({ statusCode: 404, statusMessage: 'Payment channel not found' })
   }

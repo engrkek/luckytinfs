@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
 import type { Channel } from '#shared/types'
-import { LazyAppDialog, LazyOfficeWalletForm, UButton } from '#components'
+import { LazyAppDialog, LazyOfficeWalletForm, UButton, USwitch } from '#components'
 
 const props = defineProps<{ channels: Channel[] }>()
 
@@ -36,11 +36,36 @@ async function onDelete(e: Event, row: Channel) {
   }
 }
 
+async function onToggle(row: Channel, isEnabled: boolean) {
+  try {
+    await $fetch(`/api/office/channels/${row.id}`, { method: 'PATCH', body: { isEnabled } })
+    await refreshNuxtData('office-channels')
+  }
+  catch (err) {
+    const e = err as { data?: { statusMessage?: string }, message?: string }
+    toast.add({
+      icon: 'ph:x-circle',
+      title: 'Update failed',
+      description: e.data?.statusMessage ?? e.message ?? 'Something went wrong',
+      color: 'error',
+    })
+  }
+}
+
 const columns: TableColumn<Channel>[] = [
   sortableColumn<Channel>('type', 'Type'),
   { accessorKey: 'nickname', header: 'Nickname' },
   { accessorKey: 'accountName', header: 'Account Name' },
   { accessorKey: 'accountIdentifier', header: 'Account Number / Handle' },
+  {
+    accessorKey: 'isEnabled',
+    header: 'Enabled',
+    cell: ({ row }) => h(USwitch, {
+      'modelValue': row.original.isEnabled,
+      'aria-label': 'Show on donation form',
+      'onUpdate:modelValue': (v: boolean) => onToggle(row.original, v),
+    }),
+  },
   {
     id: 'actions',
     header: 'Actions',
