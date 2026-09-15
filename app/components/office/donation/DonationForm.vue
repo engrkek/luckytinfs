@@ -4,6 +4,7 @@ import type { DonationStatus } from '#shared/donations'
 import type { Campaign, Channel } from '#shared/types'
 import type { OfficeDonation } from '~/composables/useOfficeDonations'
 import { z } from 'zod'
+import { fullAccountName } from '#shared/donations'
 
 const props = defineProps<{ donation: OfficeDonation }>()
 
@@ -44,7 +45,7 @@ const campaignItems = computed<SelectItem[]>(() => [
 
 const channelItems = computed<SelectItem[]>(() => (channels.value ?? []).map(c => ({
   value: c.id,
-  label: c.nickname ? `${c.nickname} (${c.accountName})` : `${c.type} (${c.accountName})`,
+  label: `${c.nickname || c.type} (${fullAccountName(c)})`,
 })))
 
 const schema = z.object({

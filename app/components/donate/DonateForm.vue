@@ -2,6 +2,7 @@
 import type { FormSubmitEvent, SelectItem } from '@nuxt/ui'
 import type { Campaign, Channel } from '#shared/types'
 import { z } from 'zod'
+import { fullAccountName } from '#shared/donations'
 
 const { data: campaigns } = await useFetch<Campaign[]>('/api/campaigns')
 const { data: channels } = await useFetch<Channel[]>('/api/channels')
@@ -110,17 +111,13 @@ function mask(value: string) {
   return `${value.slice(0, 2)}${'•'.repeat(Math.min(value.length - 4, 10))}${value.slice(-2)}`
 }
 
-// Masks a wallet account name, e.g. "First Name Last" -> "Fi**t Na*e L."
-// keeps the first 2 and last 1 chars of each word, reduces the surname to an initial.
-function maskName(name: string) {
-  const words = name.trim().split(/\s+/)
-  return words.map((word, i) => {
-    if (i === words.length - 1)
-      return `${word[0]}.`
-    if (word.length <= 3)
-      return word
-    return `${word.slice(0, 2)}${'*'.repeat(word.length - 3)}${word.slice(-1)}`
-  }).join(' ')
+// Masks a wallet account name GCash-style, e.g. "Larra Mae" + "delos Santos" -> "La**a M** D."
+// long words keep first 2 + last 1 chars, short words keep the first char, last name becomes an initial.
+function maskName(c: Channel) {
+  const first = c.accountName.trim().split(/\s+/).map(word => word.length <= 3
+    ? `${word[0]}${'*'.repeat(word.length - 1)}`
+    : `${word.slice(0, 2)}${'*'.repeat(word.length - 3)}${word.slice(-1)}`)
+  return c.accountLastName ? `${first.join(' ')} ${c.accountLastName.trim()[0]}.` : first.join(' ')
 }
 
 const step = ref(0)
@@ -355,7 +352,7 @@ function donateAgain() {
                 </p>
                 <div class="flex items-center gap-1">
                   <p class="font-bold text-xl text-highlighted tracking-tighter text-pretty uppercase">
-                    {{ revealed ? selectedChannel.accountName : maskName(selectedChannel.accountName) }}
+                    {{ revealed ? fullAccountName(selectedChannel) : maskName(selectedChannel) }}
                   </p>
                   <UButton
                     :icon="accountNameCopied ? 'ph:check' : 'ph:copy'"
@@ -364,7 +361,7 @@ function donateAgain() {
                     variant="ghost"
                     aria-label="Copy account name"
                     class="px-2 py-1"
-                    @click.stop="copyAccountName(selectedChannel!.accountName)"
+                    @click.stop="copyAccountName(fullAccountName(selectedChannel!))"
                   />
                 </div>
                 <p class="mt-2 font-semibold text-sm text-muted uppercase">

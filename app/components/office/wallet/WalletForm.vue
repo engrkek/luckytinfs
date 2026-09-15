@@ -19,7 +19,8 @@ const description = computed(() => props.type === 'new' ? 'Add a payment channel
 const schema = z.object({
   type: z.string('Type is required').min(1, 'Type is required'),
   nickname: z.string().optional(),
-  accountName: z.string('Account name is required').min(1, 'Account name is required'),
+  accountName: z.string('First name is required').min(1, 'First name is required'),
+  accountLastName: z.string('Last name is required').min(1, 'Last name is required'),
   accountIdentifier: z.string('Account number/handle is required').min(1, 'Account number/handle is required'),
 })
 type Schema = z.output<typeof schema>
@@ -28,6 +29,7 @@ const state = reactive<Partial<Schema>>({
   type: props.channel?.type,
   nickname: props.channel?.nickname ?? undefined,
   accountName: props.channel?.accountName,
+  accountLastName: props.channel?.accountLastName ?? undefined,
   accountIdentifier: props.channel?.accountIdentifier,
 })
 const qr = ref<File | null>(null)
@@ -84,8 +86,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         <UInput v-model="state.nickname" placeholder="e.g. Main GCash" />
       </UFormField>
 
-      <UFormField name="accountName" label="Account Name" required>
-        <UInput v-model="state.accountName" placeholder="Name on the account" />
+      <UFormField name="accountName" label="Account First Name" required>
+        <UInput v-model="state.accountName" placeholder="First and middle name on the account" />
+      </UFormField>
+
+      <UFormField name="accountLastName" label="Account Last Name" required>
+        <UInput v-model="state.accountLastName" placeholder="Shown as an initial to donors" />
       </UFormField>
 
       <UFormField name="accountIdentifier" label="Account Number / Handle" required>

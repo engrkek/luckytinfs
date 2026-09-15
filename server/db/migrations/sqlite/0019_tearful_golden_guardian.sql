@@ -1,0 +1,1 @@
+ALTER TABLE `channel` ADD `account_last_name` text;

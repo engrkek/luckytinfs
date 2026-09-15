@@ -2,6 +2,7 @@
 import type { TableColumn } from '@nuxt/ui'
 import type { Channel } from '#shared/types'
 import { LazyAppDialog, LazyOfficeWalletForm, UButton, USwitch } from '#components'
+import { fullAccountName } from '#shared/donations'
 
 const props = defineProps<{ channels: Channel[] }>()
 
@@ -55,7 +56,7 @@ async function onToggle(row: Channel, isEnabled: boolean) {
 const columns: TableColumn<Channel>[] = [
   sortableColumn<Channel>('type', 'Type'),
   { accessorKey: 'nickname', header: 'Nickname' },
-  { accessorKey: 'accountName', header: 'Account Name' },
+  { id: 'accountName', header: 'Account Name', cell: ({ row }) => fullAccountName(row.original) },
   { accessorKey: 'accountIdentifier', header: 'Account Number / Handle' },
   {
     accessorKey: 'isEnabled',

@@ -8,7 +8,8 @@ export const channel = sqliteTable('channel', {
   id: text().primaryKey().$default(() => nanoid()).notNull(),
   type: text().notNull(), // e.g. gcash, maya, gotyme
   nickname: text(),
-  accountName: text().notNull(),
+  accountName: text().notNull(), // first/given name(s), or the full name for business accounts
+  accountLastName: text(), // shown as an initial on the public donation form; required by the API, nullable only for wallets created before it existed
   accountIdentifier: text().notNull(), // e.g. phone number, account number, email
   qrUrl: text(), // file upload url
   isEnabled: integer({ mode: 'boolean' }).default(true).notNull(), // shown on the public donation form

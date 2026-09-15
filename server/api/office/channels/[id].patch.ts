@@ -6,6 +6,7 @@ const patchSchema = z.object({
   type: z.string().trim().min(1).optional(),
   nickname: z.string().trim().optional(),
   accountName: z.string().trim().min(1).optional(),
+  accountLastName: z.string().trim().min(1).optional(),
   accountIdentifier: z.string().trim().min(1).optional(),
   qrUrl: z.string().optional(),
   isEnabled: z.boolean().optional(),

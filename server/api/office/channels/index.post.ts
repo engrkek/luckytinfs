@@ -5,6 +5,7 @@ const postSchema = z.object({
   type: z.string().trim().min(1),
   nickname: z.string().trim().optional(),
   accountName: z.string().trim().min(1),
+  accountLastName: z.string().trim().min(1),
   accountIdentifier: z.string().trim().min(1),
   qrUrl: z.string().optional(),
 })
