@@ -48,7 +48,7 @@ const events = [
     <div class="space-y-10">
       <motion.div v-bind="scrollMotion()">
         <h2 class="font-display font-medium text-3xl lg:text-5xl tracking-tight text-pretty">
-          What we've been up to
+          What we&rsquo;ve been up to
         </h2>
       </motion.div>
 
