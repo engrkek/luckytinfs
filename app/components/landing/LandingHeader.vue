@@ -17,7 +17,7 @@ const links: ButtonProps[] = [
   <header class="sticky top-0 inset-x-0 z-50 bg-secondary-600 text-white">
     <UContainer class="flex items-center justify-between gap-2 py-4">
       <NuxtLink to="/">
-        <NuxtImg src="/images/logos/logo-hr-white.png" class="h-5" />
+        <NuxtImg src="/images/logos/logo-hr-white.png" class="h-10" />
       </NuxtLink>
 
       <div class="flex items-center gap-4">
