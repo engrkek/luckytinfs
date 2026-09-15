@@ -21,14 +21,14 @@ const userMenu: DropdownMenuItem[] = [
     variant="floating"
     :ui="{
       container: 'h-full',
-      inner: 'bg-muted/75 divide-transparent',
+      inner: 'bg-secondary-600 text-white divide-transparent',
       body: 'py-0',
     }"
   >
     <template #header>
-      <NuxtLink to="/office" class="mb-8 grid gap-1">
-        <NuxtImg src="/images/logos/logo-hr.png" />
-        <p class="-mt-6 font-bold text-xs uppercase tracking-widest">Back Office</p>
+      <NuxtLink to="/office" class="mb-4 space-y-1 py-4">
+        <NuxtImg src="/images/logos/logo-hr-white.png" />
+        <p class="font-bold text-xs uppercase tracking-widest">Back Office</p>
       </NuxtLink>
     </template>
 
@@ -36,6 +36,10 @@ const userMenu: DropdownMenuItem[] = [
       <UNavigationMenu
         :items="tabs"
         orientation="vertical"
+        :ui="{
+          link: 'text-white',
+          linkLeadingIcon: 'text-white/80',
+        }"
       />
     </template>
 
