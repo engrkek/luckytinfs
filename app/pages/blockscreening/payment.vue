@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
 useHead({
   title: 'Block Screening Payment Submission',
   meta: [
@@ -370,19 +368,7 @@ async function handleSubmit() {
                       class="w-full h-auto object-contain rounded-lg"
                     >
                     <p class="text-[11px] text-secondary-700/80 font-medium mt-2">
-                      GCash Channel 1 (Name: GGJ)
-                    </p>
-                  </div>
-
-                  <!-- GCash QR 2 -->
-                  <div class="bg-white p-3 rounded-xl border border-[#ebdcb3] shadow-inner text-center flex flex-col justify-between">
-                    <img
-                      src="/images/payment-gcash-2.png"
-                      alt="GCash QR Code Option 2"
-                      class="w-full h-auto object-contain rounded-lg"
-                    >
-                    <p class="text-[11px] text-secondary-700/80 font-medium mt-2">
-                      GCash Channel 2 (Name: PAT)
+                      GCash (Name: GGJ)
                     </p>
                   </div>
                 </div>
