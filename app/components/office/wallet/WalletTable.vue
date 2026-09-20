@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
 import type { Channel } from '#shared/types'
-import { LazyAppDialog, LazyOfficeWalletForm, UButton, USwitch } from '#components'
-import { fullAccountName } from '#shared/donations'
+import { LazyAppDialog, LazyOfficeWalletForm, UBadge, UButton, USwitch } from '#components'
+import { fullAccountName, walletType } from '#shared/donations'
 
 const props = defineProps<{ channels: Channel[] }>()
 
@@ -54,7 +54,14 @@ async function onToggle(row: Channel, isEnabled: boolean) {
 }
 
 const columns: TableColumn<Channel>[] = [
-  sortableColumn<Channel>('type', 'Type'),
+  {
+    ...sortableColumn<Channel>('type', 'Type'),
+    cell: ({ row }) => h(UBadge, {
+      label: walletType(row.original.type).label,
+      class: walletType(row.original.type).class,
+      variant: 'soft',
+    }),
+  },
   { accessorKey: 'nickname', header: 'Nickname' },
   { id: 'accountName', header: 'Account Name', cell: ({ row }) => fullAccountName(row.original) },
   { accessorKey: 'accountIdentifier', header: 'Account Number / Handle' },
@@ -64,7 +71,7 @@ const columns: TableColumn<Channel>[] = [
     cell: ({ row }) => h(USwitch, {
       'modelValue': row.original.isEnabled,
       'aria-label': 'Show on donation form',
-      'onUpdate:modelValue': (v: boolean) => onToggle(row.original, v),
+      'onUpdate:modelValue': (v: unknown) => onToggle(row.original, Boolean(v)),
     }),
   },
   {

@@ -2,13 +2,12 @@
 import type { FormSubmitEvent } from '@nuxt/ui'
 import type { Channel } from '#shared/types'
 import { z } from 'zod'
+import { WALLET_TYPE_ITEMS } from '#shared/donations'
 
 const props = defineProps<{
   type: 'new' | 'edit'
   channel?: Channel
 }>()
-
-const typeItems = ['gcash', 'maya', 'gotyme', 'bank', 'other']
 
 const open = defineModel<boolean>('open', { default: false })
 const form = useTemplateRef('form')
@@ -79,7 +78,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       @submit="onSubmit"
     >
       <UFormField name="type" label="Type" required>
-        <USelect v-model="state.type" :items="typeItems" placeholder="Select a type" class="w-full" />
+        <USelect
+          v-model="state.type"
+          :items="WALLET_TYPE_ITEMS"
+          value-key="value"
+          placeholder="Select a type"
+          class="w-full"
+        />
       </UFormField>
 
       <UFormField name="nickname" label="Nickname" hint="Optional">
