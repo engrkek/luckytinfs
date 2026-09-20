@@ -12,7 +12,7 @@ useHead({
     class: 'scroll-smooth',
   },
   bodyAttrs: {
-    class: 'overflow-x-hidden font-medium',
+    class: 'overflow-x-hidden font-medium bg-secondary-50/50',
   },
   titleTemplate: '%s // LTFS Office',
 })
