@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
+import type { DropdownMenuItem } from '@nuxt/ui'
 
 const { user, signOut } = useUserSession()
-
-const tabs: NavigationMenuItem[] = officeNavTabs
+const { officeNavTabs } = useOfficeNav()
 
 const userMenu: DropdownMenuItem[] = [
   {
@@ -34,24 +33,43 @@ const userMenu: DropdownMenuItem[] = [
 
     <template #default>
       <UNavigationMenu
-        :items="tabs"
+        :items="officeNavTabs"
         orientation="vertical"
         :ui="{
-          link: 'text-white',
-          linkLeadingIcon: 'text-white/80',
+          label: '',
+          link: 'px-4 py-3 text-primary-400 hover:before:bg-secondary-300 data-active:before:bg-secondary data-active:rounded-full data-active:before:hover:bg-secondary-300',
+          linkLeadingIcon: 'text-primary-400',
         }"
       />
     </template>
 
     <template #footer>
-      <UDropdownMenu :items="userMenu">
-        <UUser
-          v-if="user"
-          :avatar="{ src: user.image ?? '', alt: user.name }"
-          :name="user.name"
-          :description="user.role ?? undefined"
-          :ui="{ description: 'capitalize' }"
-        />
+      <UDropdownMenu :items="userMenu" :content="{ align: 'center', collisionPadding: 12 }" :ui="{ content: 'w-(--reka-dropdown-menu-trigger-width) min-w-48' }">
+        <UButton
+          :avatar="{
+            src: user?.image ?? undefined,
+            alt: user?.name,
+            size: 'lg',
+          }"
+          :label="user?.name"
+          trailing-icon="i-lucide-chevrons-up-down"
+          color="neutral"
+          variant="ghost"
+          square
+          class="w-full  data-[state=open]:bg-secondary-400 overflow-hidden"
+          :ui="{
+            trailingIcon: 'text-primary ms-auto',
+          }"
+        >
+          <div class="grid">
+            <p class="text-primary-400">
+              {{ user?.name }}
+            </p>
+            <p class="text-sm text-secondary-300 capitalize">
+              {{ user?.role }}
+            </p>
+          </div>
+        </UButton>
       </UDropdownMenu>
     </template>
   </USidebar>

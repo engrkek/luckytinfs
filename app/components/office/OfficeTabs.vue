@@ -1,12 +1,12 @@
 <script setup lang="ts">
-const tabs = officeNavTabs
+const { officeNavTabs } = useOfficeNav()
 </script>
 
 <template>
   <div class="fixed bottom-0 inset-x-0 bg-muted border-t border-default">
     <div class="flex items-center justify-around pt-4 pb-6">
       <NuxtLink
-        v-for="(tab, index) in tabs"
+        v-for="(tab, index) in officeNavTabs"
         :key="index"
         :to="tab.to"
         class="flex flex-col items-center gap-1"
