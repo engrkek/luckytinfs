@@ -88,8 +88,8 @@ export default defineNuxtConfig({
   fonts: {
     families: [
       { name: 'Cedarville Cursive' },
-      { name: 'Inter', weights: ['400 700'] },
-      { name: 'Fraunces', weights: ['400 700'] },
+      { name: 'General Sans', weights: ['400 700'] },
+      { name: 'Fraunces', weights: ['300 700'] },
       { name: 'Playpen Sans', weights: ['400 700'] },
       { name: 'Courier Prime', weights: ['400 700'] },
       // Local letter fonts (public/fonts) — weight 400 matches unweighted filenames
