@@ -135,14 +135,10 @@ export const useUpdateOfficeDonation = defineMutation(() => {
       })
     },
 
-    onSuccess({ donation }) {
-      queryCache.setQueryData(officeDonationsQuery.key, (old) => {
-        if (!old)
-          return old
-        return {
-          donations: old.donations.map(d => (d.id === donation.id ? { ...d, ...donation } : d)),
-        }
-      })
+    // ponytail: refetch instead of patching the response in — PATCH doesn't return
+    // the joined campaignTitle/channelLabel, so a hand-merge leaves those columns stale.
+    onSettled() {
+      queryCache.invalidateQueries({ key: officeDonationsQuery.key })
     },
   })
 })
