@@ -14,6 +14,8 @@ const toast = useToast()
 const { data: event } = useFetch<CEvent>(`/api/office/events/${id}`, { key: `event-${id}` })
 const { data: rsvps } = useFetch<EventRsvp[]>(`/api/office/events/${id}/rsvps`, { key: `event-${id}-rsvps` })
 
+useHead({ title: () => event.value?.name ?? 'Event' })
+
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
   { label: 'Events', to: '/office/events' },
   { label: event.value?.name, to: `/office/events/${event.value?.id}` },
