@@ -52,10 +52,14 @@ const schema = z.object({
 })
 type Schema = z.output<typeof schema>
 
-const state = reactive<Partial<Schema>>({ display: 'both' })
+const openCampaigns = computed(() => (campaigns.value ?? []).filter(c => c.status === 'open'))
+
+// ponytail: the default cause has to live in state, not just in causeValue's getter —
+// a getter-only default looks selected but submits as undefined (= general)
+const state = reactive<Partial<Schema>>({ display: 'both', campaignId: openCampaigns.value[0]?.id })
 
 const causeItems = computed(() => [
-  ...(campaigns.value ?? []).filter(c => c.status === 'open').map(c => ({
+  ...openCampaigns.value.map(c => ({
     value: c.id,
     label: c.title,
     description: c.description ?? undefined,
@@ -69,7 +73,7 @@ const causeItems = computed(() => [
   },
 ])
 const causeValue = computed({
-  get: () => state.campaignId ?? causeItems.value[0]!.value,
+  get: () => state.campaignId ?? 'general',
   set: (v: string) => { state.campaignId = v === 'general' ? undefined : v },
 })
 
@@ -177,7 +181,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
 function donateAgain() {
   state.amount = undefined
-  state.campaignId = undefined
+  state.campaignId = openCampaigns.value[0]?.id
   state.refNo = undefined
   state.donorNotes = undefined
   proof.value = null
