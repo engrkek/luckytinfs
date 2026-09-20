@@ -63,16 +63,16 @@ const events = [
             :class="event.rotate"
           >
             <div class="flex items-center justify-between gap-2">
-              <span class="inline-block rounded-full px-3 py-1 font-type text-[11px] uppercase tracking-wide" :class="event.statusClass">
+              <span class="inline-block rounded-full px-3 py-1 font-type text-xs uppercase tracking-wide" :class="event.statusClass">
                 {{ event.status }}
               </span>
-              <span class="font-type text-xs text-neutral-400">{{ event.when }}</span>
+              <span class="font-type text-sm text-muted uppercase">{{ event.when }}</span>
             </div>
 
             <h3 class="mt-4 font-display font-medium text-2xl tracking-tight">
               {{ event.title }}
             </h3>
-            <p class="font-script italic text-lg text-neutral-500 -mt-1">
+            <p class="font-script italic text-neutral-500 -mt-1">
               {{ event.subtitle }}
             </p>
 
@@ -86,8 +86,14 @@ const events = [
               {{ event.body }}
             </p>
 
-            <UButton v-if="event.cta" :label="event.cta.label" :to="event.cta.to" class="mt-5 text-secondary-900" />
-            <p v-else class="mt-5 flex items-center gap-1.5 text-sm font-medium text-secondary-700">
+            <UButton
+              v-if="event.cta"
+              :label="event.cta.label"
+              :to="event.cta.to"
+              size="lg"
+              class="mt-5 text-secondary-900"
+            />
+            <p v-else class="mt-5 flex items-center gap-1.5 font-medium text-secondary-700">
               <UIcon :name="event.icon" class="size-4" />
               {{ event.iconLabel }}
             </p>

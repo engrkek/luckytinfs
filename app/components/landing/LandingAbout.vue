@@ -17,13 +17,13 @@ const logbook = [
         <h2 class="font-display font-medium text-3xl lg:text-5xl text-neutral-950 tracking-tight text-balance">
           We&rsquo;re <span class="italic">Luckytin Fan Support</span>
         </h2>
-        <p class="text-lg text-neutral-700 text-pretty max-w-lg">
+        <p class="text-neutral-700 text-pretty max-w-lg">
           Luckytin Fan Support started with something simple: <span class="font-bold">our love for Maloi and Jhoanna.</span>
         </p>
-        <p class="text-lg text-neutral-700 text-pretty max-w-lg">
+        <p class="text-neutral-700 text-pretty max-w-lg">
           As Lumities, we wanted a space where we could turn that love into something tangible, whether it’s a small freebie, a letter, a fan project, or an event we can share with fellow Lumities and Blooms.
         </p>
-        <p class="text-lg text-neutral-700 text-pretty max-w-lg">
+        <p class="text-neutral-700 text-pretty max-w-lg">
           This is our little way of celebrating them, supporting them, and giving back some of the love and joy they’ve given us.
         </p>
       </motion.div>

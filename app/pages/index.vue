@@ -18,11 +18,11 @@ useSeoMeta({
       <UContainer class="relative py-20">
         <div class="min-h-[calc(100svh-219px)] flex flex-col justify-center lg:flex-row lg:items-center lg:justify-start gap-x-6 gap-y-10">
           <motion.div class="space-y-4" v-bind="enterMotion()">
-            <div class="space-y-2">
+            <div class="space-y-2 text-shadow-md">
               <h1 class="font-display font-medium text-5xl lg:text-7xl tracking-tight text-pretty">
                 A shared journal for <span class="italic text-primary-400">Lucky</span> <span class="font-script">&</span> <span class="italic text-secondary-300">Tintin</span>
               </h1>
-              <p class="text-xl lg:text-2xl text-white/90 text-pretty">
+              <p class="text-lg lg:text-xl text-white/90 text-pretty">
                 A fan support space by Lumities for BINI Maloi and Jhoanna.
               </p>
             </div>

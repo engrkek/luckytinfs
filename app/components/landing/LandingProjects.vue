@@ -10,7 +10,7 @@ const freebies = [
 </script>
 
 <template>
-  <UPageSection id="fan-projects" class="scroll-mt-10 bg-gingham-yellow text-neutral-900">
+  <UPageSection id="fan-projects" class="scroll-mt-10 overflow-x-hidden bg-gingham-yellow text-neutral-900">
     <div class="grid lg:grid-cols-2 gap-8">
       <motion.div class="lg:col-span-2 space-y-2 max-w-lg w-full" v-bind="scrollMotion()">
         <h2 class="font-display font-medium text-3xl lg:text-5xl tracking-tight text-pretty">
