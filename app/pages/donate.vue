@@ -16,7 +16,7 @@ useSeoMeta({
         <h1 class="font-display font-medium text-4xl lg:text-5xl tracking-tight text-balance">
           Support <span class="italic text-primary-400">Lucky</span> <span class="font-script">&amp;</span> <span class="italic text-secondary-300">Tintin</span>
         </h1>
-        <p class="text-lg lg:text-xl text-white/80 text-balance">
+        <p class="text-lg text-white/80 text-balance">
           Every peso goes straight into the next project: billboards, cup sleeves, whatever the team's planning.
         </p>
       </div>

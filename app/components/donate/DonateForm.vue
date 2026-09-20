@@ -335,8 +335,11 @@ function donateAgain() {
                 v-model="state.channelId"
                 :items="channelItems"
                 variant="card"
+                indicator="hidden"
                 value-key="value"
-                class="grid sm:grid-cols-2 gap-3"
+                :ui="{
+                  fieldset: 'grid sm:grid-cols-2',
+                }"
               />
             </UFormField>
             <div v-if="selectedChannel" class="border-secondary-900/15 bg-secondary-50 flex items-center gap-4 rounded-md border p-4">
