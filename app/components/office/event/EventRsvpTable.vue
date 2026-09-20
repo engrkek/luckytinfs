@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { TableColumn, TableRow } from '@nuxt/ui'
 import type { CEvent, EventRsvp } from '#shared/types'
+import { useChangeCase } from '@vueuse/integrations/useChangeCase'
 import { LazyOfficeEventRsvpForm, LazyOfficeEventRsvpSheet, UBadge, UButton, UChip } from '#components'
 
 const props = defineProps<{ event: CEvent, rsvps: EventRsvp[] }>()
@@ -34,21 +35,17 @@ const columns: TableColumn<EventRsvp>[] = [
   {
     accessorKey: 'status',
     header: 'Status',
-    cell: ({ row }) => {
-      return h('div', { class: 'flex items-center gap-1' }, [
-        h(UChip, {
-          standalone: true,
-          inset: true,
-          color: statuses[row.original.status as keyof typeof statuses],
-        }),
-        h(UBadge, {
-          label: row.original.status,
-          color: statuses[row.original.status as keyof typeof statuses],
-          variant: 'soft',
-          class: 'capitalize',
-        }),
-      ])
-    },
+    cell: ({ row }) => h(UBadge, {
+      label: useChangeCase(row.original.status, 'capitalCase').value,
+      color: statuses[row.original.status as keyof typeof statuses],
+      variant: 'soft',
+    }, {
+      leading: () => h(UChip, {
+        standalone: true,
+        inset: true,
+        color: statuses[row.original.status as keyof typeof statuses],
+      }),
+    }),
   },
   {
     id: 'actions',
