@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import type { DonationStatus } from '#shared/donations'
+import { LazyOfficeDonationForm } from '#components'
 
 useHead({ title: 'Donations' })
 
 const { donations } = useOfficeDonations()
 
+const overlay = useOverlay()
+const donationForm = overlay.create(LazyOfficeDonationForm)
+
 const search = ref('')
-const statusFilter = ref<DonationStatus | 'all'>('pending')
+const statusFilter = ref<DonationStatus | 'all'>('all')
 
 const statusItems = [
   { value: 'all', label: 'All statuses' },
@@ -14,21 +18,12 @@ const statusItems = [
   { value: 'approved', label: 'Approved' },
   { value: 'invalid', label: 'Invalid' },
 ]
-
-const filtered = computed(() => donations.value.filter((d) => {
-  if (statusFilter.value !== 'all' && d.status !== statusFilter.value)
-    return false
-  const q = search.value.trim().toLowerCase()
-  if (q && !`${d.donor.name} ${d.donor.handle}`.toLowerCase().includes(q))
-    return false
-  return true
-}))
 </script>
 
 <template>
   <UDashboardPanel id="donations">
     <template #body>
-      <div class="flex">
+      <div class="flex items-end">
         <div>
           <h1 class="font-display text-3xl tracking-tighter">
             Donations
@@ -36,6 +31,16 @@ const filtered = computed(() => donations.value.filter((d) => {
           <p class="text-muted">
             Review and verify incoming donations.
           </p>
+        </div>
+
+        <div class="ml-auto flex">
+          <UButton
+            label="Add donation"
+            icon="ph:plus"
+            color="secondary"
+            size="lg"
+            @click="donationForm.open({})"
+          />
         </div>
       </div>
 
@@ -45,7 +50,7 @@ const filtered = computed(() => donations.value.filter((d) => {
           <USelect v-model="statusFilter" :items="statusItems" value-key="value" class="lg:ml-auto" />
         </div>
 
-        <OfficeDonationTable :donations="filtered" />
+        <OfficeDonationTable :donations="donations" />
       </UCard>
     </template>
   </UDashboardPanel>

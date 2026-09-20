@@ -6,7 +6,7 @@ import type { OfficeDonation } from '~/composables/useOfficeDonations'
 import { z } from 'zod'
 import { fullAccountName } from '#shared/donations'
 
-const props = defineProps<{ donation: OfficeDonation }>()
+const props = defineProps<{ donation?: OfficeDonation }>()
 
 const open = defineModel<boolean>('open', { default: false })
 const form = useTemplateRef('form')
@@ -14,7 +14,9 @@ const form = useTemplateRef('form')
 const { data: campaigns } = await useFetch<Campaign[]>('/api/campaigns')
 const { data: channels } = await useFetch<Channel[]>('/api/channels')
 
-const { mutate: updateDonation, isLoading } = useUpdateOfficeDonation()
+const { mutate: updateDonation, isLoading: isUpdating } = useUpdateOfficeDonation()
+const { mutate: createDonation, isLoading: isCreating } = useCreateOfficeDonation()
+const isLoading = computed(() => isUpdating.value || isCreating.value)
 
 const statusItems: SelectItem[] = [
   { value: 'pending', label: 'Pending' },
@@ -67,19 +69,21 @@ const schema = z.object({
 })
 type Schema = z.output<typeof schema>
 
+const existing = props.donation
+
 const state = reactive<Partial<Schema>>({
-  campaignId: props.donation.campaignId ?? '__general',
-  amount: props.donation.amount / 100,
-  channelId: props.donation.channelId,
-  refNo: props.donation.refNo ?? undefined,
-  status: props.donation.status as DonationStatus,
-  display: props.donation.display as Schema['display'],
-  donorName: props.donation.donor.name,
-  donorSocial: props.donation.donor.social,
-  donorHandle: props.donation.donor.handle,
-  donorEmail: props.donation.donor.email,
-  donorNotes: props.donation.donorNotes ?? undefined,
-  adminNotes: props.donation.adminNotes ?? undefined,
+  campaignId: existing?.campaignId ?? '__general',
+  amount: existing ? existing.amount / 100 : undefined,
+  channelId: existing?.channelId,
+  refNo: existing?.refNo ?? undefined,
+  status: (existing?.status ?? 'approved') as DonationStatus,
+  display: (existing?.display ?? 'both') as Schema['display'],
+  donorName: existing?.donor.name,
+  donorSocial: existing?.donor.social,
+  donorHandle: existing?.donor.handle,
+  donorEmail: existing?.donor.email,
+  donorNotes: existing?.donorNotes ?? undefined,
+  adminNotes: existing?.adminNotes ?? undefined,
 })
 
 const proof = ref<File | null>(null)
@@ -93,8 +97,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     proofUrl = `/images/${pathname}`
   }
 
-  updateDonation({
-    id: props.donation.id,
+  const payload = {
     campaignId: event.data.campaignId === '__general' ? null : event.data.campaignId,
     amount: Math.round(event.data.amount * 100),
     channelId: event.data.channelId,
@@ -110,13 +113,23 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       handle: event.data.donorHandle,
       email: event.data.donorEmail,
     },
-  })
+  }
+
+  if (existing)
+    updateDonation({ id: existing.id, ...payload })
+  else
+    createDonation(payload)
+
   open.value = false
 }
 </script>
 
 <template>
-  <AppSheet v-model:open="open" title="Edit donation" :description="`${donation.donor.name}'s donation`">
+  <AppSheet
+    v-model:open="open"
+    :title="donation ? 'Edit donation' : 'Add donation'"
+    :description="donation ? `${donation.donor.name}'s donation` : 'Record a donation received outside the form.'"
+  >
     <UForm
       ref="form"
       :schema
@@ -156,10 +169,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       </UFormField>
 
       <UFormField label="Proof of payment">
-        <div v-if="donation.proofUrl" class="mb-2">
-          <NuxtImg :src="donation.proofUrl" class="max-h-40 rounded-md border border-default object-cover" />
+        <div v-if="donation?.proofUrl" class="mb-2">
+          <NuxtImg :src="donation!.proofUrl!" class="max-h-40 rounded-md border border-default object-cover" />
         </div>
-        <UFileUpload v-model="proof" accept="image/*,.pdf" label="Drop a screenshot to replace it" />
+        <UFileUpload v-model="proof" accept="image/*,.pdf" :label="donation ? 'Drop a screenshot to replace it' : 'Drop a screenshot of the receipt'" />
       </UFormField>
 
       <p class="text-xs font-bold text-muted uppercase tracking-wide">

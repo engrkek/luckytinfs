@@ -180,3 +180,43 @@ export const useDeleteOfficeDonation = defineMutation(() => {
     },
   })
 })
+
+export interface OfficeDonationCreate {
+  campaignId?: string | null
+  amount: number
+  channelId: string
+  refNo?: string
+  proofUrl?: string
+  status?: DonationStatus
+  display: string
+  donorNotes?: string
+  adminNotes?: string
+  donor: { email: string, name?: string, handle: string, social: string }
+}
+
+/**
+ * Manually record a donation (admin entered cash/offline gifts).
+ * ponytail: no optimistic insert — the server assigns the id and joined labels.
+ */
+export const useCreateOfficeDonation = defineMutation(() => {
+  const queryCache = useQueryCache()
+  const toast = useToast()
+
+  return useMutation({
+    mutation: (body: OfficeDonationCreate) =>
+      $fetch<{ id: string }>('/api/office/donations', { method: 'POST', body }),
+
+    onError(err) {
+      const e = err as { data?: { statusMessage?: string }, message?: string }
+      toast.add({
+        title: 'Could not add donation',
+        description: e.data?.statusMessage ?? e.message ?? 'Something went wrong',
+        color: 'error',
+      })
+    },
+
+    onSettled() {
+      queryCache.invalidateQueries({ key: officeDonationsQuery.key })
+    },
+  })
+})
