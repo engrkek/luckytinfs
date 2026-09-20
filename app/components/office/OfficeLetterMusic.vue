@@ -53,21 +53,21 @@ watch(
 <template>
   <div
     v-if="resource"
-    class="flex items-center gap-3 border-t border-neutral-200 pt-3"
+    class="flex items-center gap-3 rounded-md bg-elevated/50 p-3"
   >
-    <UIcon name="i-lucide-music-2" class="size-4 shrink-0 text-neutral-400" />
+    <UIcon name="ph:music-notes" class="size-4 shrink-0 text-dimmed" />
     <div class="min-w-0 flex-1">
-      <p class="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-600">
+      <p class="text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
         Song choice
       </p>
-      <p v-if="metaPending" class="truncate text-sm text-neutral-600">
+      <p v-if="metaPending" class="truncate text-sm text-muted">
         Loading title…
       </p>
       <template v-else>
-        <p class="truncate text-sm font-medium text-neutral-900">
+        <p class="truncate text-sm font-medium text-highlighted">
           {{ title ?? 'YouTube video' }}
         </p>
-        <p v-if="artist" class="truncate text-xs text-neutral-600">
+        <p v-if="artist" class="truncate text-xs text-muted">
           {{ artist }}
         </p>
       </template>
@@ -79,7 +79,7 @@ watch(
       color="neutral"
       variant="outline"
       size="sm"
-      trailing-icon="i-lucide-external-link"
+      trailing-icon="ph:arrow-up-right"
       class="shrink-0"
     >
       Listen
