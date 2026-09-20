@@ -23,9 +23,9 @@ const statuses: SelectItem[] = [
 ]
 
 const socialPlatforms: SelectItem[] = [
+  { value: 'x', label: 'X (Twitter)' },
   { value: 'instagram', label: 'Instagram' },
   { value: 'facebook', label: 'Facebook' },
-  { value: 'x', label: 'X (Twitter)' },
   { value: 'tiktok', label: 'TikTok' },
   { value: 'other', label: 'Other' },
 ]
