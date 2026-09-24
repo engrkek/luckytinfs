@@ -1,6 +1,7 @@
 import { event as eventTable } from '@nuxthub/db/schema'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
+import { REG_PREFIX_PATTERN } from '#shared/events'
 
 const postSchema = z.object({
   name: z.string().min(1),
@@ -9,6 +10,7 @@ const postSchema = z.object({
   date: z.coerce.date(),
   capacity: z.number().int().positive().optional(),
   fee: z.number().int().nonnegative().optional(),
+  regPrefix: z.string().trim().toUpperCase().regex(REG_PREFIX_PATTERN).optional(),
 })
 
 export default defineEventHandler(async (event) => {

@@ -1,5 +1,7 @@
-import { eq } from 'drizzle-orm'
+import { channel, eventRsvp } from '@nuxthub/db/schema'
+import { desc, eq, getTableColumns, sql } from 'drizzle-orm'
 import { z } from 'zod'
+import { user } from '#auth/schema'
 
 export default defineEventHandler(async (event) => {
   await requireUserSession(event, { user: { role: ['admin'] } })
@@ -7,7 +9,11 @@ export default defineEventHandler(async (event) => {
     id: z.string().trim(),
   }).parse)
 
-  const rsvps = await db.query.eventRsvp.findMany({ where: eq(schema.eventRsvp.eventId, id) })
-
-  return rsvps
+  return db
+    .select({ ...getTableColumns(eventRsvp), reviewerName: user.name, channelLabel: sql<string | null>`coalesce(nullif(${channel.nickname}, ''), ${channel.type})` })
+    .from(eventRsvp)
+    .leftJoin(user, eq(user.id, eventRsvp.reviewedBy))
+    .leftJoin(channel, eq(channel.id, eventRsvp.channelId))
+    .where(eq(eventRsvp.eventId, id))
+    .orderBy(desc(eventRsvp.createdAt))
 })
