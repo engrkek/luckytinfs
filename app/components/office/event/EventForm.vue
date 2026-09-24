@@ -3,6 +3,7 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 import type { CEvent } from '#shared/types'
 import { CalendarDateTime, getLocalTimeZone } from '@internationalized/date'
 import { z } from 'zod'
+import { REG_PREFIX_PATTERN } from '#shared/events'
 
 const props = defineProps<{
   type: 'new' | 'edit'
@@ -27,6 +28,7 @@ const schema = z.object({
   date: z.any().refine(val => !!val, { message: 'Date is required' }),
   capacity: z.number().int().positive().optional(),
   fee: z.number().nonnegative().optional(),
+  regPrefix: z.string().trim().toUpperCase().regex(REG_PREFIX_PATTERN, 'Up to 6 letters or numbers').optional(),
 })
 
 type Schema = z.output<typeof schema>
@@ -38,6 +40,7 @@ const state = reactive<Partial<Omit<z.input<typeof schema>, 'date'>> & { date?: 
   date: props.event?.date ? toCalendarDateTime(props.event.date) : undefined,
   capacity: props.event?.capacity ?? undefined,
   fee: props.event?.fee != null ? props.event.fee / 100 : undefined,
+  regPrefix: props.event?.regPrefix ?? undefined,
 })
 
 const toast = useToast()
@@ -116,6 +119,21 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           />
         </UFormField>
       </div>
+
+      <UFormField
+        name="regPrefix"
+        label="Reg ID Prefix"
+        :hint="`e.g. ${state.regPrefix?.toUpperCase() || 'LTFI'}-7KQM`"
+        help="Applies to new registrations only"
+      >
+        <UInput
+          v-model="state.regPrefix"
+          placeholder="LTFI"
+          maxlength="6"
+          class="w-full"
+          :ui="{ base: 'uppercase' }"
+        />
+      </UFormField>
     </UForm>
 
     <template #footer>

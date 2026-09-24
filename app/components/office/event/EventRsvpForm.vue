@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { FormSubmitEvent, SelectItem } from '@nuxt/ui'
-import type { CEvent, EventRsvp } from '#shared/types'
+import type { CEvent, Channel, EventRsvp } from '#shared/types'
 import { z } from 'zod'
+import { fullAccountName } from '#shared/donations'
+import { RSVP_STATUS_ITEMS, RSVP_STATUS_VALUES } from '#shared/events'
 
 const props = defineProps<{
   type: 'new' | 'edit'
@@ -12,15 +14,15 @@ const props = defineProps<{
 const open = defineModel<boolean>('open', { default: false })
 const form = useTemplateRef('form')
 
+// Office list includes disabled wallets, so older registrations keep their label
+const { data: channels } = useFetch<Channel[]>('/api/office/channels', { key: 'office-channels' })
+const channelItems = computed<SelectItem[]>(() => (channels.value ?? []).map(c => ({
+  value: c.id,
+  label: `${c.nickname || c.type} (${fullAccountName(c)})`,
+})))
+
 const title = computed(() => props.type === 'new' ? 'Add Registration' : 'Edit Registration')
 const description = computed(() => props.type === 'new' ? `Register a new RSVP for ${props.event.name}` : `Update ${props.rsvp?.fullName}'s registration`)
-
-const statuses: SelectItem[] = [
-  { value: 'for_review', label: 'For review' },
-  { value: 'approved', label: 'Approved' },
-  { value: 'confirmed', label: 'Confirmed' },
-  { value: 'invalid', label: 'Invalid' },
-]
 
 const socialPlatforms: SelectItem[] = [
   { value: 'x', label: 'X (Twitter)' },
@@ -39,8 +41,11 @@ const schema = z.object({
   socialHandle: z.string().optional(),
   regFee: z.number().nonnegative().optional(),
   refNo: z.string().optional(),
+  channelId: z.string().optional(),
+  sponsoredKids: z.number().int().min(0).max(20),
+  companions: z.array(z.object({ name: z.string().trim().min(1, 'Name is required'), relationship: z.string().trim() })),
   notes: z.string().optional(),
-  status: z.enum(['for_review', 'approved', 'confirmed', 'invalid']),
+  status: z.enum(RSVP_STATUS_VALUES),
 })
 
 type Schema = z.output<typeof schema>
@@ -54,6 +59,9 @@ const state = reactive<Partial<Schema>>({
   socialHandle: props.rsvp?.socialHandle ?? undefined,
   regFee: props.rsvp ? (props.rsvp.regFee != null ? props.rsvp.regFee / 100 : undefined) : (props.event.fee != null ? props.event.fee / 100 : undefined),
   refNo: props.rsvp?.refNo ?? undefined,
+  channelId: props.rsvp?.channelId ?? undefined,
+  sponsoredKids: props.rsvp?.sponsoredKids ?? 0,
+  companions: props.rsvp?.companions?.map(c => ({ ...c })) ?? [],
   notes: props.rsvp?.notes ?? undefined,
   status: (props.rsvp?.status as Schema['status']) ?? 'for_review',
 })
@@ -76,6 +84,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   const payload = {
     ...rest,
     regFee: regFee !== undefined ? Math.round(regFee * 100) : undefined,
+    channelId: rest.channelId ?? (props.type === 'edit' ? null : undefined),
     receiptUrl: receiptUrl ?? existingReceipt.value?.url ?? (props.type === 'edit' ? '' : undefined),
   }
 
@@ -161,6 +170,46 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         </UFormField>
       </div>
 
+      <UFormField name="sponsoredKids" label="Sponsored kids" help="Charity kids this registration pays for">
+        <UInputNumber v-model="state.sponsoredKids" :min="0" :max="20" />
+      </UFormField>
+
+      <UFormField label="Own kids" help="Minors the registrant is bringing">
+        <div class="space-y-2">
+          <div v-for="(kid, i) in state.companions" :key="i" class="flex items-start gap-2">
+            <UFormField :name="`companions.${i}.name`" class="flex-1">
+              <UInput v-model="kid.name" placeholder="Name" class="w-full" />
+            </UFormField>
+            <UInput v-model="kid.relationship" placeholder="Relationship" class="w-36" />
+            <UButton
+              icon="ph:x"
+              color="neutral"
+              variant="ghost"
+              :aria-label="`Remove ${kid.name || 'kid'}`"
+              @click="state.companions!.splice(i, 1)"
+            />
+          </div>
+          <UButton
+            icon="ph:plus"
+            label="Add kid"
+            color="neutral"
+            variant="soft"
+            size="sm"
+            @click="(state.companions ??= []).push({ name: '', relationship: '' })"
+          />
+        </div>
+      </UFormField>
+
+      <UFormField name="channelId" label="Paid to wallet">
+        <USelect
+          v-model="state.channelId"
+          :items="channelItems"
+          value-key="value"
+          placeholder="Select wallet"
+          class="w-full"
+        />
+      </UFormField>
+
       <UFormField name="receipt" label="Receipt">
         <div v-if="existingReceipt" class="flex items-center gap-2 border border-default rounded-md p-2 mb-2">
           <UIcon name="ph:paperclip" class="size-5 shrink-0" />
@@ -180,7 +229,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       </UFormField>
 
       <UFormField name="status" label="Status" required>
-        <USelect v-model="state.status" :items="statuses" value-key="value" class="w-full" />
+        <USelect v-model="state.status" :items="RSVP_STATUS_ITEMS" value-key="value" class="w-full" />
       </UFormField>
 
       <UFormField name="notes" label="Notes">

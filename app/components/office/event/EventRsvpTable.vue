@@ -1,32 +1,49 @@
 <script setup lang="ts">
 import type { TableColumn, TableRow } from '@nuxt/ui'
-import type { CEvent, EventRsvp } from '#shared/types'
-import { useChangeCase } from '@vueuse/integrations/useChangeCase'
+import type { CEvent, OfficeEventRsvp } from '#shared/types'
+import { getPaginationRowModel } from '@tanstack/vue-table'
 import { LazyOfficeEventRsvpForm, LazyOfficeEventRsvpSheet, UBadge, UButton, UChip } from '#components'
+import { rsvpStatus } from '#shared/events'
+import { formatSocial, socialIcon } from '#shared/social'
 
-const props = defineProps<{ event: CEvent, rsvps: EventRsvp[] }>()
+const props = withDefaults(defineProps<{ event: CEvent, rsvps: OfficeEventRsvp[], empty?: string }>(), {
+  empty: 'No registrations yet.',
+})
+
+// 1-based page, owned by the parent so it can reset on search/filter
+const page = defineModel<number>('page', { default: 1 })
+const PAGE_SIZE = 20
+
+const pagination = computed({
+  get: () => ({ pageIndex: page.value - 1, pageSize: PAGE_SIZE }),
+  set: v => page.value = v.pageIndex + 1,
+})
+
+const pageCount = computed(() => Math.max(Math.ceil(props.rsvps.length / PAGE_SIZE), 1))
+// Deleting the last row on the last page would otherwise strand you on an empty page
+watch(pageCount, (n) => {
+  if (page.value > n)
+    page.value = n
+})
+
+const range = computed(() => {
+  const start = (page.value - 1) * PAGE_SIZE
+  return `${start + 1}–${Math.min(start + PAGE_SIZE, props.rsvps.length)}`
+})
 
 const overlay = useOverlay()
 const eventRsvpSheet = overlay.create(LazyOfficeEventRsvpSheet)
 const eventRsvpForm = overlay.create(LazyOfficeEventRsvpForm)
+const { remove } = useEventRsvpActions(() => props.event.id)
 
-const platforms = {
-  x: 'ph:x-logo',
-  facebook: 'ph:facebook-logo',
-  tiktok: 'ph:tiktok-logo',
-  threads: 'ph:threads-logo',
-} as const
-
-const statuses = {
-  for_review: 'info',
-  approved: 'success',
-  confirmed: 'primary',
-  invalid: 'error',
-} as const
-
-const columns: TableColumn<EventRsvp>[] = [
+const columns: TableColumn<OfficeEventRsvp>[] = [
   {
-    ...sortableColumn<EventRsvp>('fullName', 'Name'),
+    accessorKey: 'regId',
+    header: 'Reg ID',
+    cell: ({ row }) => h('div', { class: 'font-mono' }, row.original.regId),
+  },
+  {
+    ...sortableColumn<OfficeEventRsvp>('fullName', 'Name'),
   },
   {
     accessorKey: 'email',
@@ -35,17 +52,12 @@ const columns: TableColumn<EventRsvp>[] = [
   {
     accessorKey: 'status',
     header: 'Status',
-    cell: ({ row }) => h(UBadge, {
-      label: useChangeCase(row.original.status, 'capitalCase').value,
-      color: statuses[row.original.status as keyof typeof statuses],
-      variant: 'soft',
-    }, {
-      leading: () => h(UChip, {
-        standalone: true,
-        inset: true,
-        color: statuses[row.original.status as keyof typeof statuses],
-      }),
-    }),
+    cell: ({ row }) => {
+      const { label, color } = rsvpStatus(row.original.status)
+      return h(UBadge, { label, color, variant: 'soft' }, {
+        leading: () => h(UChip, { standalone: true, inset: true, color }),
+      })
+    },
   },
   {
     id: 'actions',
@@ -53,13 +65,25 @@ const columns: TableColumn<EventRsvp>[] = [
     cell: ({ row }) => {
       return h('div', { class: 'flex items-center gap-2' }, [
         h(UButton, {
-          icon: 'ph:pencil',
-          color: 'neutral',
-          variant: 'ghost',
-          size: 'sm',
-          onClick: (e: Event) => {
+          'icon': 'ph:pencil',
+          'aria-label': `Edit ${row.original.fullName}`,
+          'color': 'neutral',
+          'variant': 'ghost',
+          'size': 'sm',
+          'onClick': (e: Event) => {
             e.stopPropagation()
             eventRsvpForm.open({ type: 'edit', event: props.event, rsvp: row.original })
+          },
+        }),
+        h(UButton, {
+          'icon': 'ph:trash',
+          'aria-label': `Delete ${row.original.fullName}`,
+          'color': 'error',
+          'variant': 'ghost',
+          'size': 'sm',
+          'onClick': (e: Event) => {
+            e.stopPropagation()
+            remove(row.original)
           },
         }),
       ])
@@ -67,17 +91,19 @@ const columns: TableColumn<EventRsvp>[] = [
   },
 ]
 
-function onSelect(e: Event, row: TableRow<EventRsvp>) {
-  eventRsvpSheet.open({ rsvp: row.original })
+function onSelect(e: Event, row: TableRow<OfficeEventRsvp>) {
+  eventRsvpSheet.open({ event: props.event, rsvp: row.original })
 }
 </script>
 
 <template>
   <div class="border-t border-default">
     <UTable
+      v-model:pagination="pagination"
       :data="rsvps"
       :columns
-      empty="No registrations yet."
+      :pagination-options="{ getPaginationRowModel: getPaginationRowModel() }"
+      :empty
       @select="onSelect"
     >
       <template #fullName-cell="{ row }">
@@ -87,9 +113,9 @@ function onSelect(e: Event, row: TableRow<EventRsvp>) {
             <p class="text-highlighted font-bold">
               {{ row.original.fullName }} ({{ row.original.nickname }})
             </p>
-            <div class="flex items-center gap-1">
-              <UIcon :name="platforms[row.original.socialPlatform as keyof typeof platforms] ?? 'ph:link'" />
-              <p>{{ row.original.socialHandle }}</p>
+            <div v-if="formatSocial(row.original.socialPlatform, row.original.socialHandle)" class="flex items-center gap-1 min-w-0">
+              <UIcon :name="socialIcon(row.original.socialPlatform)" class="shrink-0" />
+              <AppSocialHandle :social="formatSocial(row.original.socialPlatform, row.original.socialHandle)!" />
             </div>
           </div>
         </div>
@@ -106,5 +132,20 @@ function onSelect(e: Event, row: TableRow<EventRsvp>) {
         </div>
       </template>
     </UTable>
+
+    <div v-if="rsvps.length" class="flex flex-wrap items-center justify-between gap-2 border-t border-default px-3 py-2.5">
+      <p class="text-sm text-muted tabular-nums">
+        Showing {{ range }} of {{ rsvps.length }}
+      </p>
+      <UPagination
+        v-if="pageCount > 1"
+        v-model:page="page"
+        :items-per-page="PAGE_SIZE"
+        :total="rsvps.length"
+        size="sm"
+        variant="ghost"
+        active-variant="soft"
+      />
+    </div>
   </div>
 </template>
