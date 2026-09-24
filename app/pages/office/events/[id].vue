@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import type { BreadcrumbItem, SelectItem } from '@nuxt/ui'
-import type { CEvent, EventRsvp } from '#shared/types'
+import type { BreadcrumbItem } from '@nuxt/ui'
+import type { RsvpStatus } from '#shared/events'
+import type { CEvent, OfficeEventRsvp } from '#shared/types'
 import { LazyAppDialog, LazyOfficeEventForm, LazyOfficeEventRsvpForm } from '#components'
+import { RSVP_STATUS_ITEMS } from '#shared/events'
 
 const id = useRoute().params.id
 
@@ -12,7 +14,7 @@ const deleteConfirm = overlay.create(LazyAppDialog)
 const toast = useToast()
 
 const { data: event } = useFetch<CEvent>(`/api/office/events/${id}`, { key: `event-${id}` })
-const { data: rsvps } = useFetch<EventRsvp[]>(`/api/office/events/${id}/rsvps`, { key: `event-${id}-rsvps` })
+const { data: rsvps } = useFetch<OfficeEventRsvp[]>(`/api/office/events/${id}/rsvps`, { key: `event-${id}-rsvps` })
 
 useHead({ title: () => event.value?.name ?? 'Event' })
 
@@ -21,7 +23,89 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
   { label: event.value?.name, to: `/office/events/${event.value?.id}` },
 ])
 
-const status = ref('all')
+const status = ref<RsvpStatus | 'all'>('all')
+const search = ref('')
+const page = ref(1)
+watch([search, status], () => page.value = 1)
+
+const peso = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 })
+const dateFormat = new Intl.DateTimeFormat('en-PH', { dateStyle: 'medium', timeStyle: 'short' })
+
+const counts = computed(() => {
+  const c: Partial<Record<RsvpStatus, number>> = {}
+  for (const r of rsvps.value ?? [])
+    c[r.status as RsvpStatus] = (c[r.status as RsvpStatus] ?? 0) + 1
+  return c
+})
+
+const statusItems = computed(() => [
+  { value: 'all', label: `All statuses (${rsvps.value?.length ?? 0})` },
+  ...RSVP_STATUS_ITEMS.map(i => ({ ...i, label: `${i.label} (${counts.value[i.value as RsvpStatus] ?? 0})` })),
+])
+
+// ponytail: filtered client-side off the full list; move to query params when an event outgrows one fetch
+const filtered = computed(() => {
+  const q = search.value.trim().toLowerCase()
+  return (rsvps.value ?? []).filter(r =>
+    (status.value === 'all' || r.status === status.value)
+    && (!q || [r.regId, r.fullName, r.nickname, r.email, r.contactNumber, r.socialHandle].some(v => v?.toLowerCase().includes(q))),
+  )
+})
+
+// Who's actually coming: cancelled/rejected registrations don't take seats
+const attendance = computed(() => {
+  const active = (rsvps.value ?? []).filter(r => r.status !== 'cancelled' && r.status !== 'rejected')
+  const confirmed = active.filter(r => r.status === 'confirmed')
+  const sponsored = (list: OfficeEventRsvp[]) => list.reduce((n, r) => n + r.sponsoredKids, 0)
+  const ownKids = (list: OfficeEventRsvp[]) => list.reduce((n, r) => n + (r.companions?.length ?? 0), 0)
+  const kids = sponsored(active) + ownKids(active)
+  return [
+    {
+      label: 'Sponsored kids',
+      value: sponsored(active),
+      hint: `from ${active.filter(r => r.sponsoredKids).length} sponsors · ${sponsored(confirmed)} confirmed`,
+    },
+    {
+      label: 'Own kids',
+      value: ownKids(active),
+      hint: `from ${active.filter(r => r.companions?.length).length} attendees · ${ownKids(confirmed)} confirmed`,
+    },
+    {
+      label: 'Expected headcount',
+      value: active.length + kids,
+      hint: `${active.length} adults · ${kids} kids`,
+    },
+  ]
+})
+
+const stats = computed(() => {
+  const c = counts.value
+  const active = (rsvps.value?.length ?? 0) - (c.cancelled ?? 0) - (c.rejected ?? 0)
+  const all = rsvps.value ?? []
+  const paid = all.filter(r => r.status === 'confirmed')
+  const sumFees = (list: OfficeEventRsvp[]) => list.reduce((sum, r) => sum + (r.regFee ?? 0), 0) / 100
+  const inReview = sumFees(all.filter(r => r.status === 'for_review'))
+  const unrecorded = paid.filter(r => r.regFee == null).length
+  const capacity = event.value?.capacity
+  return [
+    {
+      label: 'Collected',
+      value: peso.format(sumFees(paid)),
+      // Surface gaps instead of silently undercounting (imported rows carry no fee)
+      hint: [`${peso.format(inReview)} in review`, unrecorded && `${unrecorded} paid with no fee recorded`].filter(Boolean).join(' · '),
+      filter: undefined,
+    },
+    {
+      label: 'Registered',
+      value: capacity ? `${active} / ${capacity}` : active,
+      hint: capacity ? `${Math.max(capacity - active, 0)} slots left` : 'no capacity limit',
+      progress: capacity ? Math.min(active / capacity, 1) * 100 : undefined,
+      filter: 'all',
+    },
+    { label: 'For review', value: c.for_review ?? 0, hint: `${c.pending_payment ?? 0} still unpaid`, filter: 'for_review' },
+    { label: 'Confirmed', value: c.confirmed ?? 0, hint: 'payment verified', filter: 'confirmed' },
+  ] as const
+})
 
 async function toggleOpen() {
   await $fetch(`/api/office/events/${id}`, { method: 'PATCH', body: { isOpen: !event.value!.isOpen } })
@@ -52,14 +136,6 @@ async function deleteEvent() {
     })
   }
 }
-
-const statuses: SelectItem[] = [
-  { value: 'all', label: 'All statuses' },
-  { value: 'for_review', label: 'For review' },
-  { value: 'approved', label: 'Approved' },
-  { value: 'confirmed', label: 'Confirmed' },
-  { value: 'invalid', label: 'Invalid' },
-]
 </script>
 
 <template>
@@ -75,9 +151,19 @@ const statuses: SelectItem[] = [
             </h1>
             <UBadge :label="event.isOpen ? 'Open' : 'Closed'" :color="event.isOpen ? 'success' : 'error'" variant="soft" size="xl" />
           </div>
-          <div class="flex items-center gap-2 text-muted">
-            <UIcon name="ph:map-pin" />
-            <p>{{ event.venue }}</p>
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-muted">
+            <p class="flex items-center gap-1.5">
+              <UIcon name="ph:calendar-blank" class="shrink-0" />
+              {{ dateFormat.format(new Date(event.date)) }}
+            </p>
+            <p v-if="event.venue" class="flex items-center gap-1.5">
+              <UIcon name="ph:map-pin" class="shrink-0" />
+              {{ event.venue }}
+            </p>
+            <p class="flex items-center gap-1.5">
+              <UIcon name="ph:ticket" class="shrink-0" />
+              {{ event.fee ? peso.format(event.fee / 100) : 'Free' }}
+            </p>
           </div>
         </div>
 
@@ -107,23 +193,66 @@ const statuses: SelectItem[] = [
         </div>
       </div>
 
-      <UCard>
-        <h2 class="font-semibold text-lg">
-          Capacity
-        </h2>
-        <p>
-          <span class="text-highlighted text-2xl">{{ rsvps && rsvps.length }}</span> <span class="text-muted text-lg">/ {{ event.capacity }} slots</span>
-        </p>
-      </UCard>
+      <!-- Each card filters the table below; aria-pressed + ring is the static selected cue -->
+      <div class="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <UPageCard
+          v-for="stat in stats"
+          :key="stat.label"
+          :as="stat.filter ? 'button' : 'div'"
+          :type="stat.filter ? 'button' : undefined"
+          variant="subtle"
+          :aria-pressed="stat.filter ? status === stat.filter : undefined"
+          class="text-left transition-[box-shadow] duration-150 aria-pressed:ring-2 aria-pressed:ring-primary"
+          :class="{ 'cursor-pointer': stat.filter }"
+          :ui="{ container: 'gap-1' }"
+          @click="stat.filter && (status = status === stat.filter ? 'all' : stat.filter)"
+        >
+          <p class="text-muted text-sm">
+            {{ stat.label }}
+          </p>
+          <p class="font-display text-3xl tracking-tighter tabular-nums">
+            {{ stat.value }}
+          </p>
+          <UProgress v-if="'progress' in stat && stat.progress !== undefined" :model-value="stat.progress" size="xs" class="my-1" />
+          <p class="text-dimmed text-xs">
+            {{ stat.hint }}
+          </p>
+        </UPageCard>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-3">
+        <UPageCard
+          v-for="stat in attendance"
+          :key="stat.label"
+          variant="subtle"
+          :ui="{ container: 'gap-1' }"
+        >
+          <p class="text-muted text-sm">
+            {{ stat.label }}
+          </p>
+          <p class="font-display text-3xl tracking-tighter tabular-nums">
+            {{ stat.value }}
+          </p>
+          <p class="text-dimmed text-xs">
+            {{ stat.hint }}
+          </p>
+        </UPageCard>
+      </div>
 
       <UCard :ui="{ body: 'p-0 lg:p-0' }">
         <div class="flex flex-wrap items-center gap-2 p-3">
-          <UInput icon="ph:magnifying-glass" placeholder="Search registration..." class="flex-1 min-w-60 lg:max-w-60" />
+          <UInput v-model="search" icon="ph:magnifying-glass" placeholder="Search name, Reg ID, email…" class="flex-1 min-w-60 lg:max-w-60" />
 
           <UButton icon="ph:plus" label="Add registration" class="lg:ml-auto" @click="rsvpForm.open({ type: 'new', event })" />
-          <USelect v-model="status" :items="statuses" value-key="value" />
+          <USelect v-model="status" :items="statusItems" value-key="value" class="min-w-44" />
         </div>
-        <OfficeEventRsvpTable v-if="rsvps" :event="event" :rsvps="rsvps" />
+        <OfficeEventRsvpTable
+          v-if="rsvps"
+          v-model:page="page"
+          :event="event"
+          :rsvps="filtered"
+          :empty="rsvps.length ? 'No registrations match your search or filter.' : 'No registrations yet.'"
+        />
       </UCard>
     </template>
   </UDashboardPanel>
