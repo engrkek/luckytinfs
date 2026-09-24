@@ -24,6 +24,7 @@ export type Channel = typeof channel.$inferSelect
 export type Donation = typeof donation.$inferSelect
 export type Donor = typeof donor.$inferSelect
 export type EventRsvp = typeof eventRsvp.$inferSelect
+export type OfficeEventRsvp = EventRsvp & { reviewerName: string | null, channelLabel: string | null }
 export type Expense = typeof expense.$inferSelect
 export type Fulfillment = typeof fulfillment.$inferSelect
 export type Letter = typeof letter.$inferSelect

@@ -1,0 +1,1 @@
+ALTER TABLE `event_rsvp` ADD `channel_id` text REFERENCES channel(id);

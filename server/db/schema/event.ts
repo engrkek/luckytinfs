@@ -11,6 +11,7 @@ export const event = sqliteTable('event', {
   date: integer({ mode: 'timestamp_ms' }).notNull(),
   capacity: integer(),
   fee: integer(), // in cents
+  regPrefix: text(), // Reg ID prefix, e.g. LTFI → LTFI-7KQM; see REG_PREFIX_PATTERN
   isOpen: integer({ mode: 'boolean' }).default(true).notNull(), // whether registration/RSVP is open
   details: text({ mode: 'json' }), // freeform extra fields, e.g. { requirements, contactPerson }
   createdBy: text().references(() => schema?.user.id),
