@@ -59,7 +59,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     else
       await $fetch(`/api/office/events/${props.event!.id}`, { method: 'PATCH', body: payload })
 
-    await refreshNuxtData('office-events')
+    // List page and detail page cache under different keys
+    await refreshNuxtData(props.event ? ['office-events', `event-${props.event.id}`] : 'office-events')
     open.value = false
     form.value?.clear()
   }
