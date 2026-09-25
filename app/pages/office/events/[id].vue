@@ -3,7 +3,7 @@ import type { BreadcrumbItem } from '@nuxt/ui'
 import type { RsvpStatus } from '#shared/events'
 import type { CEvent, OfficeEventRsvp } from '#shared/types'
 import { LazyAppDialog, LazyOfficeEventForm, LazyOfficeEventRsvpForm } from '#components'
-import { RSVP_STATUS_ITEMS } from '#shared/events'
+import { RSVP_STATUS_ITEMS, rsvpStatus } from '#shared/events'
 
 const id = useRoute().params.id
 
@@ -51,6 +51,28 @@ const filtered = computed(() => {
     && (!q || [r.regId, r.fullName, r.nickname, r.email, r.contactNumber, r.socialHandle].some(v => v?.toLowerCase().includes(q))),
   )
 })
+
+function exportCsv() {
+  downloadCsv(csvFilename(`${event.value!.slug}-registrations`), filtered.value, {
+    'Reg ID': r => r.regId,
+    'Full name': r => r.fullName,
+    'Nickname': r => r.nickname,
+    'Email': r => r.email,
+    'Mobile': r => r.contactNumber,
+    'Platform': r => r.socialPlatform,
+    'Handle': r => r.socialHandle,
+    'Status': r => rsvpStatus(r.status).label,
+    'Sponsored kids': r => r.sponsoredKids,
+    'Own kids': r => r.companions?.length ?? 0,
+    'Own kids (names)': r => r.companions?.map(c => c.relationship ? `${c.name} (${c.relationship})` : c.name).join('; '),
+    'Fee paid': r => r.regFee != null ? r.regFee / 100 : '',
+    'Paid to': r => r.channelLabel,
+    'Reference no.': r => r.refNo,
+    'Reviewed by': r => r.reviewerName,
+    'Notes': r => r.notes,
+    'Registered': r => csvDate(r.createdAt),
+  })
+}
 
 // Who's actually coming: cancelled/rejected registrations don't take seats
 const attendance = computed(() => {
@@ -243,7 +265,16 @@ async function deleteEvent() {
         <div class="flex flex-wrap items-center gap-2 p-3">
           <UInput v-model="search" icon="ph:magnifying-glass" placeholder="Search name, Reg ID, email…" class="flex-1 min-w-60 lg:max-w-60" />
 
-          <UButton icon="ph:plus" label="Add registration" class="lg:ml-auto" @click="rsvpForm.open({ type: 'new', event })" />
+          <UButton
+            icon="ph:download-simple"
+            label="Export CSV"
+            color="neutral"
+            variant="soft"
+            class="lg:ml-auto"
+            :disabled="!filtered.length"
+            @click="exportCsv"
+          />
+          <UButton icon="ph:plus" label="Add registration" @click="rsvpForm.open({ type: 'new', event })" />
           <USelect v-model="status" :items="statusItems" value-key="value" class="min-w-44" />
         </div>
         <OfficeEventRsvpTable
