@@ -1,9 +1,11 @@
 import { eventRsvp } from '@nuxthub/db/schema'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { generateRegId, RSVP_STATUS_VALUES } from '#shared/events'
+import { generateRegId, REG_ID_PATTERN, RSVP_STATUS_VALUES } from '#shared/events'
 
 const postSchema = z.object({
+  // Optional: keep an ID issued elsewhere (e.g. the old Supabase form); generated when omitted
+  regId: z.string().trim().toUpperCase().max(20).regex(REG_ID_PATTERN).optional(),
   fullName: z.string().min(1),
   nickname: z.string().optional(),
   email: z.email().optional(),
@@ -32,7 +34,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Event not found' })
   }
 
-  const [created] = await db.insert(eventRsvp).values({ ...data, eventId: id, regId: generateRegId(existingEvent.regPrefix) }).returning()
+  if (data.regId)
+    await assertRegIdFree(id, data.regId)
+
+  const [created] = await db.insert(eventRsvp).values({ ...data, eventId: id, regId: data.regId ?? generateRegId(existingEvent.regPrefix) }).returning()
 
   return created
 })

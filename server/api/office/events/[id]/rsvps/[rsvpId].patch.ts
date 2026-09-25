@@ -1,9 +1,10 @@
 import { eventRsvp } from '@nuxthub/db/schema'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { RSVP_STATUS_VALUES } from '#shared/events'
+import { REG_ID_PATTERN, RSVP_STATUS_VALUES } from '#shared/events'
 
 const patchSchema = z.object({
+  regId: z.string().trim().toUpperCase().max(20).regex(REG_ID_PATTERN).optional(),
   fullName: z.string().min(1).optional(),
   nickname: z.string().optional(),
   email: z.email().optional(),
@@ -22,14 +23,18 @@ const patchSchema = z.object({
 
 export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event, { user: { role: ['admin'] } })
-  const { rsvpId } = await getValidatedRouterParams(event, z.object({
+  const { id, rsvpId } = await getValidatedRouterParams(event, z.object({
+    id: z.string().trim(),
     rsvpId: z.string().trim(),
   }).parse)
   const data = await readValidatedBody(event, patchSchema.parse)
 
+  if (data.regId)
+    await assertRegIdFree(id, data.regId, rsvpId)
+
   const [updated] = await db.update(eventRsvp)
     .set({ ...data, reviewedBy: user.id })
-    .where(eq(eventRsvp.id, rsvpId))
+    .where(and(eq(eventRsvp.id, rsvpId), eq(eventRsvp.eventId, id)))
     .returning()
 
   if (!updated) {

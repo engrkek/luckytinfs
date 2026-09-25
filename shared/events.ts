@@ -18,6 +18,9 @@ export function rsvpStatus(status: string) {
   return RSVP_STATUSES[status as RsvpStatus] ?? { label: status, color: 'neutral' as const }
 }
 
+/** A full Reg ID typed by hand, e.g. LTFI-TO0 (imported) or LTFI-7KQM */
+export const REG_ID_PATTERN = /^[A-Z0-9]+(?:-[A-Z0-9]+)*$/
+
 /** Per-event Reg ID prefix, e.g. LTFI → LTFI-7KQM. Empty = no prefix */
 export const REG_PREFIX_PATTERN = /^[A-Z0-9]{0,6}$/
 

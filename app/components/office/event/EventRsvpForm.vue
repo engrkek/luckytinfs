@@ -3,7 +3,7 @@ import type { FormSubmitEvent, SelectItem } from '@nuxt/ui'
 import type { CEvent, Channel, EventRsvp } from '#shared/types'
 import { z } from 'zod'
 import { fullAccountName } from '#shared/donations'
-import { RSVP_STATUS_ITEMS, RSVP_STATUS_VALUES } from '#shared/events'
+import { REG_ID_PATTERN, RSVP_STATUS_ITEMS, RSVP_STATUS_VALUES } from '#shared/events'
 
 const props = defineProps<{
   type: 'new' | 'edit'
@@ -33,6 +33,7 @@ const socialPlatforms: SelectItem[] = [
 ]
 
 const schema = z.object({
+  regId: z.string().trim().toUpperCase().max(20).refine(v => !v || REG_ID_PATTERN.test(v), 'Letters, numbers and dashes only, e.g. LTFI-TO0').optional(),
   fullName: z.string('Name is required').min(1, 'Name is required'),
   nickname: z.string().optional(),
   email: z.email('Invalid email').optional(),
@@ -51,6 +52,7 @@ const schema = z.object({
 type Schema = z.output<typeof schema>
 
 const state = reactive<Partial<Schema>>({
+  regId: props.rsvp?.regId,
   fullName: props.rsvp?.fullName,
   nickname: props.rsvp?.nickname ?? undefined,
   email: props.rsvp?.email ?? undefined,
@@ -83,6 +85,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
   const payload = {
     ...rest,
+    regId: rest.regId || undefined, // blank: generate on create, keep current on edit
     regFee: regFee !== undefined ? Math.round(regFee * 100) : undefined,
     channelId: rest.channelId ?? (props.type === 'edit' ? null : undefined),
     receiptUrl: receiptUrl ?? existingReceipt.value?.url ?? (props.type === 'edit' ? '' : undefined),
@@ -120,6 +123,20 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       class="grid gap-4"
       @submit="onSubmit"
     >
+      <UFormField
+        name="regId"
+        label="Reg ID"
+        :help="type === 'new' ? 'Leave blank to generate one' : undefined"
+      >
+        <UInput
+          v-model="state.regId"
+          :placeholder="event.regPrefix ? `${event.regPrefix}-XXXX` : 'XXXX'"
+          maxlength="20"
+          class="w-full"
+          :ui="{ base: 'uppercase tabular-nums' }"
+        />
+      </UFormField>
+
       <UFormField name="fullName" label="Full Name" required>
         <UInput v-model="state.fullName" placeholder="Enter full name" />
       </UFormField>
