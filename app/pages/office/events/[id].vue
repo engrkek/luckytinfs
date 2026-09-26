@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from '@nuxt/ui'
+import type { RowSelectionState } from '@tanstack/vue-table'
 import type { RsvpStatus } from '#shared/events'
 import type { CEvent, OfficeEventRsvp } from '#shared/types'
 import { LazyAppDialog, LazyOfficeEventForm, LazyOfficeEventRsvpForm } from '#components'
+import { BLOCKSCREENING_REG_PREFIX, bulkSkipReason } from '#shared/blockscreening'
 import { holdsSeats, RSVP_STATUS_ITEMS, rsvpSeats, rsvpStatus } from '#shared/events'
 
 const id = useRoute().params.id
@@ -26,7 +28,12 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 const status = ref<RsvpStatus | 'all'>('all')
 const search = ref('')
 const page = ref(1)
-watch([search, status], () => page.value = 1)
+// Changing the filter clears the selection, so rows you can't see never get a bulk email
+const selection = ref<RowSelectionState>({})
+watch([search, status], () => {
+  page.value = 1
+  selection.value = {}
+})
 
 const peso = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 })
 const dateFormat = new Intl.DateTimeFormat('en-PH', { dateStyle: 'medium', timeStyle: 'short' })
@@ -118,6 +125,58 @@ const stats = computed(() => {
     { label: 'Confirmed', value: c.confirmed ?? 0, hint: `${sum(confirmed, rsvpSeats)} seats secured`, filter: 'confirmed' },
   ] as const
 })
+
+// Bulk email (block screening only): payment and food; final emails stay one at a time in the sheet
+const isBlockscreening = computed(() => event.value?.regPrefix === BLOCKSCREENING_REG_PREFIX)
+const selected = computed(() => (rsvps.value ?? []).filter(r => selection.value[r.id]))
+const resend = ref(false)
+
+async function bulkEmail(kind: 'payment' | 'food', label: string) {
+  const skipped = new Map<string, number>()
+  const targets = selected.value.filter((r) => {
+    const reason = bulkSkipReason(kind, r, resend.value)
+    if (reason)
+      skipped.set(reason, (skipped.get(reason) ?? 0) + 1)
+    return !reason
+  })
+  const skipNote = [...skipped].map(([reason, n]) => `${n} ${reason}`).join(', ')
+  if (!targets.length) {
+    toast.add({ icon: 'ph:info', title: `No one to send the ${label} to`, description: `Skipped: ${skipNote}`, color: 'neutral' })
+    return
+  }
+
+  const confirmed = await deleteConfirm.open({
+    title: `Send ${label}`,
+    description: `Send the ${label} to ${targets.length} ${targets.length === 1 ? 'person' : 'people'}?${skipNote ? ` Skipping ${skipNote}.` : ''}`,
+    confirmLabel: `Send ${targets.length}`,
+  })
+  if (!confirmed)
+    return
+
+  try {
+    const results = await $fetch<{ name: string, result: 'sent' | 'skipped' | 'failed', reason?: string }[]>(`/api/office/events/${id}/rsvps/bulk-email`, {
+      method: 'POST',
+      body: { kind, rsvpIds: targets.map(r => r.id), resend: resend.value },
+    })
+    const sent = results.filter(r => r.result === 'sent').length
+    const failed = results.filter(r => r.result === 'failed')
+    toast.add({
+      icon: failed.length ? 'ph:warning-circle' : 'ph:paper-plane-tilt',
+      title: `${label}: sent ${sent} of ${targets.length}`,
+      description: failed.length ? `Failed: ${failed.map(f => `${f.name} (${f.reason})`).join('; ')}` : undefined,
+      color: failed.length ? 'warning' : 'success',
+      duration: failed.length ? 0 : undefined, // keep failures on screen until dismissed
+    })
+    selection.value = {}
+  }
+  catch (err) {
+    const e = err as { data?: { statusMessage?: string }, message?: string }
+    toast.add({ icon: 'ph:x-circle', title: 'Bulk email failed', description: e.data?.statusMessage ?? e.message ?? 'Something went wrong', color: 'error' })
+  }
+  finally {
+    await refreshNuxtData(`event-${id}-rsvps`)
+  }
+}
 
 async function toggleOpen() {
   await $fetch(`/api/office/events/${id}`, { method: 'PATCH', body: { isOpen: !event.value!.isOpen } })
@@ -248,9 +307,38 @@ async function deleteEvent() {
           <UButton icon="ph:plus" label="Add registration" @click="rsvpForm.open({ type: 'new', event })" />
           <USelect v-model="status" :items="statusItems" value-key="value" class="min-w-44" />
         </div>
+
+        <!-- Appears once rows are ticked: count, clear, and the bulk actions as visible buttons -->
+        <div v-if="selected.length" class="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-default bg-elevated/50 px-3 py-2">
+          <p class="text-sm font-medium text-highlighted tabular-nums">
+            {{ selected.length }} selected
+          </p>
+          <UButton
+            label="Clear"
+            color="neutral"
+            variant="link"
+            size="sm"
+            class="px-0"
+            @click="selection = {}"
+          />
+          <div class="flex flex-wrap items-center gap-2 sm:ml-auto">
+            <UCheckbox v-model="resend" label="Include already sent" size="sm" />
+            <UButton
+              icon="ph:credit-card"
+              label="Send payment email"
+              color="neutral"
+              variant="soft"
+              size="sm"
+              @click="bulkEmail('payment', 'payment email')"
+            />
+            <UButton icon="ph:bowl-food" label="Send food form" color="neutral" variant="soft" size="sm" @click="bulkEmail('food', 'food form')" />
+          </div>
+        </div>
         <OfficeEventRsvpTable
           v-if="rsvps"
           v-model:page="page"
+          v-model:selection="selection"
+          :selectable="isBlockscreening"
           :event="event"
           :rsvps="filtered"
           :empty="rsvps.length ? 'No registrations match your search or filter.' : 'No registrations yet.'"

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { CEvent, OfficeEventRsvp } from '#shared/types'
 import { LazyOfficeEventRsvpForm } from '#components'
-import { BLOCKSCREENING_REG_PREFIX, rsvpTicket } from '#shared/blockscreening'
-import { rsvpStatus } from '#shared/events'
+import { BLOCKSCREENING_REG_PREFIX, emailBlockReason } from '#shared/blockscreening'
+import { holdsSeats, rsvpStatus } from '#shared/events'
 import { formatSocial, socialIcon } from '#shared/social'
 
 const props = defineProps<{ event: CEvent, rsvp: OfficeEventRsvp }>()
@@ -30,16 +30,21 @@ type EmailKind = 'payment' | 'confirmation' | 'food' | 'sponsor'
 const toast = useToast()
 const sending = ref<EmailKind | null>(null)
 
+const isBlockscreening = computed(() => props.event.regPrefix === BLOCKSCREENING_REG_PREFIX)
+
 const emails = computed(() => {
-  const all: { kind: EmailKind, label: string, icon: string }[] = props.event.regPrefix === BLOCKSCREENING_REG_PREFIX
+  const all: { kind: EmailKind, label: string, icon: string }[] = isBlockscreening.value
     ? [
         { kind: 'payment', label: 'Payment instructions', icon: 'ph:credit-card' },
-        ...(rsvpTicket(rsvp.value) === 'sale' ? [] : [{ kind: 'food' as const, label: 'Food form', icon: 'ph:bowl-food' }]),
+        { kind: 'food', label: 'Food form', icon: 'ph:bowl-food' },
         { kind: 'confirmation', label: 'Attendee pass', icon: 'ph:ticket' },
-        ...(rsvp.value.sponsoredKids ? [{ kind: 'sponsor' as const, label: 'Sponsor thank-you', icon: 'ph:hand-heart' }] : []),
+        { kind: 'sponsor', label: 'Sponsor thank-you', icon: 'ph:hand-heart' },
       ]
     : [{ kind: 'confirmation', label: 'Confirmation pass', icon: 'ph:ticket' }]
-  return all.map(e => ({ ...e, sentAt: rsvp.value.emailsSent?.[e.kind] }))
+  // Same rules the server enforces (emailBlockReason), so what's listed is what can be sent
+  return all
+    .filter(e => !emailBlockReason(e.kind, rsvp.value))
+    .map(e => ({ ...e, sentAt: rsvp.value.emailsSent?.[e.kind] }))
 })
 
 async function sendEmail(kind: EmailKind, label: string) {
@@ -248,7 +253,7 @@ async function onDelete() {
         <p class="text-xs font-bold text-muted uppercase tracking-wide">
           Emails
         </p>
-        <UCard :ui="{ body: 'p-0 lg:p-0' }">
+        <UCard v-if="emails.length" :ui="{ body: 'p-0 lg:p-0' }">
           <div class="flex flex-col divide-y divide-default">
             <div v-for="e in emails" :key="e.kind" class="flex items-center gap-3 px-3 py-2.5">
               <UIcon :name="e.icon" class="size-5 shrink-0 text-muted" />
@@ -274,8 +279,14 @@ async function onDelete() {
             </div>
           </div>
         </UCard>
-        <p v-if="!rsvp.email" class="text-xs text-muted">
+        <p v-else class="text-sm text-muted">
+          No emails for cancelled or invalid registrations.
+        </p>
+        <p v-if="!rsvp.email && emails.length" class="text-xs text-muted">
           Add an email address to send these.
+        </p>
+        <p v-if="isBlockscreening && rsvp.sponsoredKids && rsvp.attending && holdsSeats(rsvp.status)" class="text-xs text-muted">
+          The sponsor thank-you shows once "Registrant attends" is turned off in Edit.
         </p>
       </div>
 

@@ -103,6 +103,8 @@ export async function findFoodRsvp(regId: string) {
     throw createError({ statusCode: 404, statusMessage: `Registration ID '${regId}' was not found.` })
   if (rsvpTicket(rsvp) === 'sale')
     throw createError({ statusCode: 400, statusMessage: 'SALE tickets don\'t include a meal.' })
+  if (!rsvp.attending)
+    throw createError({ statusCode: 400, statusMessage: 'You\'re registered as a sponsor only, so there\'s no meal to choose. Your sponsored kids\' meals are taken care of.' })
   return rsvp
 }
 

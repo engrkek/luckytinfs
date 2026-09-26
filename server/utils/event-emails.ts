@@ -1,5 +1,8 @@
 import type { CEvent, EventRsvp } from '#shared/types'
-import { BLOCKSCREENING_REG_PREFIX, PAYMENT_DEADLINE, php, rsvpTicket, SALE_INCLUSIONS, TICKETS } from '#shared/blockscreening'
+import { eventRsvp } from '@nuxthub/db/schema'
+import { eq } from 'drizzle-orm'
+import { BLOCKSCREENING_REG_PREFIX, emailBlockReason, PAYMENT_DEADLINE, php, rsvpTicket, SALE_INCLUSIONS, TICKETS } from '#shared/blockscreening'
+import { MAIL_ADDRESSES } from '#shared/mail'
 
 /** payment + confirmation work for any event; food + sponsor are block screening only */
 export const EVENT_EMAILS = ['payment', 'confirmation', 'food', 'sponsor'] as const
@@ -50,11 +53,29 @@ export function eventEmail(kind: EventEmail, ev: CEvent, r: EventRsvp, origin: s
       }
 
     case 'sponsor':
-      if (!r.sponsoredKids)
-        throw createError({ statusCode: 400, statusMessage: `${r.fullName} isn't sponsoring any kids.` })
       return {
         template: 'BlockscreeningSponsor',
         props: { ...base, kids: r.sponsoredKids, when: when.format(ev.date) },
       }
   }
+}
+
+/** Renders, sends and records one email. Only after a successful send is it marked sent or does it confirm anyone. */
+export async function sendRsvpEmail(kind: EventEmail, ev: CEvent, r: EventRsvp, origin: string, userId: string) {
+  if (!r.email)
+    throw createError({ statusCode: 400, statusMessage: `${r.fullName} has no email address.` })
+  const blocked = emailBlockReason(kind, r)
+  if (blocked)
+    throw createError({ statusCode: 400, statusMessage: `Can't send to ${r.fullName}: ${blocked}.` })
+
+  const { template, props } = eventEmail(kind, ev, r, origin)
+  await sendEmail({ to: r.email, from: mailFrom(MAIL_ADDRESSES.events), ...await renderEmail(template, props) })
+
+  const confirms = kind === 'confirmation' || kind === 'sponsor'
+  await db.update(eventRsvp)
+    .set({
+      emailsSent: { ...r.emailsSent, [kind]: Date.now() },
+      ...(confirms ? { status: 'confirmed', reviewedBy: userId } : {}),
+    })
+    .where(eq(eventRsvp.id, r.id))
 }

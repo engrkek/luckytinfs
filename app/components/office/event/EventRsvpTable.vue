@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import type { TableColumn, TableRow } from '@nuxt/ui'
+import type { RowSelectionState } from '@tanstack/vue-table'
 import type { CEvent, OfficeEventRsvp } from '#shared/types'
 import { getPaginationRowModel } from '@tanstack/vue-table'
-import { LazyOfficeEventRsvpForm, LazyOfficeEventRsvpSheet, UBadge, UButton, UChip } from '#components'
+import { LazyOfficeEventRsvpForm, LazyOfficeEventRsvpSheet, UBadge, UButton, UCheckbox, UChip } from '#components'
 import { rsvpStatus } from '#shared/events'
 import { formatSocial, socialIcon } from '#shared/social'
 
-const props = withDefaults(defineProps<{ event: CEvent, rsvps: OfficeEventRsvp[], empty?: string }>(), {
+const props = withDefaults(defineProps<{ event: CEvent, rsvps: OfficeEventRsvp[], empty?: string, selectable?: boolean }>(), {
   empty: 'No registrations yet.',
 })
 
 // 1-based page, owned by the parent so it can reset on search/filter
 const page = defineModel<number>('page', { default: 1 })
+// Keyed by rsvp id (getRowId), owned by the parent for bulk actions
+const selection = defineModel<RowSelectionState>('selection', { default: () => ({}) })
 const PAGE_SIZE = 20
 
 const pagination = computed({
@@ -36,7 +39,23 @@ const eventRsvpSheet = overlay.create(LazyOfficeEventRsvpSheet)
 const eventRsvpForm = overlay.create(LazyOfficeEventRsvpForm)
 const { remove } = useEventRsvpActions(() => props.event.id)
 
-const columns: TableColumn<OfficeEventRsvp>[] = [
+// Header box selects every row passed in (all filtered rows, across pages), not just this page
+const selectColumn: TableColumn<OfficeEventRsvp> = {
+  id: 'select',
+  header: ({ table }) => h(UCheckbox, {
+    'modelValue': table.getIsSomeRowsSelected() ? 'indeterminate' : table.getIsAllRowsSelected(),
+    'onUpdate:modelValue': (value: boolean | 'indeterminate') => table.toggleAllRowsSelected(!!value),
+    'aria-label': `Select all ${props.rsvps.length} registrations`,
+  }),
+  cell: ({ row }) => h(UCheckbox, {
+    'modelValue': row.getIsSelected(),
+    'onUpdate:modelValue': (value: boolean | 'indeterminate') => row.toggleSelected(!!value),
+    'onClick': (e: Event) => e.stopPropagation(), // row click opens the sheet
+    'aria-label': `Select ${row.original.fullName}`,
+  }),
+}
+
+const baseColumns: TableColumn<OfficeEventRsvp>[] = [
   {
     accessorKey: 'regId',
     header: 'Reg ID',
@@ -91,6 +110,8 @@ const columns: TableColumn<OfficeEventRsvp>[] = [
   },
 ]
 
+const columns = computed(() => props.selectable ? [selectColumn, ...baseColumns] : baseColumns)
+
 function onSelect(e: Event, row: TableRow<OfficeEventRsvp>) {
   eventRsvpSheet.open({ event: props.event, rsvp: row.original })
 }
@@ -100,6 +121,8 @@ function onSelect(e: Event, row: TableRow<OfficeEventRsvp>) {
   <div class="border-t border-default">
     <UTable
       v-model:pagination="pagination"
+      v-model:row-selection="selection"
+      :get-row-id="(r: OfficeEventRsvp) => r.id"
       :data="rsvps"
       :columns
       :pagination-options="{ getPaginationRowModel: getPaginationRowModel() }"
