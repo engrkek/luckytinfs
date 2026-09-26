@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { FOOD_DEADLINE_LABEL, FOOD_DEFAULT } from '../shared/blockscreening'
 import EmailLayout from './components/EmailLayout.vue'
 import { EMAIL_COLOR_MALOI as MALOI, EMAIL_TEXT as TEXT } from './theme'
 
@@ -39,7 +40,7 @@ withDefaults(defineProps<{
     </ESection>
 
     <EText :style="{ ...TEXT, fontSize: '14px', borderLeft: `4px solid ${MALOI}`, paddingLeft: '14px' }">
-      Please answer as soon as you can so we can finalize our food orders. If we don't hear from you, we'll pick for you.
+      <strong>Please choose by {{ FOOD_DEADLINE_LABEL }}.</strong> If we don't hear from you by then, we'll give you {{ FOOD_DEFAULT }}.
     </EText>
   </EmailLayout>
 </template>

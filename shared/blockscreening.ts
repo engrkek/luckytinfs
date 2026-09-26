@@ -31,6 +31,15 @@ export function rsvpTicket(r: { sponsoredKids: number, companions?: unknown[] | 
 // ponytail: placeholder menu, replace with the real options before sending food emails
 export const FOOD_OPTIONS = ['Burger', 'Hotdog', 'Popcorn']
 
+/** Food form closes here (Oct 1, 12:00 AM PHT); anyone who hasn't answered gets FOOD_DEFAULT */
+export const FOOD_DEADLINE = new Date('2026-10-01T00:00:00+08:00')
+export const FOOD_DEADLINE_LABEL = 'October 1, 12:00 AM (PHT)'
+export const FOOD_DEFAULT = 'Popcorn'
+
+export function isFoodOpen(now = new Date()) {
+  return now < FOOD_DEADLINE
+}
+
 export const PAYMENT_DEADLINE = 'within 24 hours of receiving this email'
 
 export function php(cents: number) {

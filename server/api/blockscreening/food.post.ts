@@ -1,7 +1,7 @@
 import { eventRsvp } from '@nuxthub/db/schema'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { FOOD_OPTIONS } from '#shared/blockscreening'
+import { FOOD_DEADLINE_LABEL, FOOD_DEFAULT, FOOD_OPTIONS, isFoodOpen } from '#shared/blockscreening'
 
 const foodSchema = z.object({
   id: z.string().trim().toUpperCase().min(1).max(20),
@@ -10,6 +10,8 @@ const foodSchema = z.object({
 
 export default defineEventHandler(async (event) => {
   const { id, choices } = await readValidatedBody(event, foodSchema.parse)
+  if (!isFoodOpen())
+    throw createError({ statusCode: 403, statusMessage: `Food choices closed on ${FOOD_DEADLINE_LABEL}. Anyone who didn't choose gets ${FOOD_DEFAULT}.` })
   const rsvp = await findFoodRsvp(id)
 
   // One pick per person, in the order food.get returned them

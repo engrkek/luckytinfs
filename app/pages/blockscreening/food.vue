@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { FOOD_OPTIONS } from '#shared/blockscreening'
+import { FOOD_DEADLINE_LABEL, FOOD_DEFAULT, FOOD_OPTIONS, isFoodOpen } from '#shared/blockscreening'
 
 useSeoMeta({
   title: 'Block Screening Food of Choice',
   description: 'Choose your meal for Luckytin Fan Support\'s \'Forgotten Island\' Block Screening.',
 })
+
+// Server time, so SSR and hydration agree; the POST enforces it too
+const foodOpen = useState('blockscreening-food-open', () => isFoodOpen())
 
 const route = useRoute()
 const regId = ref(String(route.query.id ?? '').toUpperCase())
@@ -97,7 +100,19 @@ onMounted(() => {
             Got it, {{ lookup?.nickname }}!
           </h2>
           <p class="text-secondary-900/70">
-            Your meal choices are saved. You can come back to this page to change them anytime before the event.
+            Your meal choices are saved. You can come back to this page to change them until {{ FOOD_DEADLINE_LABEL }}.
+          </p>
+        </div>
+
+        <div v-else-if="!foodOpen" class="text-center space-y-2 py-4">
+          <p class="text-4xl" aria-hidden="true">
+            🍿
+          </p>
+          <h2 class="font-display text-2xl sm:text-3xl text-secondary-900 tracking-tight">
+            Food choices are closed
+          </h2>
+          <p class="text-secondary-900/70">
+            The deadline was {{ FOOD_DEADLINE_LABEL }}. If you didn't choose, you'll get {{ FOOD_DEFAULT }}. See you at the screening!
           </p>
         </div>
 
@@ -110,6 +125,9 @@ onMounted(() => {
               Choose one meal for each person in registration <strong class="font-type">
                 {{ regId }}
               </strong>.
+            </p>
+            <p class="text-xs text-[#8c7456]">
+              Please choose by <strong>{{ FOOD_DEADLINE_LABEL }}</strong>. If you don't, we'll give you {{ FOOD_DEFAULT }}.
             </p>
           </div>
 
@@ -158,6 +176,9 @@ onMounted(() => {
             </h2>
             <p class="text-secondary-900/70">
               Enter the Registration ID from your email to pick meals for you and your companion.
+            </p>
+            <p class="text-xs text-[#8c7456]">
+              Deadline: <strong>{{ FOOD_DEADLINE_LABEL }}</strong>. No answer means {{ FOOD_DEFAULT }}.
             </p>
           </div>
           <div class="space-y-1">
