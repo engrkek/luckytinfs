@@ -76,60 +76,46 @@ function exportCsv() {
   })
 }
 
-// Who's actually coming: cancelled/rejected registrations don't take seats
-const attendance = computed(() => {
-  const active = (rsvps.value ?? []).filter(r => holdsSeats(r.status))
-  const adults = active.filter(r => r.attending).length
-  const confirmed = active.filter(r => r.status === 'confirmed')
-  const sponsored = (list: OfficeEventRsvp[]) => list.reduce((n, r) => n + r.sponsoredKids, 0)
-  const ownKids = (list: OfficeEventRsvp[]) => list.reduce((n, r) => n + (r.companions?.length ?? 0), 0)
-  const kids = sponsored(active) + ownKids(active)
-  return [
-    {
-      label: 'Sponsored kids',
-      value: sponsored(active),
-      hint: `from ${active.filter(r => r.sponsoredKids).length} sponsors · ${sponsored(confirmed)} confirmed`,
-    },
-    {
-      label: 'Own kids',
-      value: ownKids(active),
-      hint: `from ${active.filter(r => r.companions?.length).length} attendees · ${ownKids(confirmed)} confirmed`,
-    },
-    {
-      label: 'Expected headcount',
-      value: adults + kids,
-      hint: `${adults} adults · ${kids} kids${active.length > adults ? ` · ${active.length - adults} sponsor-only` : ''}`,
-    },
-  ]
-})
-
+// One row: money, seats (with who fills them), then the two review queues.
+// Seats and headcount are the same number (see rsvpSeats), so it's shown once.
 const stats = computed(() => {
   const c = counts.value
   const all = rsvps.value ?? []
-  // Capacity is seats (see rsvpSeats), the same count registration enforces
-  const seats = all.filter(r => holdsSeats(r.status)).reduce((n, r) => n + rsvpSeats(r), 0)
-  const paid = all.filter(r => r.status === 'confirmed')
-  const sumFees = (list: OfficeEventRsvp[]) => list.reduce((sum, r) => sum + (r.regFee ?? 0), 0) / 100
-  const inReview = sumFees(all.filter(r => r.status === 'for_review'))
-  const unrecorded = paid.filter(r => r.regFee == null).length
+  const active = all.filter(r => holdsSeats(r.status))
+  const confirmed = all.filter(r => r.status === 'confirmed')
+  const sum = (list: OfficeEventRsvp[], get: (r: OfficeEventRsvp) => number) => list.reduce((n, r) => n + get(r), 0)
+
+  const seats = sum(active, rsvpSeats)
+  const adults = active.filter(r => r.attending).length
+  const sponsoredKids = sum(active, r => r.sponsoredKids)
+  const ownKids = sum(active, r => r.companions?.length ?? 0)
+  const sponsorOnly = active.length - adults
   const capacity = event.value?.capacity
+
+  const fees = (list: OfficeEventRsvp[]) => sum(list, r => r.regFee ?? 0) / 100
+  const unrecorded = confirmed.filter(r => r.regFee == null).length
+
   return [
-    {
-      label: 'Collected',
-      value: peso.format(sumFees(paid)),
-      // Surface gaps instead of silently undercounting (imported rows carry no fee)
-      hint: [`${peso.format(inReview)} in review`, unrecorded && `${unrecorded} paid with no fee recorded`].filter(Boolean).join(' · '),
-      filter: undefined,
-    },
     {
       label: 'Seats taken',
       value: capacity ? `${seats} / ${capacity}` : seats,
-      hint: capacity ? `${Math.max(capacity - seats, 0)} seats left · unpaid included` : 'no capacity limit',
       progress: capacity ? Math.min(seats / capacity, 1) * 100 : undefined,
+      hint: [
+        `${adults} adults · ${sponsoredKids} sponsored · ${ownKids} own kids`,
+        sponsorOnly && `${sponsorOnly} sponsor-only`,
+        capacity ? `${Math.max(capacity - seats, 0)} left` : 'no limit',
+      ].filter(Boolean).join(' · '),
       filter: 'all',
     },
+    {
+      label: 'Collected',
+      value: peso.format(fees(confirmed)),
+      // Surface gaps instead of silently undercounting (imported rows carry no fee)
+      hint: [`${peso.format(fees(all.filter(r => r.status === 'for_review')))} in review`, unrecorded && `${unrecorded} with no fee recorded`].filter(Boolean).join(' · '),
+      filter: undefined,
+    },
     { label: 'For review', value: c.for_review ?? 0, hint: `${c.pending_payment ?? 0} still unpaid`, filter: 'for_review' },
-    { label: 'Confirmed', value: c.confirmed ?? 0, hint: 'payment verified', filter: 'confirmed' },
+    { label: 'Confirmed', value: c.confirmed ?? 0, hint: `${sum(confirmed, rsvpSeats)} seats secured`, filter: 'confirmed' },
   ] as const
 })
 
@@ -240,25 +226,6 @@ async function deleteEvent() {
             {{ stat.value }}
           </p>
           <UProgress v-if="'progress' in stat && stat.progress !== undefined" :model-value="stat.progress" size="xs" class="my-1" />
-          <p class="text-dimmed text-xs">
-            {{ stat.hint }}
-          </p>
-        </UPageCard>
-      </div>
-
-      <div class="grid gap-4 sm:grid-cols-3">
-        <UPageCard
-          v-for="stat in attendance"
-          :key="stat.label"
-          variant="subtle"
-          :ui="{ container: 'gap-1' }"
-        >
-          <p class="text-muted text-sm">
-            {{ stat.label }}
-          </p>
-          <p class="font-display text-3xl tracking-tighter tabular-nums">
-            {{ stat.value }}
-          </p>
           <p class="text-dimmed text-xs">
             {{ stat.hint }}
           </p>
