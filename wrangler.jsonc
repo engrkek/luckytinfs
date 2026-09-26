@@ -45,6 +45,12 @@
       "id": "c8534e2dc6d64214b4f0e92220429d84"
     }
   ],
+  "send_email": [
+    {
+      "name": "EMAIL",
+      "remote": true
+    }
+  ],
   "env": {
     "preview": {
       "name": "luckytinfs-preview",
@@ -76,6 +82,12 @@
         {
           "binding": "KV",
           "id": "53d65673bca74fbfaa40cfd295589158"
+        }
+      ],
+      "send_email": [
+        {
+          "name": "EMAIL",
+          "remote": true
         }
       ]
     }

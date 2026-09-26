@@ -11,6 +11,7 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     'motion-v/nuxt',
     'nuxt-skill-hub',
+    'nuxt-email-renderer',
   ],
 
   $production: {
