@@ -33,7 +33,10 @@ const form = ref({
 })
 
 // Validation errors state
+const proof = ref<File | null>(null)
+
 const errors = ref({
+  proof: '',
   registrationId: '',
   channelId: '',
   referenceNo: '',
@@ -59,6 +62,7 @@ function validateForm(): boolean {
   let hasError = false
 
   errors.value = {
+    proof: '',
     registrationId: '',
     channelId: '',
     referenceNo: '',
@@ -92,6 +96,12 @@ function validateForm(): boolean {
     hasError = true
   }
 
+  // 4. Validate proof of payment
+  if (!proof.value) {
+    errors.value.proof = 'Please attach a screenshot of your payment.'
+    hasError = true
+  }
+
   return !hasError
 }
 
@@ -112,12 +122,17 @@ async function handleSubmit() {
   errorMessage.value = ''
 
   try {
+    const upload = new FormData()
+    upload.append('proof', proof.value!)
+    const { pathname } = await $fetch<{ pathname: string }>('/api/blockscreening/proof', { method: 'POST', body: upload })
+
     const response = await $fetch('/api/blockscreening/payment', {
       method: 'POST',
       body: {
         id: form.value.registrationId.trim().toUpperCase(),
         channelId: form.value.channelId,
         paymentReference: form.value.referenceNo.trim(),
+        receiptUrl: `/images/${pathname}`,
       },
     })
 
@@ -400,6 +415,26 @@ async function handleSubmit() {
                 />
                 <p v-if="errors.referenceNo" class="text-xs text-error font-medium mt-1">
                   {{ errors.referenceNo }}
+                </p>
+              </div>
+
+              <!-- Proof of payment, same as the donate form -->
+              <div class="space-y-1">
+                <label class="block font-semibold text-secondary-900">
+                  Payment Screenshot <span class="text-red-500">*</span>
+                </label>
+                <p class="text-xs text-[#8c7456] italic mb-1">
+                  Attach a screenshot of your transaction receipt showing the amount and reference number.
+                </p>
+                <UFileUpload
+                  v-model="proof"
+                  accept="image/*,.pdf"
+                  label="Drop your screenshot here"
+                  class="aspect-square"
+                  @update:model-value="errors.proof = ''"
+                />
+                <p v-if="errors.proof" class="text-xs text-error font-medium mt-1">
+                  {{ errors.proof }}
                 </p>
               </div>
 

@@ -7,10 +7,12 @@ const paymentSchema = z.object({
   id: z.string().trim().toUpperCase().min(1, 'Registration/Pass ID is required.').max(20),
   channelId: z.string().trim().min(1, 'Please choose the wallet you paid to.').max(50),
   paymentReference: z.string().trim().min(1, 'Payment Reference Number is required.').max(100),
+  // Only paths our own proof upload returns, never an arbitrary URL
+  receiptUrl: z.string().max(500).startsWith('/images/receipts/', 'Please attach a screenshot of your payment.').refine(v => !v.includes('..')),
 })
 
 export default defineEventHandler(async (event) => {
-  const { id, channelId, paymentReference } = await readValidatedBody(event, paymentSchema.parse)
+  const { id, channelId, paymentReference, receiptUrl } = await readValidatedBody(event, paymentSchema.parse)
   const ev = await getBlockscreeningEvent()
 
   // Only wallets the office has enabled for the public forms
@@ -32,6 +34,7 @@ export default defineEventHandler(async (event) => {
   await db.update(eventRsvp).set({
     refNo: paymentReference,
     channelId: wallet.id,
+    receiptUrl,
     regFee: TICKETS[rsvpTicket(rsvp)].price,
     status: 'for_review',
   }).where(eq(eventRsvp.id, rsvp.id))
