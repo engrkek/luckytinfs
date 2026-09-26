@@ -91,7 +91,7 @@ onMounted(() => {
       <div class="bg-paper text-secondary-950 p-6 sm:p-8 rounded-2xl shadow-2xl border border-[#f0e6d0] space-y-6 text-sm">
         <div v-if="isSubmitted" class="text-center space-y-2 py-4">
           <p class="text-4xl" aria-hidden="true">
-            🍱
+            🍿
           </p>
           <h2 class="font-display text-2xl sm:text-3xl text-secondary-900 tracking-tight">
             Got it, {{ lookup?.nickname }}!

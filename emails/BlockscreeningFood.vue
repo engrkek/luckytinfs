@@ -18,7 +18,7 @@ withDefaults(defineProps<{
   <EmailLayout
     :subject="`Choose your meal [${regId}] - ${eventName}`"
     :preview="`Pick a meal for ${eventName}.`"
-    :greeting="`Hi, ${name}! 🍱`"
+    :greeting="`Hi, ${name}! 🍿`"
   >
     <EText :style="TEXT">
       Your <strong>{{ eventName }}</strong> ticket comes with a meal! Please pick one for {{ people.length > 1 ? 'each person in your registration' : 'yourself' }}:
