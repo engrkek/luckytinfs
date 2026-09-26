@@ -65,6 +65,8 @@ function exportCsv() {
     'Sponsored kids': r => r.sponsoredKids,
     'Own kids': r => r.companions?.length ?? 0,
     'Own kids (names)': r => r.companions?.map(c => c.relationship ? `${c.name} (${c.relationship})` : c.name).join('; '),
+    'Attends': r => r.attending ? 'Yes' : 'No (sponsor only)',
+    'Food': r => r.food?.map(f => `${f.name}: ${f.choice}`).join('; '),
     'Fee paid': r => r.regFee != null ? r.regFee / 100 : '',
     'Paid to': r => r.channelLabel,
     'Reference no.': r => r.refNo,
