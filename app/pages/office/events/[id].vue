@@ -3,7 +3,7 @@ import type { BreadcrumbItem } from '@nuxt/ui'
 import type { RsvpStatus } from '#shared/events'
 import type { CEvent, OfficeEventRsvp } from '#shared/types'
 import { LazyAppDialog, LazyOfficeEventForm, LazyOfficeEventRsvpForm } from '#components'
-import { RSVP_STATUS_ITEMS, rsvpStatus } from '#shared/events'
+import { holdsSeats, RSVP_STATUS_ITEMS, rsvpSeats, rsvpStatus } from '#shared/events'
 
 const id = useRoute().params.id
 
@@ -76,7 +76,8 @@ function exportCsv() {
 
 // Who's actually coming: cancelled/rejected registrations don't take seats
 const attendance = computed(() => {
-  const active = (rsvps.value ?? []).filter(r => r.status !== 'cancelled' && r.status !== 'rejected')
+  const active = (rsvps.value ?? []).filter(r => holdsSeats(r.status))
+  const adults = active.filter(r => r.attending).length
   const confirmed = active.filter(r => r.status === 'confirmed')
   const sponsored = (list: OfficeEventRsvp[]) => list.reduce((n, r) => n + r.sponsoredKids, 0)
   const ownKids = (list: OfficeEventRsvp[]) => list.reduce((n, r) => n + (r.companions?.length ?? 0), 0)
@@ -94,16 +95,17 @@ const attendance = computed(() => {
     },
     {
       label: 'Expected headcount',
-      value: active.length + kids,
-      hint: `${active.length} adults · ${kids} kids`,
+      value: adults + kids,
+      hint: `${adults} adults · ${kids} kids${active.length > adults ? ` · ${active.length - adults} sponsor-only` : ''}`,
     },
   ]
 })
 
 const stats = computed(() => {
   const c = counts.value
-  const active = (rsvps.value?.length ?? 0) - (c.cancelled ?? 0) - (c.rejected ?? 0)
   const all = rsvps.value ?? []
+  // Capacity is seats (see rsvpSeats), the same count registration enforces
+  const seats = all.filter(r => holdsSeats(r.status)).reduce((n, r) => n + rsvpSeats(r), 0)
   const paid = all.filter(r => r.status === 'confirmed')
   const sumFees = (list: OfficeEventRsvp[]) => list.reduce((sum, r) => sum + (r.regFee ?? 0), 0) / 100
   const inReview = sumFees(all.filter(r => r.status === 'for_review'))
@@ -118,10 +120,10 @@ const stats = computed(() => {
       filter: undefined,
     },
     {
-      label: 'Registered',
-      value: capacity ? `${active} / ${capacity}` : active,
-      hint: capacity ? `${Math.max(capacity - active, 0)} slots left` : 'no capacity limit',
-      progress: capacity ? Math.min(active / capacity, 1) * 100 : undefined,
+      label: 'Seats taken',
+      value: capacity ? `${seats} / ${capacity}` : seats,
+      hint: capacity ? `${Math.max(capacity - seats, 0)} seats left · unpaid included` : 'no capacity limit',
+      progress: capacity ? Math.min(seats / capacity, 1) * 100 : undefined,
       filter: 'all',
     },
     { label: 'For review', value: c.for_review ?? 0, hint: `${c.pending_payment ?? 0} still unpaid`, filter: 'for_review' },

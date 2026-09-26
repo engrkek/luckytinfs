@@ -162,6 +162,27 @@
       "when": 1790289927493,
       "tag": "0022_peaceful_richard_fisk",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "6",
+      "when": 1790406738036,
+      "tag": "0023_gorgeous_spencer_smythe",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1790409919347,
+      "tag": "0024_petite_tinkerer",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "6",
+      "when": 1790412259566,
+      "tag": "0025_military_hex",
+      "breakpoints": true
     }
   ]
 }

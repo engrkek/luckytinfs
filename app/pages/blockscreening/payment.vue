@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import type { Channel } from '#shared/types'
+import { isSaleOpen, php, TICKETS } from '#shared/blockscreening'
+import { walletType } from '#shared/donations'
+import { REG_ID_PATTERN } from '#shared/events'
+
 useHead({
   title: 'Block Screening Payment Submission',
   meta: [
@@ -15,18 +20,30 @@ useSeoMeta({
 })
 
 // Form state
+const saleOpen = useState('blockscreening-sale-open', () => isSaleOpen())
+
+// The payment email links here with ?id=LTFI-XXXX
+// Wallets enabled in the office (Wallets page), same list as the donate form
+const { data: channels } = await useFetch<Channel[]>('/api/channels')
+
 const form = ref({
-  registrationId: '',
-  paymentMode: [] as string[],
+  registrationId: String(useRoute().query.id ?? '').toUpperCase(),
+  channelId: '',
   referenceNo: '',
 })
 
 // Validation errors state
 const errors = ref({
   registrationId: '',
-  paymentMode: '',
+  channelId: '',
   referenceNo: '',
 })
+
+const channelItems = computed(() => (channels.value ?? []).map(c => ({
+  value: c.id,
+  label: walletType(c.type).label,
+})))
+const selectedChannel = computed(() => channels.value?.find(c => c.id === form.value.channelId))
 
 // Submission and feedback states
 const isSubmitted = ref(false)
@@ -43,7 +60,7 @@ function validateForm(): boolean {
 
   errors.value = {
     registrationId: '',
-    paymentMode: '',
+    channelId: '',
     referenceNo: '',
   }
   errorMessage.value = ''
@@ -54,14 +71,14 @@ function validateForm(): boolean {
     errors.value.registrationId = 'Registration/Pass ID is required.'
     hasError = true
   }
-  else if (!/^LTFI-[A-Z0-9]{3}$/i.test(id)) {
-    errors.value.registrationId = 'Please enter a valid Registration ID (e.g., LTFI-A1B).'
+  else if (!REG_ID_PATTERN.test(id.toUpperCase())) {
+    errors.value.registrationId = 'Please enter a valid Registration ID (e.g., LTFI-7KQM).'
     hasError = true
   }
 
   // 2. Validate Mode of Payment
-  if (form.value.paymentMode.length === 0) {
-    errors.value.paymentMode = 'Please select at least one Mode of Payment.'
+  if (!form.value.channelId) {
+    errors.value.channelId = 'Please choose the wallet you paid to.'
     hasError = true
   }
 
@@ -99,7 +116,7 @@ async function handleSubmit() {
       method: 'POST',
       body: {
         id: form.value.registrationId.trim().toUpperCase(),
-        paymentMode: form.value.paymentMode,
+        channelId: form.value.channelId,
         paymentReference: form.value.referenceNo.trim(),
       },
     })
@@ -181,7 +198,7 @@ async function handleSubmit() {
           </span>
           <span class="text-primary-100/30">•</span>
           <span class="flex items-center gap-1">
-            <UIcon name="ph:ticket-fill" class="text-primary-300" /> PhP1,500
+            <UIcon name="ph:ticket-fill" class="text-primary-300" /> {{ php(TICKETS[saleOpen ? 'sale' : 'sponsor'].price) }}
           </span>
         </div>
       </header>
@@ -251,8 +268,8 @@ async function handleSubmit() {
                     <span class="col-span-2 text-secondary-900 font-medium">{{ verifiedRegistrant.fullName }}</span>
                   </div>
                   <div class="grid grid-cols-3 border-b border-[#ebdcb3]/30 pb-2">
-                    <span class="font-semibold text-secondary-900/60 uppercase">Mode of Payment</span>
-                    <span class="col-span-2 text-secondary-900 font-medium">{{ form.paymentMode.join(', ') }}</span>
+                    <span class="font-semibold text-secondary-900/60 uppercase">Paid to</span>
+                    <span class="col-span-2 text-secondary-900 font-medium">{{ selectedChannel ? walletType(selectedChannel.type).label : '—' }}</span>
                   </div>
                   <div class="grid grid-cols-3 pb-1">
                     <span class="font-semibold text-secondary-900/60 uppercase">Reference Number</span>
@@ -322,59 +339,6 @@ async function handleSubmit() {
               >
             </div>
 
-            <!-- PAYMENT CHANNELS SECTION -->
-            <div class="mb-8 p-5 rounded-2xl border border-[#ebdcb3] bg-white/50 space-y-6 shadow-sm">
-              <div class="flex items-center gap-2 border-b border-[#ebdcb3] pb-2">
-                <UIcon name="ph:qr-code-bold" class="size-5 text-secondary-700" />
-                <h3 class="font-display text-lg font-bold text-secondary-900">
-                  Payment Channels
-                </h3>
-              </div>
-
-              <!-- Bank Transfer Channel -->
-              <div class="space-y-3">
-                <div class="flex items-center gap-1.5">
-                  <span class="inline-block size-2 rounded-full bg-secondary-700" />
-                  <h4 class="font-semibold text-sm text-secondary-900">
-                    Bank Transfer (GoTyme - Name: GGJ)
-                  </h4>
-                </div>
-                <div class="max-w-xs mx-auto bg-white p-3 rounded-xl border border-[#ebdcb3] shadow-inner text-center">
-                  <img
-                    src="/images/payment-bank-transfer.png"
-                    alt="GoTyme Bank Transfer QR"
-                    class="w-full h-auto object-contain rounded-lg"
-                  >
-                  <p class="text-[11px] text-secondary-700/80 font-medium mt-2">
-                    Scan via any InstaPay-supported banking app
-                  </p>
-                </div>
-              </div>
-
-              <!-- GCash Channels -->
-              <div class="space-y-3 pt-2 border-t border-[#ebdcb3]/60">
-                <div class="flex items-center gap-1.5">
-                  <span class="inline-block size-2 rounded-full bg-blue-600" />
-                  <h4 class="font-semibold text-sm text-secondary-900">
-                    GCash
-                  </h4>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <!-- GCash QR 1 -->
-                  <div class="bg-white p-3 rounded-xl border border-[#ebdcb3] shadow-inner text-center flex flex-col justify-between">
-                    <img
-                      src="/images/payment-gcash-1.png"
-                      alt="GCash QR Code Option 1"
-                      class="w-full h-auto object-contain rounded-lg"
-                    >
-                    <p class="text-[11px] text-secondary-700/80 font-medium mt-2">
-                      GCash (Name: GGJ)
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <form class="space-y-6 text-sm" @submit.prevent="handleSubmit">
               <!-- Registration ID -->
               <div class="space-y-1">
@@ -395,36 +359,28 @@ async function handleSubmit() {
                 </p>
               </div>
 
-              <!-- Mode of Payment Checkboxes -->
+              <!-- Wallet paid to (from the office's enabled wallets) -->
               <div class="space-y-2">
                 <label class="block font-semibold text-secondary-900">
-                  Mode of Payment <span class="text-red-500">*</span>
+                  Pay to <span class="text-red-500">*</span>
                 </label>
                 <p class="text-xs text-[#8c7456] italic mb-2">
-                  Select the channel used for transaction payment (Select all that apply).
+                  Choose a wallet, send your payment there, then enter the reference number below.
                 </p>
-                <div class="flex flex-col sm:flex-row gap-4 mt-1 pl-1">
-                  <label class="flex items-center gap-2.5 cursor-pointer text-secondary-900 font-medium">
-                    <input
-                      v-model="form.paymentMode"
-                      type="checkbox"
-                      value="GCash"
-                      class="size-4 rounded text-secondary-600 border-[#ebdcb3] focus:ring-secondary-500"
-                    >
-                    <span>GCash</span>
-                  </label>
-                  <label class="flex items-center gap-2.5 cursor-pointer text-secondary-900 font-medium">
-                    <input
-                      v-model="form.paymentMode"
-                      type="checkbox"
-                      value="Bank Transfer"
-                      class="size-4 rounded text-secondary-600 border-[#ebdcb3] focus:ring-secondary-500"
-                    >
-                    <span>Bank Transfer</span>
-                  </label>
-                </div>
-                <p v-if="errors.paymentMode" class="text-xs text-error font-medium mt-1">
-                  {{ errors.paymentMode }}
+                <URadioGroup
+                  v-model="form.channelId"
+                  :items="channelItems"
+                  variant="card"
+                  indicator="hidden"
+                  value-key="value"
+                  :ui="{ fieldset: 'grid sm:grid-cols-2' }"
+                />
+                <p v-if="!channelItems.length" class="text-xs text-[#8c7456]">
+                  No payment wallets are available right now. Please message Luckytin Fan Support.
+                </p>
+                <WalletDetails v-if="selectedChannel" :channel="selectedChannel" />
+                <p v-if="errors.channelId" class="text-xs text-error font-medium mt-1">
+                  {{ errors.channelId }}
                 </p>
               </div>
 
@@ -434,7 +390,7 @@ async function handleSubmit() {
                   Reference No. of Payment Receipt <span class="text-red-500">*</span>
                 </label>
                 <p class="text-xs text-[#8c7456] italic mb-1">
-                  Double-check this code from your GCash or Bank transaction receipt to prevent verification delays.
+                  Double-check this code from your transaction receipt to prevent verification delays.
                 </p>
                 <UInput
                   v-model="form.referenceNo"

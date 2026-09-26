@@ -32,3 +32,16 @@ const regCode = customAlphabet('23456789ABCDEFGHJKMNPQRSTUVWXYZ', 4)
 export function generateRegId(prefix?: string | null) {
   return prefix ? `${prefix}-${regCode()}` : regCode()
 }
+
+/**
+ * Seats a registration takes: the registrant (unless sponsor-only), their sponsored
+ * charity kids, and their own kids. Capacity is measured in seats, not registrations.
+ */
+export function rsvpSeats(r: { attending: boolean, sponsoredKids: number, companions?: unknown[] | null }) {
+  return (r.attending ? 1 : 0) + r.sponsoredKids + (r.companions?.length ?? 0)
+}
+
+/** Cancelled and invalid registrations give their seats back */
+export function holdsSeats(status: string) {
+  return status !== 'cancelled' && status !== 'rejected'
+}

@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { isSaleOpen, php, SALE_INCLUSIONS, TICKETS } from '#shared/blockscreening'
 
 useSeoMeta({
   title: 'Block Screening Registration',
   description: 'Register for Luckytin Fan Support\'s \'Forgotten Island\' Block Screening event. Join us for a special movie screening!',
 })
+
+// ₱1,500 options until Sep 26 11:59 PM PHT, then SALE only. useState keeps SSR and hydration agreeing.
+const saleOpen = useState('blockscreening-sale-open', () => isSaleOpen())
 
 // Form fields state
 const form = ref({
@@ -16,7 +19,7 @@ const form = ref({
   primaryUsername: '',
   otherPlatform: '',
   otherUsername: '',
-  childRegistration: 'sponsor', // 'sponsor', 'sponsor_two', or 'bring'
+  childRegistration: saleOpen.value ? 'sale' : 'sponsor', // key of TICKETS
   minorName: '',
   relationship: '',
   ack1: false,
@@ -48,16 +51,6 @@ const dbError = ref('')
 // Email validation helper
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/.test(email)
-}
-
-// Generate unique Registration ID: LTFI-XXX
-function generateRegistrationId(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-  let result = ''
-  for (let i = 0; i < 3; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return `LTFI-${result}`
 }
 
 // Handle Form Submission
@@ -146,8 +139,6 @@ async function handleSubmit() {
 
   isSubmitting.value = true
 
-  // Generate random Registration ID instantly
-  const newId = generateRegistrationId()
   const today = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -157,16 +148,13 @@ async function handleSubmit() {
   })
 
   try {
-    await $fetch('/api/blockscreening/register', {
+    const { regId } = await $fetch('/api/blockscreening/register', {
       method: 'POST',
-      body: {
-        id: newId,
-        ...form.value,
-      },
+      body: { ...form.value, ticket: form.value.childRegistration },
     })
 
     // Success path
-    registrationId.value = newId
+    registrationId.value = regId
     submissionDate.value = today
     isSubmitted.value = true
 
@@ -251,7 +239,7 @@ function copyToClipboard(text: string) {
           </span>
           <span class="text-primary-100/30">•</span>
           <span class="flex items-center gap-1">
-            <UIcon name="ph:ticket-fill" class="text-primary-300" /> PhP1,500
+            <UIcon name="ph:ticket-fill" class="text-primary-300" /> {{ php(TICKETS[saleOpen ? 'sale' : 'sponsor'].price) }}
           </span>
         </div>
       </header>
@@ -336,13 +324,15 @@ function copyToClipboard(text: string) {
                     <span class="col-span-2 text-secondary-900 font-medium">{{ form.primaryPlatform }}: {{ form.primaryUsername }}</span>
                   </div>
                   <div class="grid grid-cols-3 pb-1">
-                    <span class="font-semibold text-secondary-900/60 uppercase">Child Seat</span>
+                    <span class="font-semibold text-secondary-900/60 uppercase">Ticket</span>
                     <span class="col-span-2 text-secondary-900 font-medium">
-                      {{ form.childRegistration === 'sponsor'
-                        ? 'Sponsoring a charity child 🐥'
-                        : form.childRegistration === 'sponsor_two'
-                          ? 'Sponsoring two charity children 🐥🐥'
-                          : `Bringing own child 🐼: ${form.minorName} (${form.relationship})` }}
+                      {{ form.childRegistration === 'sale'
+                        ? `${TICKETS.sale.label}: ${SALE_INCLUSIONS.join(', ')}`
+                        : form.childRegistration === 'sponsor'
+                          ? 'Sponsoring a charity child 🐥'
+                          : form.childRegistration === 'sponsor_two'
+                            ? 'Sponsoring two charity children 🐥🐥'
+                            : `Bringing own child 🐼: ${form.minorName} (${form.relationship})` }}
                     </span>
                   </div>
                 </div>
@@ -597,8 +587,32 @@ function copyToClipboard(text: string) {
                 </div>
               </div>
 
+              <!-- SECTION C (SALE): TICKET INCLUSIONS -->
+              <div v-if="saleOpen" class="space-y-4 pt-4">
+                <div class="flex items-center gap-1.5 border-b border-[#ebdcb3] pb-2">
+                  <UIcon name="ph:ticket-bold" class="text-secondary-600 size-5" />
+                  <h3 class="font-display text-lg font-bold text-secondary-900">
+                    C. SALE Ticket
+                  </h3>
+                </div>
+
+                <div class="border border-secondary-500 bg-jhoanna-50 ring-1 ring-secondary-500 p-4 rounded-xl space-y-2 text-xs text-secondary-900/80 leading-relaxed">
+                  <p class="flex items-baseline justify-between gap-2">
+                    <span class="font-bold text-secondary-900 text-sm">{{ TICKETS.sale.label }}</span>
+                    <span class="font-type font-bold text-secondary-900 text-base">{{ php(TICKETS.sale.price) }}</span>
+                  </p>
+                  <p>This ticket is for one attendee and includes:</p>
+                  <ul class="list-disc pl-5">
+                    <li v-for="item in SALE_INCLUSIONS" :key="item">
+                      {{ item }}
+                    </li>
+                  </ul>
+                  <p>🎬 The film is rated PG.</p>
+                </div>
+              </div>
+
               <!-- SECTION C: CHILD REGISTRATION -->
-              <div class="space-y-4 pt-4">
+              <div v-else class="space-y-4 pt-4">
                 <div class="flex items-center gap-1.5 border-b border-[#ebdcb3] pb-2">
                   <UIcon name="ph:baby-bold" class="text-secondary-600 size-5" />
                   <h3 class="font-display text-lg font-bold text-secondary-900">

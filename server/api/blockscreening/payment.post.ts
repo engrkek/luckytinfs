@@ -1,53 +1,40 @@
+import { channel, eventRsvp } from '@nuxthub/db/schema'
+import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
+import { rsvpTicket, TICKETS } from '#shared/blockscreening'
 
 const paymentSchema = z.object({
-  id: z.string().trim().min(1, 'Registration/Pass ID is required.'),
-  paymentMode: z.array(z.string()).min(1, 'At least one Mode of Payment must be selected.'),
-  paymentReference: z.string().trim().min(1, 'Payment Reference Number is required.'),
+  id: z.string().trim().toUpperCase().min(1, 'Registration/Pass ID is required.').max(20),
+  channelId: z.string().trim().min(1, 'Please choose the wallet you paid to.').max(50),
+  paymentReference: z.string().trim().min(1, 'Payment Reference Number is required.').max(100),
 })
 
 export default defineEventHandler(async (event) => {
-  const { id, paymentMode, paymentReference } = await readValidatedBody(event, paymentSchema.parse)
-  const formattedId = id.trim()
+  const { id, channelId, paymentReference } = await readValidatedBody(event, paymentSchema.parse)
+  const ev = await getBlockscreeningEvent()
 
-  const { registrations, payments } = blockscreeningTables(event)
+  // Only wallets the office has enabled for the public forms
+  const wallet = await db.query.channel.findFirst({ where: and(eq(channel.id, channelId), eq(channel.isEnabled, true)) })
+  if (!wallet)
+    throw createError({ statusCode: 400, statusMessage: 'That wallet is no longer available. Please refresh and choose again.' })
 
-  // Explicitly validate that the Registration/Pass ID exists on the registrations table
-  const checkResponse = await blockscreeningSupabaseFetch(
-    event,
-    `${registrations}?id=ilike.${encodeURIComponent(formattedId)}&select=id,full_name,nickname`,
-  )
-  if (!checkResponse.ok) {
-    await throwSupabaseError(checkResponse, 'Failed to verify the registration ID.', 'Registration verification failed:')
-  }
-
-  const rows = await checkResponse.json()
-  if (!rows || rows.length === 0) {
+  const rsvp = await db.query.eventRsvp.findFirst({ where: and(eq(eventRsvp.eventId, ev.id), eq(eventRsvp.regId, id)) })
+  if (!rsvp) {
     throw createError({
       statusCode: 404,
-      statusMessage: `Registration/Pass ID '${formattedId}' was not found in the registration database. Please verify your ID or complete registration first.`,
+      statusMessage: `Registration ID '${id}' was not found. Please check your ID or complete registration first.`,
     })
   }
+  // Resubmitting while still for_review just corrects the reference
+  if (rsvp.status !== 'pending_payment' && rsvp.status !== 'for_review')
+    throw createError({ statusCode: 409, statusMessage: `Registration ${id} can no longer accept payments. Please message Luckytin Fan Support.` })
 
-  const registrant = rows[0]
+  await db.update(eventRsvp).set({
+    refNo: paymentReference,
+    channelId: wallet.id,
+    regFee: TICKETS[rsvpTicket(rsvp)].price,
+    status: 'for_review',
+  }).where(eq(eventRsvp.id, rsvp.id))
 
-  // Insert/upsert into the separate payments table
-  const updateResponse = await blockscreeningSupabaseFetch(event, payments, {
-    method: 'POST',
-    headers: { Prefer: 'resolution=merge-duplicates' },
-    body: JSON.stringify({
-      id: registrant.id,
-      payment_mode: paymentMode.join(', '),
-      payment_reference: paymentReference.trim(),
-    }),
-  })
-  if (!updateResponse.ok) {
-    await throwSupabaseError(updateResponse, 'Failed to register the payment reference in the database.', 'Payment registration insert/upsert failed:')
-  }
-
-  return {
-    success: true,
-    fullName: registrant.full_name,
-    nickname: registrant.nickname,
-  }
+  return { success: true, fullName: rsvp.fullName, nickname: rsvp.nickname }
 })

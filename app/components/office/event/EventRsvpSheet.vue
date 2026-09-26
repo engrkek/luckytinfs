@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { CEvent, OfficeEventRsvp } from '#shared/types'
 import { LazyOfficeEventRsvpForm } from '#components'
+import { BLOCKSCREENING_REG_PREFIX, rsvpTicket } from '#shared/blockscreening'
 import { rsvpStatus } from '#shared/events'
 import { formatSocial, socialIcon } from '#shared/social'
 
@@ -22,6 +23,40 @@ const dateFormat = new Intl.DateTimeFormat('en-PH', { dateStyle: 'medium', timeS
 
 const social = computed(() => formatSocial(rsvp.value.socialPlatform, rsvp.value.socialHandle))
 const isPdfReceipt = computed(() => rsvp.value.receiptUrl?.toLowerCase().endsWith('.pdf'))
+
+// Confirmation works for any event; payment, food and sponsor are block screening only.
+// The two final emails also confirm the slot. Sent times come from rsvp.emailsSent.
+type EmailKind = 'payment' | 'confirmation' | 'food' | 'sponsor'
+const toast = useToast()
+const sending = ref<EmailKind | null>(null)
+
+const emails = computed(() => {
+  const all: { kind: EmailKind, label: string, icon: string }[] = props.event.regPrefix === BLOCKSCREENING_REG_PREFIX
+    ? [
+        { kind: 'payment', label: 'Payment instructions', icon: 'ph:credit-card' },
+        ...(rsvpTicket(rsvp.value) === 'sale' ? [] : [{ kind: 'food' as const, label: 'Food form', icon: 'ph:bowl-food' }]),
+        { kind: 'confirmation', label: 'Attendee pass', icon: 'ph:ticket' },
+        ...(rsvp.value.sponsoredKids ? [{ kind: 'sponsor' as const, label: 'Sponsor thank-you', icon: 'ph:hand-heart' }] : []),
+      ]
+    : [{ kind: 'confirmation', label: 'Confirmation pass', icon: 'ph:ticket' }]
+  return all.map(e => ({ ...e, sentAt: rsvp.value.emailsSent?.[e.kind] }))
+})
+
+async function sendEmail(kind: EmailKind, label: string) {
+  sending.value = kind
+  try {
+    await $fetch(`/api/office/events/${props.event.id}/rsvps/${rsvp.value.id}/email`, { method: 'POST', body: { kind } })
+    await refreshNuxtData(`event-${props.event.id}-rsvps`)
+    toast.add({ icon: 'ph:paper-plane-tilt', title: `${label} sent`, description: rsvp.value.email ?? undefined, color: 'success' })
+  }
+  catch (err) {
+    const e = err as { data?: { statusMessage?: string }, message?: string }
+    toast.add({ icon: 'ph:x-circle', title: 'Email failed', description: e.data?.statusMessage ?? e.message ?? 'Something went wrong', color: 'error' })
+  }
+  finally {
+    sending.value = null
+  }
+}
 
 async function onDelete() {
   if (await remove(rsvp.value))
@@ -102,6 +137,15 @@ async function onDelete() {
         </p>
         <UCard :ui="{ body: 'p-0 lg:p-0' }">
           <div class="flex flex-col divide-y divide-default">
+            <div v-if="!rsvp.attending" class="flex items-center gap-3 px-3 py-2.5">
+              <UIcon name="ph:user-minus" class="size-5 shrink-0 text-muted" />
+              <p class="flex-1">
+                Registrant
+              </p>
+              <p class="font-medium text-highlighted">
+                Sponsor only, not attending
+              </p>
+            </div>
             <div v-if="rsvp.sponsoredKids" class="flex items-center gap-3 px-3 py-2.5">
               <UIcon name="ph:hand-heart" class="size-5 shrink-0 text-muted" />
               <p class="flex-1">
@@ -118,6 +162,25 @@ async function onDelete() {
               </p>
               <p v-if="c.relationship" class="text-muted capitalize">
                 {{ c.relationship }}
+              </p>
+            </div>
+          </div>
+        </UCard>
+      </div>
+
+      <div v-if="rsvp.food?.length" class="space-y-2">
+        <p class="text-xs font-bold text-muted uppercase tracking-wide">
+          Food
+        </p>
+        <UCard :ui="{ body: 'p-0 lg:p-0' }">
+          <div class="flex flex-col divide-y divide-default">
+            <div v-for="f in rsvp.food" :key="f.name" class="flex items-center gap-3 px-3 py-2.5">
+              <UIcon name="ph:bowl-food" class="size-5 shrink-0 text-muted" />
+              <p class="flex-1 truncate">
+                {{ f.name }}
+              </p>
+              <p class="font-medium text-highlighted">
+                {{ f.choice }}
               </p>
             </div>
           </div>
@@ -183,6 +246,41 @@ async function onDelete() {
 
       <div class="space-y-2">
         <p class="text-xs font-bold text-muted uppercase tracking-wide">
+          Emails
+        </p>
+        <UCard :ui="{ body: 'p-0 lg:p-0' }">
+          <div class="flex flex-col divide-y divide-default">
+            <div v-for="e in emails" :key="e.kind" class="flex items-center gap-3 px-3 py-2.5">
+              <UIcon :name="e.icon" class="size-5 shrink-0 text-muted" />
+              <div class="flex-1 min-w-0">
+                <p class="truncate">
+                  {{ e.label }}
+                </p>
+                <p class="flex items-center gap-1 text-xs" :class="e.sentAt ? 'text-success' : 'text-muted'">
+                  <UIcon :name="e.sentAt ? 'ph:check-circle-fill' : 'ph:circle-dashed'" class="size-3.5 shrink-0" />
+                  <span class="tabular-nums">{{ e.sentAt ? `Sent ${dateFormat.format(new Date(e.sentAt))}` : 'Not sent' }}</span>
+                </p>
+              </div>
+              <UButton
+                :label="e.sentAt ? 'Resend' : 'Send'"
+                :icon="e.sentAt ? 'ph:arrow-clockwise' : 'ph:paper-plane-tilt'"
+                :color="e.sentAt ? 'neutral' : 'primary'"
+                :variant="e.sentAt ? 'ghost' : 'soft'"
+                size="sm"
+                :loading="sending === e.kind"
+                :disabled="!!sending || !rsvp.email"
+                @click="sendEmail(e.kind, e.label)"
+              />
+            </div>
+          </div>
+        </UCard>
+        <p v-if="!rsvp.email" class="text-xs text-muted">
+          Add an email address to send these.
+        </p>
+      </div>
+
+      <div class="space-y-2">
+        <p class="text-xs font-bold text-muted uppercase tracking-wide">
           Review
         </p>
         <UCard :ui="{ body: 'p-0 lg:p-0' }">
@@ -228,49 +326,54 @@ async function onDelete() {
     </div>
 
     <template #footer>
-      <div class="w-full flex flex-col lg:flex-row lg:items-center lg:justify-end gap-2">
-        <UButton
-          v-if="rsvp.status !== 'confirmed'"
-          icon="ph:check-circle"
-          label="Confirm"
-          color="success"
-          size="xl"
-          class="w-full justify-center"
-          :loading="pending === 'confirmed'"
-          :disabled="!!pending"
-          @click="setStatus(rsvp, 'confirmed')"
-        />
-        <UButton
-          v-if="rsvp.status !== 'rejected'"
-          icon="ph:x-circle"
-          label="Invalid"
-          color="error"
-          size="xl"
-          class="w-full justify-center"
-          :loading="pending === 'rejected'"
-          :disabled="!!pending"
-          @click="setStatus(rsvp, 'rejected')"
-        />
-        <UButton
-          label="Edit"
-          icon="ph:pencil"
-          color="neutral"
-          variant="soft"
-          size="xl"
-          class="w-full justify-center"
-          @click="rsvpForm.open({ type: 'edit', event, rsvp })"
-        />
-        <UButton
-          label="Delete"
-          icon="ph:trash"
-          color="error"
-          variant="soft"
-          size="xl"
-          class="w-full justify-center"
-          :loading="pending === 'delete'"
-          :disabled="!!pending"
-          @click="onDelete"
-        />
+      <!-- Review decisions first, then secondary actions -->
+      <div class="w-full flex flex-col gap-2">
+        <div class="flex gap-2">
+          <UButton
+            v-if="rsvp.status !== 'confirmed'"
+            icon="ph:check-circle"
+            label="Confirm"
+            color="success"
+            size="xl"
+            class="flex-1 justify-center"
+            :loading="pending === 'confirmed'"
+            :disabled="!!pending"
+            @click="setStatus(rsvp, 'confirmed')"
+          />
+          <UButton
+            v-if="rsvp.status !== 'rejected'"
+            icon="ph:x-circle"
+            label="Invalid"
+            color="error"
+            size="xl"
+            class="flex-1 justify-center"
+            :loading="pending === 'rejected'"
+            :disabled="!!pending"
+            @click="setStatus(rsvp, 'rejected')"
+          />
+        </div>
+        <div class="flex gap-2">
+          <UButton
+            label="Edit"
+            icon="ph:pencil"
+            color="neutral"
+            variant="soft"
+            size="lg"
+            class="flex-1 justify-center"
+            @click="rsvpForm.open({ type: 'edit', event, rsvp })"
+          />
+          <UButton
+            label="Delete"
+            icon="ph:trash"
+            color="error"
+            variant="soft"
+            size="lg"
+            class="flex-1 justify-center"
+            :loading="pending === 'delete'"
+            :disabled="!!pending"
+            @click="onDelete"
+          />
+        </div>
       </div>
     </template>
   </AppSheet>

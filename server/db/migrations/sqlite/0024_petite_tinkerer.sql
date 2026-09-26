@@ -1,0 +1,1 @@
+ALTER TABLE `event_rsvp` ADD `emails_sent` text;

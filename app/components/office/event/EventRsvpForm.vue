@@ -44,6 +44,7 @@ const schema = z.object({
   refNo: z.string().optional(),
   channelId: z.string().optional(),
   sponsoredKids: z.number().int().min(0).max(20),
+  attending: z.boolean(),
   companions: z.array(z.object({ name: z.string().trim().min(1, 'Name is required'), relationship: z.string().trim() })),
   notes: z.string().optional(),
   status: z.enum(RSVP_STATUS_VALUES),
@@ -63,6 +64,7 @@ const state = reactive<Partial<Schema>>({
   refNo: props.rsvp?.refNo ?? undefined,
   channelId: props.rsvp?.channelId ?? undefined,
   sponsoredKids: props.rsvp?.sponsoredKids ?? 0,
+  attending: props.rsvp?.attending ?? true,
   companions: props.rsvp?.companions?.map(c => ({ ...c })) ?? [],
   notes: props.rsvp?.notes ?? undefined,
   status: (props.rsvp?.status as Schema['status']) ?? 'for_review',
@@ -189,6 +191,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
       <UFormField name="sponsoredKids" label="Sponsored kids" help="Charity kids this registration pays for">
         <UInputNumber v-model="state.sponsoredKids" :min="0" :max="20" />
+      </UFormField>
+
+      <UFormField name="attending" help="Off for sponsor-only registrations: they take no seat, only their sponsored kids do">
+        <USwitch v-model="state.attending" label="Registrant attends" />
       </UFormField>
 
       <UFormField label="Own kids" help="Minors the registrant is bringing">

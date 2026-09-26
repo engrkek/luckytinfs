@@ -1,4 +1,6 @@
 import type { H3Event } from 'h3'
+import { and, eq } from 'drizzle-orm'
+import { BLOCKSCREENING_REG_PREFIX, rsvpTicket } from '#shared/blockscreening'
 
 interface SupabaseRequestOptions extends RequestInit {
   /** Use NUXT_SUPABASE_SERVICE_KEY when set, falling back to the anon key. Defaults to true. */
@@ -83,4 +85,28 @@ export async function sendBlockscreeningEmail({ to, subject, html }: { to: strin
     console.error('Resend API Error:', err)
     throw createError({ statusCode: res.status, statusMessage: err.message || 'Failed to dispatch email via Resend API.' })
   }
+}
+
+/** The office event the public forms write to, found by its Reg ID prefix. */
+export async function getBlockscreeningEvent() {
+  const ev = await db.query.event.findFirst({ where: eq(schema.event.regPrefix, BLOCKSCREENING_REG_PREFIX) })
+  if (!ev)
+    throw createError({ statusCode: 503, statusMessage: `Block screening isn't set up yet: no office event with Reg ID prefix ${BLOCKSCREENING_REG_PREFIX}.` })
+  return ev
+}
+
+/** A ₱1,500 registration that's still active; SALE tickets don't come with a meal. */
+export async function findFoodRsvp(regId: string) {
+  const ev = await getBlockscreeningEvent()
+  const rsvp = await db.query.eventRsvp.findFirst({ where: and(eq(schema.eventRsvp.eventId, ev.id), eq(schema.eventRsvp.regId, regId)) })
+  if (!rsvp || rsvp.status === 'rejected' || rsvp.status === 'cancelled')
+    throw createError({ statusCode: 404, statusMessage: `Registration ID '${regId}' was not found.` })
+  if (rsvpTicket(rsvp) === 'sale')
+    throw createError({ statusCode: 400, statusMessage: 'SALE tickets don\'t include a meal.' })
+  return rsvp
+}
+
+/** Registrant first, then their own kids. Sponsored charity kids are fed separately. */
+export function foodPeople(rsvp: { fullName: string, companions: { name: string }[] | null }) {
+  return [rsvp.fullName, ...(rsvp.companions ?? []).map(c => c.name)]
 }

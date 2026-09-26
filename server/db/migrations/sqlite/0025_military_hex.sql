@@ -1,0 +1,1 @@
+ALTER TABLE `event_rsvp` ADD `attending` integer DEFAULT true NOT NULL;
