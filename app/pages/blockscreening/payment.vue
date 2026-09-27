@@ -346,9 +346,8 @@ async function handleSubmit() {
 
             <!-- KIT INCLUSIONS REFERENCE IMAGE -->
             <div class="mb-6 rounded-xl overflow-hidden border border-[#ebdcb3] shadow-md bg-white/40 p-2">
-              <span class="font-type text-[10px] uppercase tracking-wider text-[#8c7456] mb-1.5 block pl-1">Reference Poster: Kit Inclusions</span>
               <img
-                src="/images/blockscreening-payment-kit.jpg"
+                src="/images/SEAT SALE.png"
                 alt="Kit Inclusions Reference Poster"
                 class="w-full h-auto object-cover rounded-lg shadow-inner"
               >
@@ -429,7 +428,7 @@ async function handleSubmit() {
                 <UFileUpload
                   v-model="proof"
                   accept="image/*,.pdf"
-                  label="Drop your screenshot here"
+                  label="Add your screenshot here"
                   class="aspect-square"
                   @update:model-value="errors.proof = ''"
                 />
