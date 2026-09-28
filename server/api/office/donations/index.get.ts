@@ -24,6 +24,7 @@ export default defineEventHandler(async (event) => {
       donorNotes: donation.donorNotes,
       adminNotes: donation.adminNotes,
       reviewedBy: donation.reviewedBy,
+      receiptSentAt: donation.receiptSentAt,
       createdAt: donation.createdAt,
       updatedAt: donation.updatedAt,
       donorId: donor.id,

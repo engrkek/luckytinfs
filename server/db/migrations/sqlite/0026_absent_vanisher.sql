@@ -1,0 +1,1 @@
+ALTER TABLE `donation` ADD `receipt_sent_at` integer;

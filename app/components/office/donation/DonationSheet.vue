@@ -46,6 +46,26 @@ function money(cents: number) {
   return `₱${(cents / 100).toLocaleString()}`
 }
 
+const toast = useToast()
+const queryCache = useQueryCache()
+const sendingReceipt = ref(false)
+
+async function sendReceipt() {
+  sendingReceipt.value = true
+  try {
+    await $fetch(`/api/office/donations/${donation.value.id}/receipt`, { method: 'POST' })
+    queryCache.invalidateQueries({ key: officeDonationsQuery.key })
+    toast.add({ icon: 'ph:paper-plane-tilt', title: 'Receipt sent', description: donation.value.donor.email, color: 'success' })
+  }
+  catch (err) {
+    const e = err as { data?: { statusMessage?: string }, message?: string }
+    toast.add({ icon: 'ph:x-circle', title: 'Email failed', description: e.data?.statusMessage ?? e.message ?? 'Something went wrong', color: 'error' })
+  }
+  finally {
+    sendingReceipt.value = false
+  }
+}
+
 async function handleDelete() {
   const confirmed = await deleteConfirm.open({
     title: 'Delete donation',
@@ -182,7 +202,7 @@ async function handleDelete() {
           Proof of payment
         </p>
         <UCard :ui="{ body: 'space-y-3' }">
-          <NuxtImg :src="donation.proofUrl" alt="Proof of payment screenshot" class="w-full max-h-72 rounded-md border border-default object-cover" />
+          <ProseImg :src="donation.proofUrl" alt="Proof of payment screenshot" class="w-full max-h-72 rounded-md border border-default object-cover" />
           <UButton
             :to="donation.proofUrl"
             target="_blank"
@@ -229,6 +249,15 @@ async function handleDelete() {
                 {{ donation.updatedAt || '—' }}
               </p>
             </div>
+            <div class="flex items-center gap-3 px-3 py-2.5">
+              <UIcon name="ph:paper-plane-tilt" class="size-5 shrink-0 text-muted" />
+              <p class="flex-1">
+                Receipt sent
+              </p>
+              <p class="font-medium text-highlighted">
+                {{ donation.receiptSentAt ? formatDate(donation.receiptSentAt) : 'Not yet' }}
+              </p>
+            </div>
           </div>
         </UCard>
 
@@ -254,6 +283,16 @@ async function handleDelete() {
           size="xl"
           class="w-full justify-center"
           @click="updateDonation({ id: donation.id, status: 'approved' })"
+        />
+        <UButton
+          v-if="donation.status === 'approved'"
+          icon="ph:paper-plane-tilt"
+          :label="donation.receiptSentAt ? 'Resend receipt' : 'Send receipt'"
+          color="primary"
+          size="xl"
+          :loading="sendingReceipt"
+          class="w-full justify-center"
+          @click="sendReceipt"
         />
         <UButton
           v-if="donation.status !== 'invalid'"

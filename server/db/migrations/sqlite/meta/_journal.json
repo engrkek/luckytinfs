@@ -183,6 +183,13 @@
       "when": 1790412259566,
       "tag": "0025_military_hex",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "6",
+      "when": 1790558536466,
+      "tag": "0026_absent_vanisher",
+      "breakpoints": true
     }
   ]
 }

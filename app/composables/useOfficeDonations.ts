@@ -24,6 +24,7 @@ export interface OfficeDonation {
   adminNotes: string | null
   reviewedBy: string | null
   reviewer: OfficeDonationReviewer | null
+  receiptSentAt: string | number | Date | null
   donor: OfficeDonationDonor
   campaignId: string | null
   campaignTitle: string | null

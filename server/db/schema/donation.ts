@@ -19,6 +19,7 @@ export const donation = sqliteTable('donation', {
   donorNotes: text(), // idk if it should be shown publicly
   adminNotes: text(), // internal only
   reviewedBy: text().references(() => schema?.user.id),
+  receiptSentAt: integer({ mode: 'timestamp_ms' }), // last successful receipt email; null = never sent
   createdAt: integer({ mode: 'timestamp_ms' })
     .$default(() => new Date())
     .notNull(),

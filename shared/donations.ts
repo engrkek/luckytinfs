@@ -27,3 +27,13 @@ export const WALLET_TYPE_ITEMS = Object.entries(WALLET_TYPES)
 export function walletType(type: string) {
   return WALLET_TYPES[type as WalletType] ?? { label: type, class: 'bg-elevated text-toned capitalize' }
 }
+
+/**
+ * The tier this donation newly unlocks, or null if it doesn't cross into a higher one.
+ * `total` is the donor's approved total for the campaign including this donation (cents).
+ */
+export function newlyUnlockedTier<T extends { minAmount: number }>(tiers: T[], total: number, amount: number): T | null {
+  const reached = (t: number) => tiers.filter(tier => tier.minAmount <= t).sort((a, b) => b.minAmount - a.minAmount)[0] ?? null
+  const now = reached(total)
+  return now && now !== reached(total - amount) ? now : null
+}
