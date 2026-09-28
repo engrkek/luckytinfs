@@ -45,7 +45,8 @@ export function isFoodOpen(now = new Date()) {
 export const PAYMENT_DEADLINE = 'within 24 hours of receiving this email'
 
 export function php(cents: number) {
-  return `₱${(cents / 100).toLocaleString('en-PH')}`
+  // whole pesos stay ₱1,500; centavos always get two digits, so ₱1,262.70 not ₱1,262.7
+  return `₱${(cents / 100).toLocaleString('en-PH', { minimumFractionDigits: cents % 100 ? 2 : 0 })}`
 }
 
 interface EmailRsvp {
