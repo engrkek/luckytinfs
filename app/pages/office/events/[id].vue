@@ -122,7 +122,7 @@ const stats = computed(() => {
       filter: undefined,
     },
     { label: 'For review', value: c.for_review ?? 0, hint: `${c.pending_payment ?? 0} still unpaid`, filter: 'for_review' },
-    { label: 'Confirmed', value: c.confirmed ?? 0, hint: `${sum(confirmed, rsvpSeats)} seats secured`, filter: 'confirmed' },
+    { label: 'Confirmed', value: c.confirmed ?? 0, hint: `${sum(confirmed, rsvpSeats)} seats secured · ${sum(confirmed, r => r.sponsoredKids)} sponsored kids`, filter: 'confirmed' },
   ] as const
 })
 
