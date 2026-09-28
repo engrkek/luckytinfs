@@ -29,11 +29,11 @@ export async function sendEmail({ from = mailFrom(MAIL_ADDRESSES.admin), ...mess
   const EMAIL = (globalThis as { __env__?: { EMAIL?: EmailBinding } }).__env__?.EMAIL
 
   if (!EMAIL) {
-    // ponytail: `nuxt dev` runs the node preset, which has no Cloudflare bindings; preview the HTML in DevTools, test sends on preview.luckytinfs.com
+    // in dev, server/plugins/dev-email.ts provides it via wrangler's remote binding
     throw createError({
       statusCode: 503,
       statusMessage: import.meta.dev
-        ? `Emails can't be sent from local dev (no Cloudflare EMAIL binding). Would have sent "${message.subject}" to ${message.to}.`
+        ? `No EMAIL binding in dev. Check the dev-email plugin started (are you logged in to wrangler?). Would have sent "${message.subject}" to ${message.to}.`
         : 'Email binding not configured',
     })
   }
