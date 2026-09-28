@@ -230,7 +230,7 @@ async function onDelete() {
         </UCard>
 
         <UCard v-if="rsvp.receiptUrl" :ui="{ body: 'space-y-3' }">
-          <NuxtImg
+          <ProseImg
             v-if="!isPdfReceipt"
             :src="rsvp.receiptUrl"
             alt="Payment receipt"
