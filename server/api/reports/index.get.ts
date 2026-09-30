@@ -29,9 +29,9 @@ export default defineEventHandler(async () => {
     .limit(50)
 
   const expenseRows = await db
-    .select({ id: expense.id, amount: expense.amount, createdAt: expense.createdAt, title: expense.title })
+    .select({ id: expense.id, amount: expense.amount, createdAt: expense.spentAt, title: expense.title })
     .from(expense)
-    .orderBy(desc(expense.createdAt))
+    .orderBy(desc(expense.spentAt))
     .limit(50)
 
   return {
