@@ -23,6 +23,7 @@ export const expense = sqliteTable('expense', {
   paymentUrl: text(), // proof of payment
   receiptUrl: text(), // invoice
   notes: text(), // not sure if shown publicly
+  isPublic: integer({ mode: 'boolean' }).default(true).notNull(), // false = left off the public report rows, still counted in its total
   createdBy: text().references(() => schema?.user.id).notNull(),
   updatedBy: text().references(() => schema?.user.id),
   createdAt: integer({ mode: 'timestamp_ms' })

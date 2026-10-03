@@ -38,6 +38,7 @@ const schema = z.object({
   wallet: z.string('Choose a wallet or cash').min(1, 'Choose a wallet or cash'),
   for: z.string(),
   notes: z.string().optional(),
+  isPublic: z.boolean(),
 })
 type Schema = z.output<typeof schema>
 
@@ -51,6 +52,7 @@ const state = reactive<Partial<Schema>>({
   wallet: existing ? (existing.channelId ?? CASH) : undefined,
   for: existing?.campaignId ? `campaign:${existing.campaignId}` : existing?.eventId ? `event:${existing.eventId}` : GENERAL,
   notes: existing?.notes ?? undefined,
+  isPublic: existing?.isPublic ?? true,
 })
 const receipt = ref<File | null>(null)
 
@@ -75,6 +77,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       campaignId: kind === 'campaign' ? id : null,
       eventId: kind === 'event' ? id : null,
       notes: event.data.notes,
+      isPublic: event.data.isPublic,
       ...(receiptUrl ? { receiptUrl } : {}),
     }
 
@@ -151,6 +154,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
       <UFormField name="notes" label="Notes" hint="Optional">
         <UTextarea v-model="state.notes" class="w-full" />
+      </UFormField>
+
+      <UFormField name="isPublic">
+        <USwitch v-model="state.isPublic" label="Show on public report" description="When off, it is left out of the public list but still counted in the total." />
       </UFormField>
     </UForm>
 

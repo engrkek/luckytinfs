@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
 import type { OfficeExpense } from '#shared/expenses'
-import { LazyAppDialog, LazyOfficeExpenseForm, UButton } from '#components'
+import { LazyAppDialog, LazyOfficeExpenseForm, UButton, USwitch } from '#components'
 import { php } from '#shared/blockscreening'
 
 const props = defineProps<{ expenses: OfficeExpense[] }>()
@@ -36,6 +36,22 @@ async function onDelete(row: OfficeExpense) {
   }
 }
 
+async function setPublic(row: OfficeExpense, isPublic: boolean) {
+  try {
+    await $fetch(`/api/office/expenses/${row.id}`, { method: 'PATCH', body: { isPublic } })
+  }
+  catch (err) {
+    const e = err as { data?: { statusMessage?: string }, message?: string }
+    toast.add({
+      icon: 'ph:x-circle',
+      title: 'Update failed',
+      description: e.data?.statusMessage ?? e.message ?? 'Something went wrong',
+      color: 'error',
+    })
+  }
+  await refreshNuxtData('office-expenses')
+}
+
 const columns: TableColumn<OfficeExpense>[] = [
   {
     ...sortableColumn<OfficeExpense>('spentAt', 'Date'),
@@ -54,6 +70,16 @@ const columns: TableColumn<OfficeExpense>[] = [
     cell: ({ row }) => row.original.receiptUrl
       ? h(UButton, { 'icon': 'ph:receipt', 'color': 'neutral', 'variant': 'ghost', 'size': 'sm', 'to': row.original.receiptUrl, 'target': '_blank', 'aria-label': 'View receipt' })
       : null,
+  },
+  {
+    id: 'public',
+    header: 'Public',
+    cell: ({ row }) => h(USwitch, {
+      'modelValue': row.original.isPublic,
+      'size': 'sm',
+      'aria-label': `Show "${row.original.title}" on the public report`,
+      'onUpdate:modelValue': (value: boolean) => setPublic(row.original, value),
+    }),
   },
   {
     id: 'actions',

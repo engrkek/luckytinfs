@@ -10,6 +10,7 @@ export const expenseSchema = z.object({
   eventId: z.string().min(1).nullable(),
   receiptUrl: z.string().optional(),
   notes: z.string().trim().optional(),
+  isPublic: z.boolean().optional(),
 })
 
 export interface OfficeExpense {
@@ -25,5 +26,6 @@ export interface OfficeExpense {
   channelLabel: string | null
   receiptUrl: string | null
   notes: string | null
+  isPublic: boolean
   createdByName: string | null
 }

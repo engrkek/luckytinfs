@@ -20,6 +20,7 @@ export default defineEventHandler(async (h3) => {
         channelLabel: sql<string | null>`coalesce(${channel.nickname}, ${channel.type})`,
         receiptUrl: expense.receiptUrl,
         notes: expense.notes,
+        isPublic: expense.isPublic,
         createdByName: user.name,
       })
       .from(expense)

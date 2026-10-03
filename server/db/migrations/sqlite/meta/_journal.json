@@ -204,6 +204,13 @@
       "when": 1790732016912,
       "tag": "0028_salty_mother_askani",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "6",
+      "when": 1791017576698,
+      "tag": "0029_outstanding_firelord",
+      "breakpoints": true
     }
   ]
 }
