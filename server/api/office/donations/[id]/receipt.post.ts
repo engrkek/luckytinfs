@@ -50,6 +50,7 @@ export default defineEventHandler(async (event) => {
       date: date.format(d.createdAt),
       total: total != null ? php(total) : null,
       tier: unlocked && { name: unlocked.name, items: unlocked.items },
+      perksUrl: unlocked && perksUrl(getRequestURL(event).origin, d.donorId, d.campaignId!),
     }),
   })
   const [{ receiptSentAt }] = await db.update(donation)

@@ -10,6 +10,7 @@ export const tier = sqliteTable('tier', {
   name: text().notNull(), // e.g. "Tier 1"
   minAmount: integer().notNull(), // in cents
   items: text({ mode: 'json' }).$type<string[]>().notNull(), // e.g. ["1x Unseen photocard", "1x Handbanner"]
+  sizes: text({ mode: 'json' }).$type<string[]>(), // size options the donor picks from on the perks form, e.g. ["S", "M", "L"]; null/empty = no sizes
   imageUrl: text(),
   createdAt: integer({ mode: 'timestamp_ms' })
     .$default(() => new Date())

@@ -12,6 +12,7 @@ defineProps<{
   date: string // formatted date the donation was made
   total?: string | null // formatted cumulative approved total for this project, shown with a tier
   tier?: { name: string, items: string[] } | null // only when this donation crosses into it: pass newlyUnlockedTier()
+  perksUrl?: string | null // the donor's /perks form, shown with a tier
 }>()
 </script>
 
@@ -78,7 +79,18 @@ defineProps<{
           <br v-if="i">• {{ item }}
         </template>
       </EText>
-      <EText :style="{ ...TEXT, fontSize: '14px', color: '#8a8272', margin: 0 }">
+      <template v-if="perksUrl">
+        <EText :style="{ ...TEXT, margin: '0 0 16px' }">
+          Tell us where to send them:
+        </EText>
+        <EButton
+          :href="perksUrl"
+          :style="{ backgroundColor: MALOI, color: '#1d2c49', padding: '12px 28px', borderRadius: '9999px', fontWeight: 700, fontSize: '15px', textDecoration: 'none' }"
+        >
+          Claim your perks →
+        </EButton>
+      </template>
+      <EText v-else :style="{ ...TEXT, fontSize: '14px', color: '#8a8272', margin: 0 }">
         We'll reach out about claiming your perks.
       </EText>
     </ESection>

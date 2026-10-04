@@ -6,6 +6,7 @@ const postSchema = z.object({
   name: z.string().trim().min(1),
   minAmount: z.number().int().positive(),
   items: z.array(z.string()).min(1),
+  sizes: z.array(z.string().trim().min(1).max(20)).optional(),
   imageUrl: z.string().optional(),
 })
 

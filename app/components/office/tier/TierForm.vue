@@ -19,6 +19,7 @@ const schema = z.object({
   name: z.string('Name is required').min(1, 'Name is required'),
   minAmount: z.number('Enter an amount').positive('Enter an amount above ₱0'),
   items: z.string('List at least one perk').min(1, 'List at least one perk'),
+  sizes: z.string().optional(),
 })
 type Schema = z.output<typeof schema>
 
@@ -26,6 +27,7 @@ const state = reactive<Partial<Schema>>({
   name: props.tier?.name,
   minAmount: props.tier?.minAmount ? props.tier.minAmount / 100 : undefined,
   items: props.tier?.items.join('\n'),
+  sizes: props.tier?.sizes?.join(', '),
 })
 
 const toast = useToast()
@@ -36,6 +38,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     name: event.data.name,
     minAmount: Math.round(event.data.minAmount * 100),
     items: event.data.items.split('\n').map(i => i.trim()).filter(Boolean),
+    sizes: (event.data.sizes ?? '').split(',').map(s => s.trim()).filter(Boolean),
   }
 
   try {
@@ -86,6 +89,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
       <UFormField name="items" label="Perks" required hint="One per line">
         <UTextarea v-model="state.items" placeholder="1x Unseen photocard&#10;1x Handbanner" class="w-full" :rows="4" />
+      </UFormField>
+
+      <UFormField name="sizes" label="Sizes" hint="Comma separated" description="Donors pick one on the perks form. Leave blank if the perks have no sizes.">
+        <UInput v-model="state.sizes" placeholder="S, M, L, XL" class="w-full" />
       </UFormField>
     </UForm>
 

@@ -6,6 +6,7 @@ const patchSchema = z.object({
   name: z.string().trim().min(1).optional(),
   minAmount: z.number().int().positive().optional(),
   items: z.array(z.string()).min(1).optional(),
+  sizes: z.array(z.string().trim().min(1).max(20)).optional(),
   imageUrl: z.string().optional(),
 })
 

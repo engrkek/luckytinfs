@@ -211,6 +211,13 @@
       "when": 1791017576698,
       "tag": "0029_outstanding_firelord",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "6",
+      "when": 1791103859520,
+      "tag": "0030_mean_cassandra_nova",
+      "breakpoints": true
     }
   ]
 }

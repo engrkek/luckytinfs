@@ -21,6 +21,12 @@ const donation = computed(() => donations.value.find(d => d.id === props.donatio
 
 const { copy: copyEmail, copied: emailCopied } = useClipboard()
 const { copy: copyUsername, copied: usernameCopied } = useClipboard()
+const { copy: copyPerksLink, copied: perksLinkCopied } = useClipboard()
+
+// The donor's perks form; it only opens once their approved donations reach a tier
+function perksLink() {
+  return `${location.origin}/perks?${new URLSearchParams({ donor: donation.value.donor.id, campaign: donation.value.campaignId! })}`
+}
 
 const STATUS_COLOR = {
   pending: 'warning',
@@ -293,6 +299,16 @@ async function handleDelete() {
           :loading="sendingReceipt"
           class="w-full justify-center"
           @click="sendReceipt"
+        />
+        <UButton
+          v-if="donation.status === 'approved' && donation.campaignId"
+          :icon="perksLinkCopied ? 'ph:check' : 'ph:link'"
+          :label="perksLinkCopied ? 'Copied' : 'Copy perks link'"
+          color="neutral"
+          variant="soft"
+          size="xl"
+          class="w-full justify-center"
+          @click="copyPerksLink(perksLink())"
         />
         <UButton
           v-if="donation.status !== 'invalid'"

@@ -9,6 +9,7 @@ import type {
   expense,
   fulfillment,
   letter,
+  perkClaim,
   project,
   supplier,
   tier,
@@ -28,6 +29,7 @@ export type OfficeEventRsvp = EventRsvp & { reviewerName: string | null, channel
 export type Expense = typeof expense.$inferSelect
 export type Fulfillment = typeof fulfillment.$inferSelect
 export type Letter = typeof letter.$inferSelect
+export type PerkClaim = typeof perkClaim.$inferSelect
 export type Project = typeof project.$inferSelect
 export type Supplier = typeof supplier.$inferSelect
 export type Tier = typeof tier.$inferSelect
@@ -44,6 +46,7 @@ export type NewEventRsvp = typeof eventRsvp.$inferInsert
 export type NewExpense = typeof expense.$inferInsert
 export type NewFulfillment = typeof fulfillment.$inferInsert
 export type NewLetter = typeof letter.$inferInsert
+export type NewPerkClaim = typeof perkClaim.$inferInsert
 export type NewProject = typeof project.$inferInsert
 export type NewSupplier = typeof supplier.$inferInsert
 export type NewTier = typeof tier.$inferInsert

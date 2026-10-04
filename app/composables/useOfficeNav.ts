@@ -19,6 +19,7 @@ export function useOfficeNav() {
       { icon: 'ph:coins', activeIcon: 'ph:coins-fill', label: 'Donations', to: '/office/donations' },
       { icon: 'ph:calendar-blank', activeIcon: 'ph:calendar-blank-fill', label: 'Events', to: '/office/events' },
       { icon: 'ph:receipt', activeIcon: 'ph:receipt-fill', label: 'Expenses', to: '/office/expenses' },
+      { icon: 'ph:gift', activeIcon: 'ph:gift-fill', label: 'Perks', to: '/office/perks' },
       { icon: 'ph:envelope-simple', activeIcon: 'ph:envelope-simple-fill', label: 'Letters', to: '/office/letters' },
       { icon: 'ph:wallet', activeIcon: 'ph:wallet-fill', label: 'Wallets', to: '/office/wallets' },
     ].map(item => ({ ...item, active: isActive(item.to) })),
