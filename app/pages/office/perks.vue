@@ -9,8 +9,22 @@ import { PERK_STATUS_LABELS, PERK_STATUSES, perkUpdateEmail } from '#shared/perk
 useHead({ title: 'Perks' })
 
 const { data, refresh } = await useFetch('/api/office/perks', { key: 'office-perks' })
-const claims = computed(() => data.value?.claims ?? [])
-const unclaimed = computed(() => data.value?.unclaimed ?? [])
+const allClaims = computed(() => data.value?.claims ?? [])
+const allUnclaimed = computed(() => data.value?.unclaimed ?? [])
+
+// The project page links here with ?campaign= to show one project's perks
+const projectFilter = ref(String(useRoute().query.campaign ?? 'all'))
+const statusFilter = ref<PerkStatus | 'all'>('all')
+
+// ponytail: only projects that have claims or unclaimed donors, so no extra fetch
+const projectItems = computed(() => [
+  { value: 'all', label: 'All projects' },
+  ...new Map([...allClaims.value, ...allUnclaimed.value].map(r => [r.campaignId, { value: r.campaignId, label: r.campaignTitle }])).values(),
+])
+
+const inProject = (r: { campaignId: string }) => projectFilter.value === 'all' || r.campaignId === projectFilter.value
+const claims = computed(() => allClaims.value.filter(c => inProject(c) && (statusFilter.value === 'all' || c.status === statusFilter.value)))
+const unclaimed = computed(() => allUnclaimed.value.filter(inProject))
 type Claim = typeof claims.value[number]
 type Unclaimed = typeof unclaimed.value[number]
 
@@ -25,6 +39,7 @@ const STATUS_COLOR = {
 } as const
 
 const statusItems = PERK_STATUSES.map(value => ({ value, label: PERK_STATUS_LABELS[value] }))
+const statusFilterItems = [{ value: 'all', label: 'All statuses' }, ...statusItems]
 
 const columns: TableColumn<Claim>[] = [
   { accessorKey: 'donorName', header: 'Donor' },
@@ -37,7 +52,7 @@ const columns: TableColumn<Claim>[] = [
 // ponytail: the sheet lives in this page; split it out if another page needs it
 const open = ref(false)
 const selectedId = ref<string>()
-const selected = computed(() => claims.value.find(c => c.id === selectedId.value))
+const selected = computed(() => allClaims.value.find(c => c.id === selectedId.value))
 const edit = reactive({ shippingFee: undefined as number | undefined, trackingNo: '', status: 'submitted' as PerkStatus, rejectReason: '' })
 
 function syncEdit() {
@@ -192,7 +207,23 @@ const canEmail = computed(() => selected.value?.status === 'submitted' || select
       </div>
 
       <UCard :ui="{ body: 'p-0 lg:p-0' }">
-        <UTable :data="claims" :columns empty="No perk claims yet." @select="onSelect">
+        <div class="flex flex-wrap items-center gap-2 p-3">
+          <USelect
+            v-model="projectFilter"
+            :items="projectItems"
+            value-key="value"
+            aria-label="Filter by project"
+            class="min-w-48"
+          />
+          <USelect v-model="statusFilter" :items="statusFilterItems" value-key="value" aria-label="Filter by status" />
+        </div>
+        <UTable
+          :data="claims"
+          :columns
+          empty="No perk claims here."
+          class="border-t border-default"
+          @select="onSelect"
+        >
           <template #donorName-cell="{ row }">
             <p class="text-highlighted font-bold">
               {{ row.original.donorName }}

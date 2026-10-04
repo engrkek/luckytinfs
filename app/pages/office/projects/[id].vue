@@ -14,6 +14,14 @@ const toast = useToast()
 const { data: project } = useFetch<Campaign>(`/api/office/projects/${id}`, { key: `project-${id}` })
 const { donations } = useOfficeDonations()
 const { data: allTiers, refresh: refreshTiers } = useFetch<Tier[]>('/api/office/tiers', { key: 'office-tiers' })
+const { data: perks } = useFetch('/api/office/perks', { key: 'office-perks' })
+
+// Perk claims are handled on the Perks page; this is just the count for this project
+const perkSummary = computed(() => {
+  const claims = perks.value?.claims.filter(c => c.campaignId === id).length ?? 0
+  const unclaimed = perks.value?.unclaimed.filter(u => u.campaignId === id).length ?? 0
+  return claims || unclaimed ? `${claims} perk claim${claims === 1 ? '' : 's'}, ${unclaimed} not claimed yet` : null
+})
 
 const title = computed(() => project.value?.title)
 
@@ -176,6 +184,18 @@ useHead({
             Donor Tiers
           </h2>
           <UButton icon="ph:plus" label="Add Tier" size="sm" @click="tierForm.open({ type: 'new', campaignId: project.id })" />
+        </div>
+
+        <div v-if="perkSummary" class="px-3 pb-3">
+          <UButton
+            :to="{ path: '/office/perks', query: { campaign: project.id } }"
+            :label="perkSummary"
+            icon="ph:gift"
+            trailing-icon="ph:arrow-right"
+            color="neutral"
+            variant="soft"
+            size="sm"
+          />
         </div>
 
         <div v-if="tiers.length > 0" class="grid gap-2 p-3 pt-0">
