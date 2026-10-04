@@ -7,7 +7,7 @@ import { donor } from './donor'
 
 // Where to ship the perks a donor earned in a campaign, plus the shipping fee they pay for it.
 // Like event_rsvp, the fee has its own payment tracking and is not a donation.
-// Which tiers it covers is computed (earnedTiers), never stored.
+// Which tier it covers is computed (earnedTier: the highest one reached), never stored.
 export const perkClaim = sqliteTable('perk_claim', {
   id: text().primaryKey().$default(() => nanoid()).notNull(),
   donorId: text().references(() => donor.id).notNull(),

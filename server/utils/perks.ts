@@ -1,7 +1,7 @@
 import { campaign, donation, donor, perkClaim, tier } from '@nuxthub/db/schema'
 import { and, eq, sum } from 'drizzle-orm'
 import { z } from 'zod'
-import { earnedTiers } from '#shared/perks'
+import { earnedTier } from '#shared/perks'
 
 /** The public perks link is /perks?donor=&campaign=. Donor ids are unguessable and never public, so the id is the secret. */
 export const perkKey = z.object({
@@ -22,7 +22,9 @@ export async function getPerkContext(donorId: string, campaignId: string) {
     db.select().from(tier).where(eq(tier.campaignId, campaignId)),
     db.query.perkClaim.findFirst({ where: and(eq(perkClaim.donorId, donorId), eq(perkClaim.campaignId, campaignId)) }),
   ])
-  const tiersEarned = earnedTiers(tiers, approved?.total ?? 0)
+  // one tier at most; kept as a list so the page and emails don't care how many
+  const top = earnedTier(tiers, approved?.total ?? 0)
+  const tiersEarned = top ? [top] : []
   if (!donorRow || !campaignRow || (!tiersEarned.length && !claim))
     throw createError({ statusCode: 404, statusMessage: 'This perks link isn\'t valid, or there are no perks to claim yet.' })
 
@@ -76,9 +78,9 @@ export async function getUnclaimedPerks() {
 
   return totals.flatMap((row) => {
     const key = `${row.donorId}:${row.campaignId}`
-    const earned = earnedTiers(tiers.filter(t => t.campaignId === row.campaignId), row.total)
-    if (!earned.length || claimed.has(key))
+    const earned = earnedTier(tiers.filter(t => t.campaignId === row.campaignId), row.total)
+    if (!earned || claimed.has(key))
       return []
-    return [{ ...row, tiers: earned.map(({ name, items }) => ({ name, items })), invitedAt: invites[key] ?? null }]
+    return [{ ...row, tiers: [{ name: earned.name, items: earned.items }], invitedAt: invites[key] ?? null }]
   })
 }

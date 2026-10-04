@@ -6,7 +6,7 @@ import { EMAIL_COLOR_MALOI as MALOI, EMAIL_TEXT as TEXT } from './theme'
 defineProps<{
   name: string
   project: string // campaign title
-  tiers: { name: string, items: string[] }[] // every tier they've earned
+  tiers: { name: string, items: string[] }[] // the tier they've earned (highest reached)
   perksUrl: string // the donor's /perks form
 }>()
 </script>

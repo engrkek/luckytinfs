@@ -13,9 +13,9 @@ export const PERK_STATUS_LABELS: Record<PerkStatus, string> = {
   shipped: 'Shipped',
 }
 
-/** Every tier the donor's approved campaign total (cents) reaches, lowest first */
-export function earnedTiers<T extends { minAmount: number }>(tiers: T[], total: number): T[] {
-  return tiers.filter(t => t.minAmount <= total).sort((a, b) => a.minAmount - b.minAmount)
+/** The one tier a donor gets: the highest their approved campaign total (cents) reaches. Lower tiers don't stack. */
+export function earnedTier<T extends { minAmount: number }>(tiers: T[], total: number): T | null {
+  return tiers.filter(t => t.minAmount <= total).sort((a, b) => b.minAmount - a.minAmount)[0] ?? null
 }
 
 /** Which email an office status change sends the donor, if any. Shared so the office can confirm before saving. */
